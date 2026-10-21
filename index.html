@@ -30,14 +30,17 @@
             padding: 6px 14px; border-radius: 99px; border: 1px solid var(--kante);
             background: var(--glas); color: var(--txt2); font-size: 13px;
             letter-spacing: 1.5px; text-transform: uppercase; }
-  .held h1 { font-size: 46px; line-height: 1.08; margin: 22px 0 14px; letter-spacing: -0.02em; }
-  .held h1 .soon { display: block; color: transparent;
-                   background: linear-gradient(90deg, #6694FF 0%, #2365FF 45%, #B8C8FF 100%);
-                   -webkit-background-clip: text; background-clip: text; }
+  .held h1 { font-size: 46px; line-height: 1.08; margin: 22px 0 14px; letter-spacing: -0.02em; font-weight: 600; }
+  .held h1 .soon { display: block; font-size: 0.78em; font-weight: 500; letter-spacing: -0.01em;
+                   color: #F8F8FA; margin-top: 6px;
+                   text-shadow: 0 0 14px rgba(102,148,255,0.95), 0 0 36px rgba(102,148,255,0.6), 0 0 70px rgba(35,101,255,0.45); }
   .held p.lead { font-size: 18px; max-width: 560px; margin: 0 auto; color: var(--txt2); }
-  .motto { margin: 26px auto 0; font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
-           color: var(--txt3); }
-  .motto b { color: var(--txt); font-weight: 600; }
+  .motto { margin: 30px auto 0; max-width: 560px; padding: 16px 22px; border-radius: 18px;
+           background: linear-gradient(90deg, rgba(35,101,255,0.22), rgba(35,101,255,0.06) 60%, transparent);
+           border-left: 3px solid var(--akzent);
+           font-size: 24px; line-height: 1.2; letter-spacing: -0.01em; text-align: left;
+           color: var(--txt2); font-weight: 500; }
+  .motto b { color: var(--txt); font-weight: 700; text-shadow: 0 0 18px rgba(102,148,255,0.6); }
   @keyframes puls { 0%,100% { box-shadow: 0 0 10px var(--glow); } 50% { box-shadow: 0 0 22px var(--glow), 0 0 40px rgba(102,148,255,0.45); } }
   .kicker .leuchte { animation: puls 2.2s ease-in-out infinite; }
 
@@ -115,6 +118,7 @@
   .mitglied a { color: var(--txt2); }
   @media (max-width: 520px) {
     .held h1 { font-size: 34px; }
+    .motto { font-size: 20px; padding: 14px 16px; }
     .zwei { grid-template-columns: 1fr; }
     .karte { padding: 22px 18px; }
   }
@@ -128,7 +132,7 @@
   <div class="klein">creative · creator · club</div>
 
   <div class="kicker"><span class="leuchte"></span>Wien · opening Februar 2027</div>
-  <h1>The Club for Creatives.<span class="soon">Opening soon.</span></h1>
+  <h1>The Club for Creatives.<span class="soon">opening soon.</span></h1>
   <p class="lead">
     Desks, Studios und Meetingräume für Filmmaker, Fotografinnen, Podcaster
     und Designer. Plus eine Crew, mit der du dein nächstes Projekt startest.
@@ -224,7 +228,7 @@
   </div>
 </div>
 
-<h2>What's in the box</h2>
+<h2>What creatives need.</h2>
 <div class="punkte">
   <div class="punkt">
     <span class="tag">The Space</span>
@@ -240,7 +244,7 @@
   </div>
   <div class="punkt">
     <span class="tag">The Projects</span>
-    <h3>Gigs that pay.</h3>
+    <h3>Clients that pay.</h3>
     <p>Projekte von Kunden und aus der Community, vom Team gecheckt, bevor sie
        live gehen. Bewerben in zwei Minuten, Gruppenchat ab Zusage.</p>
   </div>
