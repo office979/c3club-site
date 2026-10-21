@@ -73,7 +73,8 @@ a { color: var(--glow); }
 
 table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
 th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--kante);
-         vertical-align: top; color: var(--txt2); }
+         vertical-align: top; color: var(--txt2);
+         -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word; }
 th { color: var(--txt); font-weight: 600; }
 
 .knopf {
