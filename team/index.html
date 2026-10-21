@@ -809,12 +809,13 @@ function eventDetail(id,e){
 async function loadCampaigns(){
   const {data}=await sb.rpc('campaigns_feed',{p_open_only:false,p_limit:80});
   $('#cpList').innerHTML = !data?.length ? empty('Keine Ausschreibungen','Leg oben eine an.')
-   : `<table><thead><tr><th>Ausschreibung</th><th>Budget</th><th>Bewerbungen</th><th>Frist</th><th></th></tr></thead><tbody>`
+   : `<table><thead><tr><th>Ausschreibung</th><th>Budget</th><th>Bewerbungen</th><th>Frist</th><th>Entscheidung bis</th><th></th></tr></thead><tbody>`
    + data.map(c=>`<tr>
       <td><div class="name">${esc(c.title)}</div><div class="tiny">${esc(c.client_name||'—')}</div></td>
       <td class="tiny">${esc(c.budget_text||'—')}</td>
       <td><strong>${c.applications}</strong><span class="tiny"> / ${c.slots} Plätze</span></td>
       <td class="tiny">${c.deadline?dd(c.deadline):'laufend'}</td>
+      <td class="tiny">${c.decide_by?dd(c.decide_by):'—'}</td>
       <td><span class="dot ${c.is_open?'on':''}"></span><button class="btn quiet" data-cp="${c.id}">Öffnen</button></td>
      </tr>`).join('')+'</tbody></table>';
   $('#cpList').querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>campaignDetail(b.dataset.cp,data.find(x=>x.id===b.dataset.cp)));
@@ -827,9 +828,16 @@ function campaignDetail(id,c){
     <div class="card">
       <div class="f"><label class="lbl">Titel</label><input id="ctitle" value="${esc(c?.title||'')}"></div>
       <div class="f"><label class="lbl">Beschreibung</label><textarea id="cdesc">${esc(c?.description||'')}</textarea></div>
+      <div class="f"><label class="lbl">Auftraggeber</label><input id="cclient" value="${esc(c?.client_name||'')}"></div>
+      <div class="f"><label class="lbl">Ziel in einem Satz (Pflicht)</label>
+        <input id="cgoal" maxlength="200" value="${esc(c?.goal||'')}" placeholder="Was soll am Ende stehen?"></div>
       <div class="cols">
-        <div><label class="lbl">Auftraggeber</label><input id="cclient" value="${esc(c?.client_name||'')}"></div>
-        <div><label class="lbl">Budget</label><input id="cbudget" value="${esc(c?.budget_text||'')}" placeholder="€ 8.500"></div>
+        <div><label class="lbl">Zeitraum von (Pflicht)</label><input type="date" id="cstart" value="${c?.starts_on||''}"></div>
+        <div><label class="lbl">Zeitraum bis (Pflicht)</label><input type="date" id="cend" value="${c?.ends_on||''}"></div>
+      </div>
+      <div class="cols" style="margin-top:11px">
+        <div><label class="lbl">Budgetrahmen von, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmin" value="${c?.budget_min_cents!=null?c.budget_min_cents/100:''}" placeholder="3000"></div>
+        <div><label class="lbl">Budgetrahmen bis, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmax" value="${c?.budget_max_cents!=null?c.budget_max_cents/100:''}" placeholder="5000"></div>
       </div>
       <div class="f" style="margin-top:11px"><label class="lbl">Kurzzeile</label>
         <input id="cmeta" value="${esc(c?.meta||'')}" placeholder="Filmproduktion · Remote + Berlin"></div>
@@ -837,6 +845,11 @@ function campaignDetail(id,c){
         <input id="cskills" value="${esc((c?.skills||[]).join(', '))}" placeholder="Video, Schnitt, Color Grading"></div>
       <div class="f"><label class="lbl">Anforderungen, eine pro Zeile</label>
         <textarea id="creqs">${esc((c?.requirements||[]).join('\n'))}</textarea></div>
+      <div class="f"><label class="lbl">Kriterien für die Auswahl, mit Komma getrennt, höchstens 6</label>
+        <input id="ccrit" value="${esc((c?.criteria||[]).join(', '))}" placeholder="Erfahrung mit Dokumentarfilm, Verfügbarkeit, Preis"></div>
+      <div class="f"><label class="lbl">Entscheidung bis (Pflicht)</label><input type="date" id="cdecide" value="${c?.decide_by||''}"></div>
+      ${[1,2,3].map(n=>`<div class="f"><label class="lbl">Frage ${n} (Ja/Nein), optional</label>
+        <input id="cq${n}" maxlength="120" value="${esc((c?.questions||[]).find(q=>q.id==='q'+n)?.text||'')}" placeholder="${['Eigene Cinema-Kamera?','Interviews auf Deutsch?','Reisebereit?'][n-1]}"></div>`).join('')}
       <div class="cols3">
         <div><label class="lbl">Plätze</label><input type="number" id="cslots" value="${c?.slots??1}"></div>
         <div><label class="lbl">Frist</label><input type="date" id="cdead" value="${c?.deadline||''}"></div>
@@ -848,6 +861,7 @@ function campaignDetail(id,c){
         <button class="btn blue" id="csave">Speichern</button>
         ${id&&c?.is_open?`<button class="btn" id="ccomplete">Projekt abschließen</button>`:''}
       </div>
+      <p class="tiny">Jede Bewerbung bekommt eine Antwort bis zum Entscheidungsdatum.</p>
       ${id?'<p class="tiny">Abschließen bucht 100 Punkte an alle Angenommenen und schließt die Ausschreibung.</p>':''}
     </div>
     ${id?`<div class="card"><h3>Bewerbungen</h3><div id="capps"></div></div>`:''}
@@ -855,12 +869,19 @@ function campaignDetail(id,c){
 
   $('#csave').onclick=async()=>{
     try{
+      const crit=$('#ccrit').value.split(',').map(s=>s.trim()).filter(Boolean);
+      if(crit.length>6) throw new Error('Höchstens sechs Kriterien.');
+      const cents=v=>v===''?null:Math.round(parseFloat(v)*100);
+      const questions=[1,2,3].map(n=>({id:'q'+n,text:$('#cq'+n).value.trim()})).filter(q=>q.text);
       await rpc('admin_save_campaign',{p_id:id,p_title:$('#ctitle').value,p_description:$('#cdesc').value,
-        p_client:$('#cclient').value||null,p_budget:$('#cbudget').value||null,p_meta:$('#cmeta').value||null,
+        p_client:$('#cclient').value||null,p_meta:$('#cmeta').value||null,
         p_skills:$('#cskills').value.split(',').map(s=>s.trim()).filter(Boolean),
         p_requirements:$('#creqs').value.split('\n').map(s=>s.trim()).filter(Boolean),
         p_slots:+$('#cslots').value||1,p_deadline:$('#cdead').value||null,
-        p_is_open:$('#copen').value==='true'});
+        p_is_open:$('#copen').value==='true',
+        p_goal:$('#cgoal').value.trim(),p_starts_on:$('#cstart').value||null,p_ends_on:$('#cend').value||null,
+        p_budget_min_cents:cents($('#cbmin').value),p_budget_max_cents:cents($('#cbmax').value),
+        p_criteria:crit,p_decide_by:$('#cdecide').value||null,p_questions:questions});
       toast(id?'Gespeichert':'Angelegt'); closePanel(); loadCampaigns();
     }catch(err){ fail(err); }
   };
@@ -871,6 +892,19 @@ function campaignDetail(id,c){
       try{ const n=await rpc('admin_complete_campaign',{p_campaign:id});
         toast(`Abgeschlossen · ${n} Mitwirkende`); closePanel(); loadCampaigns(); }catch(err){ fail(err); }
     };
+    const JN={yes:'Ja',partly:'Teilweise',no:'Nein'}, FIT={yes:'passt',note:'passt mit Anmerkung',no:'passt nicht'},
+      GRUND={budget:'Budget',timing:'Timing',profile:'Profil'};
+    const antworten=x=>{
+      const a=x.answers; if(!a) return '';
+      const fragen=(c?.questions||[]).filter(q=>typeof a.custom?.[q.id]==='boolean').map(q=>
+        `<div class="tiny" style="margin-top:4px">${esc(q.text)} <strong style="color:${a.custom[q.id]?'var(--txt)':'var(--warn)'}">${a.custom[q.id]?'Ja':'Nein'}</strong></div>`).join('');
+      return fragen+`<div class="tiny" style="margin-top:7px">Verfügbar: ${JN[a.availability]||'—'} · ab ${dd(a.earliest_start)}
+        · ${a.days_per_week} Tage/Woche · ${a.effort_min}–${a.effort_max} Arbeitstage · Budget: ${FIT[a.budget_fit]||'—'}</div>`
+        +(a.budget_note?`<div class="quote">${esc(a.budget_note)}</div>`:'')
+        +(a.samples?.length?`<div class="tiny" style="margin-top:7px">${a.samples.map(m=>
+          `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.url.replace(/^https?:\/\//,''))}</a>${m.role?' · '+esc(m.role):''}`).join('<br>')}</div>`:'')
+        +(a.pitch?`<div class="quote" style="border-left-color:var(--accent)">${esc(a.pitch)}</div>`:'');
+    };
     sb.rpc('admin_applications',{p_campaign:id}).then(({data:a})=>{
       $('#capps').innerHTML = !a?.length ? '<p class="tiny">Noch keine Bewerbungen.</p>'
        : a.map(x=>`<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)">
@@ -878,17 +912,41 @@ function campaignDetail(id,c){
             <span class="tiny"> · Stufe ${x.tier} · ${x.past_campaigns} Projekte</span></div>
           <div class="tiny">${esc(x.job_title||'—')} · ${esc(x.city||'—')}
             ${x.portfolio_url?` · <a href="${esc(x.portfolio_url)}" target="_blank" rel="noopener">Portfolio</a>`:''}</div>
-          ${x.message?`<div class="quote" style="border-left-color:var(--accent)">${esc(x.message)}</div>`:''}
-          <div class="bar" style="margin-top:9px">
-            ${x.status==='open'
-              ? `<button class="btn blue" data-ok="${x.application_id}">Annehmen</button>
-                 <button class="btn quiet" data-no="${x.application_id}">Ablehnen</button>`
-              : `<span class="tiny"><span class="dot ${x.status==='accepted'?'on':'off'}"></span>${x.status==='accepted'?'angenommen':'abgelehnt'}</span>`}
-          </div></div>`).join('');
-      $('#capps').querySelectorAll('[data-ok],[data-no]').forEach(b=>b.onclick=async()=>{
-        const ok=b.hasAttribute('data-ok');
-        try{ await rpc('decide_application',{p_application:ok?b.dataset.ok:b.dataset.no,p_accept:ok});
-          toast(ok?'Angenommen · Gruppenchat angelegt':'Abgelehnt'); campaignDetail(id,c); }catch(err){ fail(err); }
+          ${x.answers?antworten(x)
+            :x.message?`<div class="quote" style="border-left-color:var(--accent)">${esc(x.message)}</div>`:''}
+          ${x.status==='open'
+            ? `<div class="bar" style="margin-top:9px">
+                 <button class="btn blue" data-ok="${x.application_id}">Annehmen</button>
+                 <button class="btn quiet" data-no="${x.application_id}">Ablehnen</button></div>
+               <div data-decl="${x.application_id}" style="display:none;margin-top:9px">
+                 <div class="bar">${Object.entries(GRUND).map(([k,v])=>`<button class="btn quiet" data-why="${k}">${v}</button>`).join('')}</div>
+                 <input data-note maxlength="300" placeholder="Anmerkung, optional (max. 300 Zeichen)" style="margin-top:7px">
+                 <div class="bar" style="margin-top:7px"><button class="btn blue" data-send="${x.application_id}">Absage senden</button></div>
+               </div>`
+            : `<div class="tiny" style="margin-top:9px"><span class="dot ${x.status==='accepted'?'on':'off'}"></span>${x.status==='accepted'?'angenommen'
+                :x.status==='withdrawn'?'zurückgezogen':'abgelehnt'+(x.rejection_reason?' · '+(GRUND[x.rejection_reason]||esc(x.rejection_reason)):'')}</div>
+               ${x.rejection_note?`<div class="tiny">${esc(x.rejection_note)}</div>`:''}`}
+          </div>`).join('');
+      const fertig=msg=>{ toast(msg); campaignDetail(id,c); };
+      $('#capps').querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{
+        try{ await rpc('decide_application',{p_application:b.dataset.ok,p_accept:true});
+          fertig('Angenommen · Gruppenchat angelegt'); }catch(err){ fail(err); }
+      });
+      $('#capps').querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>{
+        const box=$('#capps').querySelector(`[data-decl="${b.dataset.no}"]`);
+        box.style.display=box.style.display==='none'?'block':'none';
+      });
+      $('#capps').querySelectorAll('[data-decl]').forEach(box=>{
+        box.querySelectorAll('[data-why]').forEach(w=>w.onclick=()=>{
+          box.dataset.why=w.dataset.why;
+          box.querySelectorAll('[data-why]').forEach(o=>o.className=o===w?'btn blue':'btn quiet');
+        });
+        box.querySelector('[data-send]').onclick=async()=>{
+          if(!box.dataset.why){ toast('Bitte einen Grund wählen.',true); return; }
+          try{ await rpc('decide_application',{p_application:box.dataset.decl,p_accept:false,
+              p_reason:box.dataset.why,p_note:box.querySelector('[data-note]').value.trim()||null});
+            fertig('Abgelehnt'); }catch(err){ fail(err); }
+        };
       });
     });
   }
