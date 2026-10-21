@@ -3,43 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>c3 — Creative Creator Club</title>
-<meta name="description" content="Arbeitsräume und Community für Kreative. Erster Space: Wien, ab 1. Februar 2027.">
-<meta property="og:title" content="c3 — Creative Creator Club">
-<meta property="og:description" content="Arbeitsräume und Community für Kreative. Erster Space: Wien, ab 1. Februar 2027.">
-<meta property="og:image" content="/social.png">
+<title>c3 Creative Creator Club – Coworking für Kreative in Wien</title>
+<meta name="description" content="c3 ist der Coworking-Club für Kreative: Schreibtische, Studios und Community. Erster Space in Wien ab 1. Februar 2027. Jetzt vorregistrieren und zum Launch als Erste dabei sein.">
+<link rel="canonical" href="https://c3club.io/">
+<meta property="og:title" content="c3 Creative Creator Club – Coming soon">
+<meta property="og:description" content="Coworking-Club für Kreative. Wien ab 1. Februar 2027. Jetzt vorregistrieren.">
+<meta property="og:image" content="https://c3club.io/social.png">
+<meta property="og:url" content="https://c3club.io/">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="de_AT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#03040A">
 <link rel="icon" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <link rel="stylesheet" href="/_stil.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"c3 Creative Creator Club","alternateName":"c3","url":"https://c3club.io/","logo":"https://c3club.io/social.png","email":"hallo@c3club.io","address":{"@type":"PostalAddress","streetAddress":"Lindengasse 25","postalCode":"1070","addressLocality":"Wien","addressCountry":"AT"},"sameAs":["https://c3club.app"]}
+</script>
 <style>
-  .held { text-align: center; padding: 60px 0 40px; }
-  .held .logo-bild { height: 104px; width: auto; }
+  .held { text-align: center; padding: 52px 0 28px; }
+  .held .logo-bild { height: 112px; width: auto; }
   .held .klein { color: var(--txt3); letter-spacing: 3px; font-size: 12px;
                  text-transform: uppercase; margin-top: 10px; }
-  .held h1 { font-size: 40px; margin: 34px 0 12px; }
-  .held p.lead { font-size: 18px; max-width: 520px; margin: 0 auto 30px; }
-  .aktionen { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .held .notiz { color: var(--txt3); font-size: 13px; margin-top: 16px; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin-top: 30px;
+            padding: 6px 14px; border-radius: 99px; border: 1px solid var(--kante);
+            background: var(--glas); color: var(--txt2); font-size: 13px;
+            letter-spacing: 1.5px; text-transform: uppercase; }
+  .held h1 { font-size: 42px; line-height: 1.12; margin: 22px 0 14px; letter-spacing: -0.01em; }
+  .held p.lead { font-size: 18px; max-width: 560px; margin: 0 auto; color: var(--txt2); }
+
+  .karte { background: rgba(18,20,32,0.72); border: 1px solid rgba(255,255,255,0.08);
+           border-top-color: rgba(255,255,255,0.16); border-radius: 22px;
+           padding: 28px 26px; margin: 34px auto 0; max-width: 560px;
+           box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
+  .karte h2 { margin: 0 0 6px; font-size: 22px; }
+  .karte .unter { color: var(--txt2); font-size: 15px; margin: 0 0 20px; }
+  .feld { margin-bottom: 14px; }
+  .feld label { display: block; font-size: 13px; color: var(--txt2); margin-bottom: 6px; }
+  .feld input, .feld select {
+    width: 100%; font: inherit; font-size: 16px; color: var(--txt);
+    background: rgba(12,13,20,0.9); border: 1px solid rgba(255,255,255,0.11);
+    border-radius: 14px; padding: 13px 14px; outline: none;
+    -webkit-appearance: none; appearance: none; }
+  .feld select { background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.5) 50%),
+                 linear-gradient(135deg, rgba(255,255,255,0.5) 50%, transparent 50%);
+                 background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+                 background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
+  .feld input:focus, .feld select:focus { border-color: var(--glow); box-shadow: 0 0 0 3px rgba(102,148,255,0.22); }
+  .feld input::placeholder { color: var(--txt3); }
+  .zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .einwilligung { display: flex; gap: 10px; align-items: flex-start; font-size: 13px;
+                  color: var(--txt2); margin: 4px 0 18px; line-height: 1.5; }
+  .einwilligung input { width: 18px; height: 18px; margin: 2px 0 0; flex: none; accent-color: var(--akzent); }
+  .einwilligung a { color: var(--txt); }
+  .knopf.breit { display: block; width: 100%; text-align: center; font-size: 16px; padding: 15px 20px;
+                 border-radius: 99px; border: 0; cursor: pointer; font-family: inherit; font-weight: 600;
+                 background: var(--akzent);
+                 background-image: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 55%, rgba(0,0,0,0.12));
+                 box-shadow: 0 10px 30px rgba(102,148,255,0.28); color: #fff; }
+  .knopf.breit[disabled] { opacity: 0.6; cursor: default; }
+  .fehler { color: #FF8A8A; font-size: 14px; margin: 10px 0 0; min-height: 1.2em; }
+  .danke { text-align: center; padding: 14px 0 4px; }
+  .danke .stern { width: 56px; height: 56px; border-radius: 99px; margin: 0 auto 16px;
+                  background: rgba(35,101,255,0.18); border: 1px solid rgba(102,148,255,0.5);
+                  box-shadow: 0 0 30px rgba(102,148,255,0.35); display: flex; align-items: center;
+                  justify-content: center; font-size: 26px; }
+  .danke h2 { margin: 0 0 8px; }
+  .danke p { color: var(--txt2); margin: 0; }
+  .honig { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 
   .staedte { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-             gap: 12px; margin: 40px 0; }
+             gap: 12px; margin: 44px 0 8px; }
   .stadt { background: var(--glas); border: 1px solid var(--kante); border-radius: 18px;
            padding: 18px 20px; }
   .stadt .name { font-weight: 600; font-size: 18px; }
   .stadt .lage { color: var(--txt2); font-size: 14px; }
   .stadt .bald { color: var(--txt3); font-size: 13px; margin-top: 6px; }
-
-  .punkte { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 14px; }
-  .punkt { background: var(--glas); border: 1px solid var(--kante);
-           border-radius: 18px; padding: 20px 22px; }
-  .punkt h3 { margin-top: 0; }
-  .punkt p { margin-bottom: 0; font-size: 15px; }
-
   .leuchte { width: 8px; height: 8px; border-radius: 99px; background: var(--akzent);
              box-shadow: 0 0 10px var(--glow); display: inline-block;
              margin-right: 8px; vertical-align: 1px; }
+
+  .punkte { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .punkt { background: var(--glas); border: 1px solid var(--kante); border-radius: 18px; padding: 20px 22px; }
+  .punkt h3 { margin-top: 0; }
+  .punkt p { margin-bottom: 0; font-size: 15px; }
+  .mitglied { text-align: center; color: var(--txt3); font-size: 14px; margin-top: 36px; }
+  .mitglied a { color: var(--txt2); }
+  @media (max-width: 520px) {
+    .held h1 { font-size: 32px; }
+    .zwei { grid-template-columns: 1fr; }
+    .karte { padding: 22px 18px; }
+  }
 </style>
 </head>
 <body>
@@ -49,18 +103,73 @@
   <img src="/wortmarke.png" alt="c3" class="logo-bild">
   <div class="klein">creative · creator · club</div>
 
-  <h1>Arbeiten, wo die anderen auch sind.</h1>
+  <div class="kicker"><span class="leuchte"></span>Coming soon · Wien, 1. Februar 2027</div>
+  <h1>Der Club für Kreative<br>öffnet bald.</h1>
   <p class="lead">
-    Ein Club für Kreative. Schreibtische, Studios und Meetingräume in
-    Wien, ab dem 1. Februar 2027 — plus eine Community, in der man die Leute
-    findet, mit denen man das nächste Projekt macht.
+    Schreibtische, Studios und Meetingräume für Filmemacher, Fotografinnen,
+    Podcaster und Designer. Dazu eine Community, in der du die Leute für dein
+    nächstes Projekt findest. Trag dich ein und sei beim Launch als Erste dabei.
   </p>
+</div>
 
-  <div class="aktionen">
-    <a class="knopf" href="https://c3club.app">Kostenlos starten</a>
-    <a class="knopf geist" href="https://c3club.app">Anmelden</a>
+<div class="karte" id="karte">
+  <form id="form" novalidate>
+    <h2>Vorregistrieren</h2>
+    <p class="unter">Kostenlos und unverbindlich. Wir melden uns, sobald die App und der Space starten.</p>
+
+    <div class="feld">
+      <label for="email">E-Mail-Adresse</label>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="du@beispiel.at" required>
+    </div>
+    <div class="feld">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" autocomplete="name" placeholder="Wie dürfen wir dich nennen?" maxlength="80">
+    </div>
+    <div class="zwei">
+      <div class="feld">
+        <label for="stadt">Stadt</label>
+        <select id="stadt" name="stadt">
+          <option value="">Bitte wählen</option>
+          <option>Wien</option>
+          <option>Berlin</option>
+          <option>München</option>
+          <option>Zürich</option>
+          <option>Andere</option>
+        </select>
+      </div>
+      <div class="feld">
+        <label for="gewerk">Was machst du?</label>
+        <select id="gewerk" name="gewerk">
+          <option value="">Bitte wählen</option>
+          <option>Film &amp; Video</option>
+          <option>Fotografie</option>
+          <option>Podcast &amp; Audio</option>
+          <option>Design</option>
+          <option>Musik</option>
+          <option>Text &amp; Content</option>
+          <option>Social Media</option>
+          <option>Anderes</option>
+        </select>
+      </div>
+    </div>
+    <div class="honig" aria-hidden="true">
+      <label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+    </div>
+    <label class="einwilligung">
+      <input id="ok" type="checkbox" required>
+      <span>Ich bin einverstanden, dass c3 meine Angaben speichert und mich zum Launch per E-Mail kontaktiert.
+        Abmelden jederzeit mit einer Mail an hallo@c3club.io.
+        <a href="/datenschutz">Datenschutz</a></span>
+    </label>
+    <button class="knopf breit" id="senden" type="submit">Auf die Liste</button>
+    <p class="fehler" id="fehler" aria-live="polite"></p>
+  </form>
+
+  <div class="danke" id="danke" hidden>
+    <div class="stern">★</div>
+    <h2>Du bist auf der Liste.</h2>
+    <p>Wir melden uns, sobald es losgeht. Bis dahin: weiter Gutes machen.</p>
   </div>
-  <p class="notiz">Keine Karte nötig. Monatlich kündbar.</p>
 </div>
 
 <div class="staedte">
@@ -81,7 +190,7 @@
   </div>
 </div>
 
-<h2>Was drin ist</h2>
+<h2>Was dich erwartet</h2>
 <div class="punkte">
   <div class="punkt">
     <h3>Die Räume</h3>
@@ -90,15 +199,14 @@
   </div>
   <div class="punkt">
     <h3>Die Leute</h3>
-    <p>Mitgliederverzeichnis nach Gewerk, Teams mit eigenem Kanal, und ein
-       Partner Up, das dir Creator in deiner Nähe vorschlägt — für jedes
-       Mitglied kostenlos, dauerhaft.</p>
+    <p>Mitgliederverzeichnis nach Gewerk, Teams mit eigenem Kanal und ein
+       Partner Up, das dir Creator in deiner Nähe vorschlägt. Für jedes
+       Mitglied kostenlos.</p>
   </div>
   <div class="punkt">
     <h3>Die Projekte</h3>
     <p>Projekte von Kunden und von Mitgliedern, vom Team geprüft, bevor sie
-       live gehen. Bewerben mit einem kurzen Fragebogen, kostenlos.
-       Gruppenchat ab Zusage.</p>
+       live gehen. Bewerben mit einem kurzen Fragebogen, kostenlos.</p>
   </div>
   <div class="punkt">
     <h3>Die Abende</h3>
@@ -107,57 +215,9 @@
   </div>
 </div>
 
-<h2>Tarife</h2>
-<p>
-  Die Mitgliedschaft bezahlt den <strong>Zutritt zu den Räumen</strong> —
-  Office-Tage, Meetingraum-Stunden, Gastpässe, 24/7-Zugang. Alles Digitale
-  ist für jedes Mitglied kostenlos: Verzeichnis, Chat, Teams, Partner Up und
-  Projekte.
-</p>
-<p>
-  <strong>Bis zur Eröffnung von c3 Wien am 1. Februar 2027 läuft jeder
-  Tarif als Probezeit, kostenlos</strong> und ohne dass du eine Karte
-  hinterlegen musst. Abgebucht wird erstmals am Eröffnungstag, und nur, wenn
-  du bis dahin ein Zahlungsmittel hinterlegt hast. Sonst endet der Tarif an
-  diesem Tag einfach — dein Konto und die Community bleiben.
-</p>
-<p>Alle Preise inklusive Umsatzsteuer, monatlich kündbar.</p>
-<div class="punkte">
-  <div class="punkt">
-    <h3>Bronze · 119 € / Monat</h3>
-    <p>10 Office-Tage in deiner Heimat-Stadt, Zutritt 8 bis 20 Uhr.</p>
-  </div>
-  <div class="punkt">
-    <h3>Silber · 189 € / Monat</h3>
-    <p>20 Office-Tage in allen Städten, 4 h Meetingraum, 1 Gastpass.</p>
-  </div>
-  <div class="punkt">
-    <h3>Gold · 249 € / Monat</h3>
-    <p>30 Office-Tage, 24/7-Zutritt, 16 h Meetingraum, 3 Gastpässe, Events 48 h früher.</p>
-  </div>
-  <div class="punkt">
-    <h3>VIP · auf Anfrage</h3>
-    <p>Unbegrenzt, alle Exclusive Events, persönliche Ansprechperson.</p>
-  </div>
-</div>
-
-<h2>Loslegen</h2>
-<p>
-  Konto anlegen, Tarif aussuchen, bis zur Eröffnung kostenlos dabei sein —
-  ohne Karte. Wenn es passt, hinterlegst du bis zum Eröffnungstag ein
-  Zahlungsmittel; wenn nicht, endet der Tarif von selbst und du bleibst Teil
-  der Community.
-</p>
-<p>
-  Du hast einen Code von einem Mitglied? Gib ihn bei der Registrierung
-  ein: 25 Extrapunkte und 25 % Rabatt auf den ersten Monat, für euch beide.
-</p>
-<p style="margin-top:22px">
-  <a class="knopf" href="https://c3club.app">Konto anlegen</a>
-</p>
+<p class="mitglied">Schon ein Konto? <a href="https://c3club.app">Zur Web-App</a></p>
 
 <footer>
-  <a href="https://c3club.app">App</a>
   <a href="/agb">AGB</a>
   <a href="/datenschutz">Datenschutz</a>
   <a href="/impressum">Impressum</a>
@@ -165,5 +225,58 @@
 </footer>
 
 </div>
+
+<script>
+(function () {
+  var SUPABASE_URL = 'https://lbqdugnrfnmytsuxmeww.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicWR1Z25yZm5teXRzdXhtZXd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzU3MTAsImV4cCI6MjEwNTMxMTcxMH0.uMon51b-jcETsiGiPBFPoeuXrgfayk5u-ut2GOmRGt0';
+  var form = document.getElementById('form');
+  var fehler = document.getElementById('fehler');
+  var knopf = document.getElementById('senden');
+
+  function quelle() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var q = p.get('utm_source') || p.get('ref') || (document.referrer ? new URL(document.referrer).hostname : '');
+      return (q || 'direkt').slice(0, 120);
+    } catch (e) { return 'direkt'; }
+  }
+
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    fehler.textContent = '';
+    var email = document.getElementById('email').value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) { fehler.textContent = 'Bitte eine gültige E-Mail-Adresse angeben.'; return; }
+    if (!document.getElementById('ok').checked) { fehler.textContent = 'Bitte bestätige, dass wir dich kontaktieren dürfen.'; return; }
+    if (form.website.value) { form.hidden = true; document.getElementById('danke').hidden = false; return; }
+
+    knopf.disabled = true; knopf.textContent = 'Einen Moment …';
+    try {
+      var r = await fetch(SUPABASE_URL + '/rest/v1/rpc/vorregistrieren', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          p_email: email,
+          p_name: document.getElementById('name').value.trim() || null,
+          p_city: document.getElementById('stadt').value || null,
+          p_craft: document.getElementById('gewerk').value || null,
+          p_source: quelle(),
+          p_locale: (navigator.language || 'de').slice(0, 10)
+        })
+      });
+      if (!r.ok) {
+        var j = null; try { j = await r.json(); } catch (e) {}
+        throw new Error((j && j.message) || 'Hat gerade nicht geklappt. Bitte später noch einmal.');
+      }
+      form.hidden = true;
+      document.getElementById('danke').hidden = false;
+      document.getElementById('karte').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (e) {
+      fehler.textContent = e.message || 'Hat gerade nicht geklappt. Bitte später noch einmal.';
+      knopf.disabled = false; knopf.textContent = 'Auf die Liste';
+    }
+  });
+})();
+</script>
 </body>
 </html>

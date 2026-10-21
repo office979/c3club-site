@@ -155,6 +155,7 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
     <button data-p="points">Punkte</button>
     <button data-p="invites">Einladungen</button>
     <button data-p="referrals">Referral</button>
+    <button data-p="vorreg">Vorregistrierungen<b id="vrBadge" style="display:none">0</b></button>
     <button data-p="numbers">Zahlen</button>
     <button data-p="settings">Einstellungen</button>
   </nav>
@@ -234,6 +235,13 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
     <h2>Referral</h2>
     <p class="hint">Werber und Geworbene. Auffälligkeiten sind markiert.</p>
     <div class="card"><div id="refList"></div></div>
+  </section>
+
+  <section class="page" id="p-vorreg">
+    <h2>Vorregistrierungen</h2>
+    <p class="hint">Eintragungen über die Coming-Soon-Seite auf c3club.io. Löschen bei Widerruf; „Eingeladen" markiert, wem die Einladung schon geschickt wurde.</p>
+    <div class="bar"><button class="btn quiet" id="vrCsv">Als CSV herunterladen</button><span class="tiny" id="vrStat"></span></div>
+    <div class="card"><div id="vrList"></div></div>
   </section>
 
   <section class="page" id="p-numbers">
@@ -323,7 +331,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 
 async function loadAll(){
   await Promise.all([loadReports(),loadMembers(),loadBookings(),loadEvents(),
-    loadCampaigns(),loadPoints(),loadInvites(),loadReferrals(),loadNumbers(),loadSettings()]);
+    loadCampaigns(),loadPoints(),loadInvites(),loadReferrals(),loadNumbers(),loadSettings(),loadVorreg()]);
 }
 
 /* ── Meldungen ───────────────────────────── */
@@ -870,6 +878,47 @@ async function loadCampaigns(){
   $('#cpList').querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>campaignDetail(b.dataset.cp,data.find(x=>x.id===b.dataset.cp)));
 }
 $('#newCampaign').onclick=()=>campaignDetail(null,null);
+
+/* ── Vorregistrierungen (Migration 67) ───────── */
+let vorreg=[];
+async function loadVorreg(){
+  const {data,error}=await sb.rpc('admin_vorregistrierungen');
+  if(error){ $('#vrList').innerHTML=empty('Nicht geladen',error.message); return; }
+  vorreg=data||[];
+  const offen=vorreg.filter(v=>!v.invited_at).length;
+  const b=$('#vrBadge'); b.textContent=num(offen); b.style.display=offen?'':'none';
+  const woche=vorreg.filter(v=>new Date(v.created_at)>Date.now()-7*864e5).length;
+  $('#vrStat').textContent=vorreg.length?` ${num(vorreg.length)} gesamt · ${num(woche)} in den letzten 7 Tagen · ${num(offen)} noch nicht eingeladen`:'';
+  $('#vrList').innerHTML = !vorreg.length ? empty('Noch keine Eintragungen','Die Seite ist unter c3club.io erreichbar.')
+   : `<table><thead><tr><th>E-Mail</th><th>Name</th><th>Stadt</th><th>Gewerk</th><th>Herkunft</th><th>Eingetragen</th><th>Status</th><th></th></tr></thead><tbody>`
+   + vorreg.map(v=>`<tr>
+      <td><div class="name">${esc(v.email)}</div></td>
+      <td class="tiny">${esc(v.name||'—')}</td>
+      <td class="tiny">${esc(v.city||'—')}</td>
+      <td class="tiny">${esc(v.craft||'—')}</td>
+      <td class="tiny">${esc(v.source||'—')}</td>
+      <td class="tiny">${esc(dt(v.created_at))}</td>
+      <td class="tiny">${v.invited_at?`<span class="dot on"></span>eingeladen ${esc(dd(v.invited_at))}`:'<span class="dot"></span>offen'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn quiet" data-vr="${esc(v.id)}" data-vrx="${v.invited_at?'offen':'eingeladen'}">${v.invited_at?'Wieder offen':'Eingeladen'}</button>
+        <button class="btn quiet" data-vr="${esc(v.id)}" data-vrx="loeschen">Löschen</button>
+      </td></tr>`).join('')+'</tbody></table>';
+  $('#vrList').querySelectorAll('[data-vr]').forEach(b=>b.onclick=async()=>{
+    const x=b.dataset.vrx;
+    if(x==='loeschen' && !confirm('Eintrag endgültig löschen?')) return;
+    try{ await rpc('admin_vorregistrierung_setzen',{p_id:b.dataset.vr,p_aktion:x}); toast(x==='loeschen'?'Gelöscht':'Gespeichert'); loadVorreg(); }
+    catch(err){ fail(err); }
+  });
+}
+$('#vrCsv').onclick=()=>{
+  const z=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
+  const zeilen=[['email','name','stadt','gewerk','herkunft','sprache','eingetragen','eingeladen'].map(z).join(';')]
+    .concat(vorreg.map(v=>[v.email,v.name,v.city,v.craft,v.source,v.locale,v.created_at,v.invited_at].map(z).join(';')));
+  const blob=new Blob(['\ufeff'+zeilen.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='c3-vorregistrierungen-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
 
 function campaignDetail(id,c){
   openPanel(`
