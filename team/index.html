@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'">
 <title>c3 Team</title>
 <!-- Keine Google Fonts: Abruf von fonts.googleapis.com uebertraegt die IP an Google (DSGVO). Outfit greift nur, wenn lokal installiert. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -203,7 +204,8 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
 
   <section class="page" id="p-campaigns">
     <h2>Ausschreibungen</h2>
-    <p class="hint">Im Softlaunch legt nur das Team Ausschreibungen an.</p>
+    <p class="hint">Mitglieder mit Tarif legen Ausschreibungen selbst an. Sie gehen erst nach Freigabe durch das Team online.</p>
+    <div class="card" id="cpReview" style="display:none"></div>
     <div class="bar"><button class="btn blue" id="newCampaign">Neue Ausschreibung</button></div>
     <div class="card"><div id="cpList"></div></div>
   </section>
@@ -270,7 +272,12 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = s => document.querySelector(s);
 let timer, locations = [], plans = [], members = [];
 
-const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* Zahl fuers HTML: nur endliche Zahlen (auch als Ziffern-String), sonst "?". */
+const num = v => { const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN;
+  return Number.isFinite(n) ? String(n) : '?'; };
+/* Link aus der Datenbank: nur http(s), sonst null und es wird kein Link gerendert. */
+const sicherUrl = u => { const s = typeof u === 'string' ? u.trim() : ''; return /^https?:\/\//i.test(s) ? s : null; };
 const dt = s => s ? new Date(s).toLocaleString('de-DE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
 const dd = s => s ? new Date(s).toLocaleDateString('de-DE') : '—';
 const eur = c => '€ ' + (c/100).toLocaleString('de-DE',{maximumFractionDigits:0});
@@ -281,7 +288,7 @@ function fail(e){ toast(e?.message || 'Hat nicht geklappt.', true); }
 function openPanel(html){ $('#panelBody').innerHTML=html; $('#panel').classList.add('on'); $('#veil').classList.add('on'); }
 function closePanel(){ $('#panel').classList.remove('on'); $('#veil').classList.remove('on'); }
 $('#closePanel').onclick = closePanel; $('#veil').onclick = closePanel;
-const empty = (t,s) => `<div class="empty"><b>${t}</b>${s}</div>`;
+const empty = (t,s) => `<div class="empty"><b>${esc(t)}</b>${esc(s)}</div>`;
 
 /* ── Anmeldung ───────────────────────────── */
 $('#loginForm').onsubmit = async e => {
@@ -303,7 +310,7 @@ async function start(){
     sb.from('membership_plans').select('*').order('sort_order')]);
   locations = l||[]; plans = pl||[];
   $('#bloc').innerHTML = '<option value="">Alle Standorte</option>' +
-    locations.map(x=>`<option value="${x.id}">${esc(x.city)}</option>`).join('');
+    locations.map(x=>`<option value="${esc(x.id)}">${esc(x.city)}</option>`).join('');
   loadAll();
   timer = setInterval(loadReports, 60000);
 }
@@ -330,21 +337,21 @@ async function loadReports(){
   $('#repList').innerHTML = data.map(r=>{
     const left=Number(r.hours_left), pct=Math.max(0,Math.min(1,left/24)), C=2*Math.PI*33;
     const col = r.overdue?'var(--danger)':left<6?'var(--warn)':'var(--accent)';
-    const lab = r.overdue?'überfällig':left<1?Math.round(left*60)+'<small>Min übrig</small>':Math.round(left)+'<small>Std übrig</small>';
+    const lab = r.overdue?'überfällig':left<1?num(Math.round(left*60))+'<small>Min übrig</small>':num(Math.round(left))+'<small>Std übrig</small>';
     return `<div class="rep ${r.overdue?'late':''}">
       <div class="clock"><svg width="82" height="82">
         <circle cx="41" cy="41" r="33" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
-        <circle cx="41" cy="41" r="33" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round"
-          stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/></svg>
-        <div class="val" style="color:${col}">${lab}</div></div>
+        <circle cx="41" cy="41" r="33" fill="none" stroke="${esc(col)}" stroke-width="5" stroke-linecap="round"
+          stroke-dasharray="${num(C)}" stroke-dashoffset="${num(C*(1-pct))}"/></svg>
+        <div class="val" style="color:${esc(col)}">${lab}</div></div>
       <div><div style="font-size:15px;font-weight:500;margin-bottom:3px">${esc(r.reason)}</div>
         <div class="tiny" style="line-height:1.65">Gemeldet: <strong>${esc(r.reported_name||'—')}</strong> ·
-          von ${esc(r.reporter_name||'—')} · ${dt(r.created_at)}${r.details?'<br>'+esc(r.details):''}</div>
+          von ${esc(r.reporter_name||'—')} · ${esc(dt(r.created_at))}${r.details?'<br>'+esc(r.details):''}</div>
         ${r.message_body?`<div class="quote">${esc(r.message_body)}</div>`:''}</div>
       <div class="acts">
-        <button class="btn red" data-a="suspend" data-id="${r.id}">Konto sperren</button>
-        <button class="btn" data-a="resolve" data-id="${r.id}">Erledigt</button>
-        <button class="btn quiet" data-a="dismiss" data-id="${r.id}">Kein Verstoß</button>
+        <button class="btn red" data-a="suspend" data-id="${esc(r.id)}">Konto sperren</button>
+        <button class="btn" data-a="resolve" data-id="${esc(r.id)}">Erledigt</button>
+        <button class="btn quiet" data-a="dismiss" data-id="${esc(r.id)}">Kein Verstoß</button>
       </div></div>`;
   }).join('');
   $('#repList').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>handleReport(b));
@@ -401,13 +408,13 @@ function renderMembers(){
     const cls=susp?'off':(st==='active'||st==='trialing')?'on':st==='past_due'?'warn':'';
     const lbl=m.sub?m.sub.plan_code[0].toUpperCase()+m.sub.plan_code.slice(1):'kein Tarif';
     const note=susp?' · gesperrt':st==='past_due'?' · Zahlung offen':'';
-    return `<tr class="click" data-id="${m.id}">
+    return `<tr class="click" data-id="${esc(m.id)}">
       <td><div class="name">${esc(m.display_name)}${m.is_admin?' · Team':''}${m.is_cut_member?' · The Cut':''}</div>
         <div class="tiny">${esc(m.job_title||'—')}</div></td>
-      <td><span class="dot ${cls}"></span>${lbl}<span class="tiny">${note}</span></td>
+      <td><span class="dot ${esc(cls)}"></span>${esc(lbl)}<span class="tiny">${esc(note)}</span></td>
       <td class="tiny">${esc(m.city||'—')}</td>
-      <td><span class="dot ${(m.photo_count??0)>=5?'on':''}"></span>${m.photo_count??0}</td>
-      <td class="tiny">${dt(m.last_active_at)}</td></tr>`;
+      <td><span class="dot ${(m.photo_count??0)>=5?'on':''}"></span>${num(m.photo_count??0)}</td>
+      <td class="tiny">${esc(dt(m.last_active_at))}</td></tr>`;
   }).join('')+'</tbody></table>';
   $('#memList').querySelectorAll('tr.click').forEach(r=>r.onclick=()=>memberDetail(r.dataset.id));
 }
@@ -416,23 +423,23 @@ async function memberDetail(id){
   const {data:d,error}=await sb.rpc('admin_member',{p_profile:id});
   if(error||d?.error) return fail(error);
   const p=d.profile, m=d.membership, s=d.stats||{}, u=d.usage||{};
-  const planOpts=plans.map(x=>`<option value="${x.code}" ${m?.plan_code===x.code?'selected':''}>${esc(x.name)}</option>`).join('');
+  const planOpts=plans.map(x=>`<option value="${esc(x.code)}" ${m?.plan_code===x.code?'selected':''}>${esc(x.name)}</option>`).join('');
 
   openPanel(`
     <h2 style="padding-right:90px">${esc(p.display_name)}</h2>
-    <p class="hint">${esc(p.job_title||'—')} · ${esc(p.city||'—')} · dabei seit ${dd(p.created_at)}</p>
+    <p class="hint">${esc(p.job_title||'—')} · ${esc(p.city||'—')} · dabei seit ${esc(dd(p.created_at))}</p>
 
     <div class="card"><h3>Überblick</h3>
       <table><tbody>
-      <tr><td class="tiny">Tarif</td><td>${m?esc(m.plan_code):'kein Tarif'} · ${m?esc(m.status):'—'}</td></tr>
-      <tr><td class="tiny">Kontingent diesen Monat</td><td>${u.office_days_used??0} Tage · ${u.meeting_hours_used??0} h Raum · ${u.guest_passes_used??0} Gäste</td></tr>
-      <tr><td class="tiny">Punkte</td><td>${s.points??0} · Stufe ${s.tier??1}</td></tr>
-      <tr><td class="tiny">Buchungen · Check-ins</td><td>${s.bookings??0} · ${d.check_ins??0}</td></tr>
-      <tr><td class="tiny">Zuletzt im Space</td><td>${dt(d.last_check_in)}</td></tr>
-      <tr><td class="tiny">Crews</td><td>${(d.crews||[]).map(esc).join(', ')||'—'}</td></tr>
-      <tr><td class="tiny">Fotos · Radar</td><td>${p.photo_count??0} · ${p.radar_visible?'an':'aus'}</td></tr>
+      <tr><td class="tiny">Tarif</td><td>${esc(m?m.plan_code:'kein Tarif')} · ${esc(m?m.status:'—')}</td></tr>
+      <tr><td class="tiny">Kontingent diesen Monat</td><td>${num(u.office_days_used??0)} Tage · ${num(u.meeting_hours_used??0)} h Raum · ${num(u.guest_passes_used??0)} Gäste</td></tr>
+      <tr><td class="tiny">Punkte</td><td>${num(s.points??0)} · Stufe ${num(s.tier??1)}</td></tr>
+      <tr><td class="tiny">Buchungen · Check-ins</td><td>${num(s.bookings??0)} · ${num(d.check_ins??0)}</td></tr>
+      <tr><td class="tiny">Zuletzt im Space</td><td>${esc(dt(d.last_check_in))}</td></tr>
+      <tr><td class="tiny">Crews</td><td>${esc((Array.isArray(d.crews)?d.crews:[]).join(', ')||'—')}</td></tr>
+      <tr><td class="tiny">Fotos · Radar</td><td>${num(p.photo_count??0)} · ${p.radar_visible?'an':'aus'}</td></tr>
       <tr><td class="tiny">Kam über</td><td>${esc(d.referred_by||d.invite_code||'—')}</td></tr>
-      <tr><td class="tiny">Meldungen gegen die Person</td><td>${d.reports_against??0}</td></tr>
+      <tr><td class="tiny">Meldungen gegen die Person</td><td>${num(d.reports_against??0)}</td></tr>
       </tbody></table></div>
 
     <div class="card"><h3>Zugang</h3>
@@ -460,15 +467,15 @@ async function memberDetail(id){
 
     <div class="card"><h3>Letzte Buchungen</h3>
       ${(d.bookings||[]).length?`<table><tbody>`+d.bookings.map(b=>`<tr>
-        <td class="tiny">${dt(b.starts_at)}</td><td>${esc(b.label)}</td>
+        <td class="tiny">${esc(dt(b.starts_at))}</td><td>${esc(b.label)}</td>
         <td class="tiny">${esc(b.city)}</td><td class="tiny">${esc(b.status)}</td></tr>`).join('')+'</tbody></table>'
         :'<p class="tiny">Noch keine Buchungen.</p>'}</div>
   `);
 
   sb.rpc('admin_points_history',{p_profile:id}).then(({data:h})=>{
     $('#phist').innerHTML = h?.length
-      ? '<table><tbody>'+h.slice(0,12).map(x=>`<tr><td class="tiny">${dd(x.created_at)}</td>
-          <td><strong>${x.points>0?'+':''}${x.points}</strong></td>
+      ? '<table><tbody>'+h.slice(0,12).map(x=>`<tr><td class="tiny">${esc(dd(x.created_at))}</td>
+          <td><strong>${x.points>0?'+':''}${num(x.points)}</strong></td>
           <td class="tiny">${esc(x.note||x.source)}</td></tr>`).join('')+'</tbody></table>'
       : '<p class="tiny">Noch keine Punkte.</p>';
   });
@@ -499,12 +506,12 @@ async function loadBookings(){
   $('#bookList').innerHTML = !data?.length ? empty('Keine Buchungen','In diesem Zeitraum ist nichts gebucht.')
    : `<table><thead><tr><th>Wann</th><th>Platz</th><th>Wer</th><th>Standort</th><th></th></tr></thead><tbody>`
    + data.map(b=>`<tr>
-      <td class="tiny">${dt(b.starts_at)}<br>bis ${new Date(b.ends_at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td class="tiny">${esc(dt(b.starts_at))}<br>bis ${esc(new Date(b.ends_at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}))}</td>
       <td>${esc(b.seat_label)}<div class="tiny">${esc(b.seat_kind)}</div></td>
       <td>${b.is_block?'<span class="dot warn"></span>Gesperrt':esc(b.member_name)}
         ${b.is_guest?'<div class="tiny">Gast: '+esc(b.guest_name||'')+'</div>':''}</td>
       <td class="tiny">${esc(b.city)}</td>
-      <td>${b.status==='confirmed'?`<button class="btn quiet" data-cancel="${b.id}">Stornieren</button>`:`<span class="tiny">${esc(b.status)}</span>`}</td>
+      <td>${b.status==='confirmed'?`<button class="btn quiet" data-cancel="${esc(b.id)}">Stornieren</button>`:`<span class="tiny">${esc(b.status)}</span>`}</td>
      </tr>`).join('')+'</tbody></table>';
 
   $('#bookList').querySelectorAll('[data-cancel]').forEach(b=>b.onclick=async()=>{
@@ -516,7 +523,7 @@ async function loadBookings(){
 
   const {data:ci}=await sb.rpc('admin_check_ins',{p_location:$('#bloc').value||null,p_days:14});
   $('#ciList').innerHTML = !ci?.length ? '<p class="tiny">Keine Check-ins.</p>'
-   : '<table><tbody>'+ci.slice(0,40).map(c=>`<tr><td class="tiny">${dt(c.checked_in_at)}</td>
+   : '<table><tbody>'+ci.slice(0,40).map(c=>`<tr><td class="tiny">${esc(dt(c.checked_in_at))}</td>
       <td>${esc(c.member_name)}</td><td class="tiny">${esc(c.city)}</td>
       <td class="tiny">${c.checked_out_at?'ausgecheckt':'noch da'}</td></tr>`).join('')+'</tbody></table>';
 }
@@ -529,7 +536,7 @@ $('#blockBtn').onclick=async()=>{
     <p class="hint">Bestehende Buchungen in dem Zeitraum werden storniert. Die Betroffenen bekommen eine Nachricht.</p>
     <div class="card">
       <div class="f"><label class="lbl">Platz</label><select id="bseat">
-        ${(seats||[]).map(s=>`<option value="${s.id}">${esc(s.label)} · ${esc(s.kind)}</option>`).join('')}</select></div>
+        ${(seats||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.label)} · ${esc(s.kind)}</option>`).join('')}</select></div>
       <div class="cols">
         <div><label class="lbl">Von</label><input type="datetime-local" id="bfrom"></div>
         <div><label class="lbl">Bis</label><input type="datetime-local" id="bto"></div></div>
@@ -558,13 +565,14 @@ async function seatEditor(loc, editId){
   const e = editId ? (seats||[]).find(x=>x.id===editId) : null;
   const city = locations.find(l=>l.id===loc)?.city || '';
   const planOpts='<option value="">Alle Tarife</option>'+plans.map(p=>
-    `<option value="${p.code}" ${e?.min_plan===p.code?'selected':''}>ab ${esc(p.name)}</option>`).join('');
+    `<option value="${esc(p.code)}" ${e?.min_plan===p.code?'selected':''}>ab ${esc(p.name)}</option>`).join('');
   const kinds=[['desk','Schreibtisch'],['meeting_room','Meetingraum'],['studio','Studio'],
                ['podcast','Podcast-Raum'],['phonebooth','Einzelkabine']];
 
   const plan = locations.find(l=>l.id===loc)?.floor_plan || null;
   const verh = Number(plan?.seitenverhaeltnis) > 0 ? Number(plan.seitenverhaeltnis) : 0.72;
   const raeume = Array.isArray(plan?.raeume) ? plan.raeume : [];
+  const planBild = sicherUrl(plan?.bild);
 
   openPanel(`
     <h2 style="padding-right:90px">Raumplan ${esc(city)}</h2>
@@ -572,19 +580,19 @@ async function seatEditor(loc, editId){
       Platz ziehst du mit der Maus an seine Stelle.</p>
 
     <div class="card">
-      <div id="planFlaeche" style="position:relative;width:100%;aspect-ratio:${verh};
+      <div id="planFlaeche" style="position:relative;width:100%;aspect-ratio:${num(verh)};
            border-radius:12px;overflow:hidden;background:#0d0d18;
            border:1px solid var(--kante);cursor:crosshair;touch-action:none">
-        ${plan?.bild ? `<img src="${esc(plan.bild)}" alt=""
+        ${planBild ? `<img src="${esc(planBild)}" alt=""
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ''}
-        ${raeume.map(r=>`<div style="position:absolute;left:${r.x}%;top:${r.y}%;
-             width:${r.b}%;height:${r.h}%;border:1px solid rgba(255,255,255,.1);
+        ${raeume.map(r=>`<div style="position:absolute;left:${num(r?.x)}%;top:${num(r?.y)}%;
+             width:${num(r?.b)}%;height:${num(r?.h)}%;border:1px solid rgba(255,255,255,.1);
              background:rgba(255,255,255,.04);border-radius:8px;padding:5px 7px;
              font-size:10px;color:var(--txt3);pointer-events:none">
              ${r.b>=18?esc(r.name):''}</div>`).join('')}
         ${(seats||[]).filter(x=>x.active!==false).map(x=>`
-          <div class="planPunkt" data-move="${x.id}" title="${esc(x.label)}"
-               style="position:absolute;left:${x.pos_x}%;top:${x.pos_y}%;
+          <div class="planPunkt" data-move="${esc(x.id)}" title="${esc(x.label)}"
+               style="position:absolute;left:${num(x.pos_x)}%;top:${num(x.pos_y)}%;
                       transform:translate(-50%,-50%);min-width:34px;height:26px;
                       display:flex;align-items:center;justify-content:center;
                       border-radius:8px;font-size:10px;font-weight:600;color:#fff;
@@ -602,13 +610,13 @@ async function seatEditor(loc, editId){
       <div class="cols">
         <div><label class="lbl">Bezeichnung</label><input id="slabel" value="${esc(e?.label||'')}" placeholder="A1"></div>
         <div><label class="lbl">Art</label><select id="skind">
-          ${kinds.map(([v,l])=>`<option value="${v}" ${e?.kind===v?'selected':''}>${l}</option>`).join('')}
+          ${kinds.map(([v,l])=>`<option value="${esc(v)}" ${e?.kind===v?'selected':''}>${esc(l)}</option>`).join('')}
         </select></div>
       </div>
       <div class="cols3" style="margin-top:11px">
-        <div><label class="lbl">Position von links %</label><input type="number" id="sx" value="${e?.pos_x??50}" min="0" max="100"></div>
-        <div><label class="lbl">Position von oben %</label><input type="number" id="sy" value="${e?.pos_y??50}" min="0" max="100"></div>
-        <div><label class="lbl">Plätze</label><input type="number" id="scap" value="${e?.capacity??1}" min="1"></div>
+        <div><label class="lbl">Position von links %</label><input type="number" id="sx" value="${esc(e?.pos_x??50)}" min="0" max="100"></div>
+        <div><label class="lbl">Position von oben %</label><input type="number" id="sy" value="${esc(e?.pos_y??50)}" min="0" max="100"></div>
+        <div><label class="lbl">Plätze</label><input type="number" id="scap" value="${esc(e?.capacity??1)}" min="1"></div>
       </div>
       <div class="cols" style="margin-top:11px">
         <div><label class="lbl">Mindest-Tarif</label><select id="splan">${planOpts}</select></div>
@@ -624,12 +632,12 @@ async function seatEditor(loc, editId){
       </div>
     </div>
 
-    <div class="card"><h3>Plätze an diesem Standort (${(seats||[]).length})</h3>
-      ${(seats||[]).length?`<table><tbody>`+seats.map(x=>`<tr class="click" data-seat="${x.id}">
+    <div class="card"><h3>Plätze an diesem Standort (${num((seats||[]).length)})</h3>
+      ${(seats||[]).length?`<table><tbody>`+seats.map(x=>`<tr class="click" data-seat="${esc(x.id)}">
         <td><span class="dot ${x.active===false?'':x.bookable===false?'warn':'on'}"></span><strong>${esc(x.label)}</strong>
           <div class="tiny">${esc(x.kind)}${x.min_plan?' · ab '+esc(x.min_plan):''}</div></td>
-        <td class="tiny">${x.pos_x} / ${x.pos_y}</td>
-        <td class="tiny">${x.capacity} ${x.capacity===1?'Platz':'Plätze'}</td>
+        <td class="tiny">${num(x.pos_x)} / ${num(x.pos_y)}</td>
+        <td class="tiny">${num(x.capacity)} ${x.capacity===1?'Platz':'Plätze'}</td>
       </tr>`).join('')+'</tbody></table>':'<p class="tiny">Noch keine Plätze. Leg oben den ersten an.</p>'}
     </div>`);
 
@@ -722,18 +730,18 @@ async function loadEvents(){
    + data.map(e=>`<tr>
       <td><div class="name">${esc(e.title)}</div><div class="tiny">
         ${e.kind==='exclusive'?'Exclusive':'Offen für alle'}${e.min_plan?' · ab '+esc(e.min_plan):''}${e.speaker?' · '+esc(e.speaker):''}</div></td>
-      <td class="tiny">${dt(e.starts_at)}</td><td class="tiny">${esc(e.city||'—')}</td>
-      <td><span class="dot ${e.spots_left>0?'on':'warn'}"></span>${e.going}${e.capacity?' / '+e.capacity:''}
-        ${e.waitlist?`<div class="tiny">${e.waitlist} auf Warteliste</div>`:''}</td>
-      <td><button class="btn quiet" data-ev="${e.id}">Öffnen</button></td></tr>`).join('')+'</tbody></table>';
+      <td class="tiny">${esc(dt(e.starts_at))}</td><td class="tiny">${esc(e.city||'—')}</td>
+      <td><span class="dot ${e.spots_left>0?'on':'warn'}"></span>${num(e.going)}${e.capacity?' / '+num(e.capacity):''}
+        ${e.waitlist?`<div class="tiny">${num(e.waitlist)} auf Warteliste</div>`:''}</td>
+      <td><button class="btn quiet" data-ev="${esc(e.id)}">Öffnen</button></td></tr>`).join('')+'</tbody></table>';
   $('#evList').querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>eventDetail(b.dataset.ev,data.find(x=>x.id===b.dataset.ev)));
 }
 
 $('#newEvent').onclick=()=>eventDetail(null,null);
 
 function eventDetail(id,e){
-  const locOpts=locations.map(l=>`<option value="${l.id}" ${e?.location_id===l.id?'selected':''}>${esc(l.city)}</option>`).join('');
-  const planOpts='<option value="">Alle Tarife</option>'+plans.map(p=>`<option value="${p.code}" ${e?.min_plan===p.code?'selected':''}>ab ${esc(p.name)}</option>`).join('');
+  const locOpts=locations.map(l=>`<option value="${esc(l.id)}" ${e?.location_id===l.id?'selected':''}>${esc(l.city)}</option>`).join('');
+  const planOpts='<option value="">Alle Tarife</option>'+plans.map(p=>`<option value="${esc(p.code)}" ${e?.min_plan===p.code?'selected':''}>ab ${esc(p.name)}</option>`).join('');
   openPanel(`
     <h2 style="padding-right:90px">${id?'Event bearbeiten':'Neues Event'}</h2>
     <div class="card">
@@ -744,11 +752,11 @@ function eventDetail(id,e){
         <div><label class="lbl">Standort</label><select id="eloc">${locOpts}</select></div>
       </div>
       <div class="cols" style="margin-top:11px">
-        <div><label class="lbl">Beginn</label><input type="datetime-local" id="estart" value="${forInput(e?.starts_at)}"></div>
-        <div><label class="lbl">Ende</label><input type="datetime-local" id="eend" value="${forInput(e?.ends_at)}"></div>
+        <div><label class="lbl">Beginn</label><input type="datetime-local" id="estart" value="${esc(forInput(e?.starts_at))}"></div>
+        <div><label class="lbl">Ende</label><input type="datetime-local" id="eend" value="${esc(forInput(e?.ends_at))}"></div>
       </div>
       <div class="cols3" style="margin-top:11px">
-        <div><label class="lbl">Plätze</label><input type="number" id="ecap" value="${e?.capacity??''}"></div>
+        <div><label class="lbl">Plätze</label><input type="number" id="ecap" value="${esc(e?.capacity??'')}"></div>
         <div><label class="lbl">Art</label><select id="ekind">
           <option value="regular" ${e?.kind==='regular'?'selected':''}>Offen für alle</option>
           <option value="exclusive" ${e?.kind==='exclusive'?'selected':''}>Exclusive</option></select></div>
@@ -786,8 +794,8 @@ function eventDetail(id,e){
       $('#eatt').innerHTML = !a?.length ? '<p class="tiny">Noch keine Zusagen.</p>'
        : '<table><tbody>'+a.map(x=>`<tr>
           <td><span class="dot ${x.checked_in?'on':x.status==='waitlist'?'warn':''}"></span>${esc(x.display_name)}
-            <div class="tiny">${x.status==='waitlist'?'Warteliste '+x.waitlist_position:esc(x.status)} · ${esc(x.plan||'—')}</div></td>
-          <td>${x.checked_in?'<span class="tiny">eingecheckt</span>':`<button class="btn quiet" data-ci="${x.rsvp_id}">Einchecken</button>`}</td>
+            <div class="tiny">${esc(x.status==='waitlist'?'Warteliste '+num(x.waitlist_position):x.status)} · ${esc(x.plan||'—')}</div></td>
+          <td>${x.checked_in?'<span class="tiny">eingecheckt</span>':`<button class="btn quiet" data-ci="${esc(x.rsvp_id)}">Einchecken</button>`}</td>
          </tr>`).join('')+'</tbody></table>';
       $('#eatt').querySelectorAll('[data-ci]').forEach(b=>b.onclick=async()=>{
         try{ await rpc('admin_check_in_attendee',{p_rsvp:b.dataset.ci}); toast('Eingecheckt · 25 Punkte'); eventDetail(id,e); }catch(err){ fail(err); }
@@ -795,9 +803,9 @@ function eventDetail(id,e){
     });
     if(e?.kind==='exclusive') sb.rpc('admin_invite_candidates',{p_event:id,p_limit:12}).then(({data:c})=>{
       $('#ecand').innerHTML = !c?.length ? '<p class="tiny">Keine Kandidaten.</p>'
-       : '<table><tbody>'+c.map(x=>`<tr><td>${esc(x.display_name)}<div class="tiny">${x.points} Punkte · Stufe ${x.tier}</div></td>
+       : '<table><tbody>'+c.map(x=>`<tr><td>${esc(x.display_name)}<div class="tiny">${num(x.points)} Punkte · Stufe ${num(x.tier)}</div></td>
           <td>${x.already?'<span class="tiny"><span class="dot on"></span>eingeladen</span>'
-             :`<button class="btn quiet" data-inv="${x.profile_id}">Einladen</button>`}</td></tr>`).join('')+'</tbody></table>';
+             :`<button class="btn quiet" data-inv="${esc(x.profile_id)}">Einladen</button>`}</td></tr>`).join('')+'</tbody></table>';
       $('#ecand').querySelectorAll('[data-inv]').forEach(b=>b.onclick=async()=>{
         try{ await rpc('admin_grant_event_invite',{p_event:id,p_profile:b.dataset.inv}); toast('Eingeladen'); eventDetail(id,e); }catch(err){ fail(err); }
       });
@@ -806,17 +814,58 @@ function eventDetail(id,e){
 }
 
 /* ── Ausschreibungen ─────────────────────── */
+const REVIEW={pending:['warn','wartet'],approved:['on','frei'],refused:['off','abgelehnt']};
+
+/* Freigeben / Ablehnen für eine Ausschreibung, in `host` eingehängt. */
+function reviewControls(host,cid,after){
+  host.innerHTML=`<div class="bar" style="margin-top:9px">
+      <button class="btn blue" data-rv-ok>Freigeben</button>
+      <button class="btn quiet" data-rv-no>Ablehnen</button></div>
+    <div data-rv-box style="display:none;margin-top:9px">
+      <input data-rv-note maxlength="300" placeholder="Anmerkung für den Ersteller, optional (max. 300 Zeichen)">
+      <div class="bar" style="margin-top:7px"><button class="btn blue" data-rv-send>Ablehnung senden</button></div></div>`;
+  const box=host.querySelector('[data-rv-box]');
+  const run=async(approve,note,msg)=>{
+    try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:approve,p_note:note});
+      toast(msg); after(); }catch(err){ fail(err); }
+  };
+  host.querySelector('[data-rv-ok]').onclick=()=>run(true,null,'Freigegeben');
+  host.querySelector('[data-rv-no]').onclick=()=>{ box.style.display=box.style.display==='none'?'block':'none'; };
+  host.querySelector('[data-rv-send]').onclick=()=>run(false,host.querySelector('[data-rv-note]').value.trim().slice(0,300)||null,'Abgelehnt');
+}
+
 async function loadCampaigns(){
   const {data}=await sb.rpc('campaigns_feed',{p_open_only:false,p_limit:80});
+  const pend=(data||[]).filter(c=>c.review_state==='pending');
+  const rv=$('#cpReview');
+  rv.style.display=pend.length?'':'none';
+  if(pend.length){
+    rv.innerHTML=`<h3>Zur Freigabe · ${num(pend.length)}</h3>`+pend.map(c=>`<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)" data-rvrow="${esc(c.id)}">
+        <div class="name">${esc(c.title)}</div>
+        <div class="tiny">Ersteller: ${esc(c.client_name||'—')} · Budget: ${esc(c.budget_text||'—')} · Frist: ${esc(c.deadline?dd(c.deadline):'laufend')}</div>
+        <div class="bar" style="margin-top:9px"><button class="btn quiet" data-rvopen="${esc(c.id)}">Öffnen</button></div>
+        <div data-rvctl></div></div>`).join('');
+    rv.querySelectorAll('[data-rvrow]').forEach(row=>{
+      const cid=row.dataset.rvrow;
+      row.querySelector('[data-rvopen]').onclick=()=>campaignDetail(cid,data.find(x=>x.id===cid));
+      reviewControls(row.querySelector('[data-rvctl]'),cid,loadCampaigns);
+    });
+  } else rv.innerHTML='';
+  const status=c=>{
+    if(c.completed_at) return '<span class="dot off"></span>abgeschlossen';
+    const [k,t]=REVIEW[c.review_state]||['','—'];
+    return `<span class="dot ${esc(k)}"></span>${esc(t)}`;
+  };
   $('#cpList').innerHTML = !data?.length ? empty('Keine Ausschreibungen','Leg oben eine an.')
-   : `<table><thead><tr><th>Ausschreibung</th><th>Budget</th><th>Bewerbungen</th><th>Frist</th><th>Entscheidung bis</th><th></th></tr></thead><tbody>`
+   : `<table><thead><tr><th>Ausschreibung</th><th>Status</th><th>Budget</th><th>Bewerbungen</th><th>Frist</th><th>Entscheidung bis</th><th></th></tr></thead><tbody>`
    + data.map(c=>`<tr>
       <td><div class="name">${esc(c.title)}</div><div class="tiny">${esc(c.client_name||'—')}</div></td>
+      <td class="tiny">${status(c)}</td>
       <td class="tiny">${esc(c.budget_text||'—')}</td>
-      <td><strong>${c.applications}</strong><span class="tiny"> / ${c.slots} Plätze</span></td>
-      <td class="tiny">${c.deadline?dd(c.deadline):'laufend'}</td>
-      <td class="tiny">${c.decide_by?dd(c.decide_by):'—'}</td>
-      <td><span class="dot ${c.is_open?'on':''}"></span><button class="btn quiet" data-cp="${c.id}">Öffnen</button></td>
+      <td><strong>${num(c.applications)}</strong><span class="tiny"> / ${num(c.slots)} Plätze</span></td>
+      <td class="tiny">${esc(c.deadline?dd(c.deadline):'laufend')}</td>
+      <td class="tiny">${esc(c.decide_by?dd(c.decide_by):'—')}</td>
+      <td><span class="dot ${c.is_open?'on':''}"></span><button class="btn quiet" data-cp="${esc(c.id)}">Öffnen</button></td>
      </tr>`).join('')+'</tbody></table>';
   $('#cpList').querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>campaignDetail(b.dataset.cp,data.find(x=>x.id===b.dataset.cp)));
 }
@@ -825,6 +874,9 @@ $('#newCampaign').onclick=()=>campaignDetail(null,null);
 function campaignDetail(id,c){
   openPanel(`
     <h2 style="padding-right:90px">${id?'Ausschreibung':'Neue Ausschreibung'}</h2>
+    ${id&&c?.review_state?`<div class="tiny" style="margin:-6px 0 12px"><span class="dot ${esc(REVIEW[c.review_state]?.[0]||'')}"></span>${esc(REVIEW[c.review_state]?.[1]||c.review_state)}
+      ${c.review_note?`<div class="quote">${esc(c.review_note)}</div>`:''}
+      ${c.review_state!=='approved'?'<div id="crv"></div>':''}</div>`:''}
     <div class="card">
       <div class="f"><label class="lbl">Titel</label><input id="ctitle" value="${esc(c?.title||'')}"></div>
       <div class="f"><label class="lbl">Beschreibung</label><textarea id="cdesc">${esc(c?.description||'')}</textarea></div>
@@ -832,12 +884,12 @@ function campaignDetail(id,c){
       <div class="f"><label class="lbl">Ziel in einem Satz (Pflicht)</label>
         <input id="cgoal" maxlength="200" value="${esc(c?.goal||'')}" placeholder="Was soll am Ende stehen?"></div>
       <div class="cols">
-        <div><label class="lbl">Zeitraum von (Pflicht)</label><input type="date" id="cstart" value="${c?.starts_on||''}"></div>
-        <div><label class="lbl">Zeitraum bis (Pflicht)</label><input type="date" id="cend" value="${c?.ends_on||''}"></div>
+        <div><label class="lbl">Zeitraum von (Pflicht)</label><input type="date" id="cstart" value="${esc(c?.starts_on||'')}"></div>
+        <div><label class="lbl">Zeitraum bis (Pflicht)</label><input type="date" id="cend" value="${esc(c?.ends_on||'')}"></div>
       </div>
       <div class="cols" style="margin-top:11px">
-        <div><label class="lbl">Budgetrahmen von, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmin" value="${c?.budget_min_cents!=null?c.budget_min_cents/100:''}" placeholder="3000"></div>
-        <div><label class="lbl">Budgetrahmen bis, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmax" value="${c?.budget_max_cents!=null?c.budget_max_cents/100:''}" placeholder="5000"></div>
+        <div><label class="lbl">Budgetrahmen von, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmin" value="${esc(c?.budget_min_cents!=null?num(c.budget_min_cents/100):'')}" placeholder="3000"></div>
+        <div><label class="lbl">Budgetrahmen bis, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmax" value="${esc(c?.budget_max_cents!=null?num(c.budget_max_cents/100):'')}" placeholder="5000"></div>
       </div>
       <div class="f" style="margin-top:11px"><label class="lbl">Kurzzeile</label>
         <input id="cmeta" value="${esc(c?.meta||'')}" placeholder="Filmproduktion · Remote + Berlin"></div>
@@ -847,12 +899,12 @@ function campaignDetail(id,c){
         <textarea id="creqs">${esc((c?.requirements||[]).join('\n'))}</textarea></div>
       <div class="f"><label class="lbl">Kriterien für die Auswahl, mit Komma getrennt, höchstens 6</label>
         <input id="ccrit" value="${esc((c?.criteria||[]).join(', '))}" placeholder="Erfahrung mit Dokumentarfilm, Verfügbarkeit, Preis"></div>
-      <div class="f"><label class="lbl">Entscheidung bis (Pflicht)</label><input type="date" id="cdecide" value="${c?.decide_by||''}"></div>
-      ${[1,2,3].map(n=>`<div class="f"><label class="lbl">Frage ${n} (Ja/Nein), optional</label>
-        <input id="cq${n}" maxlength="120" value="${esc((c?.questions||[]).find(q=>q.id==='q'+n)?.text||'')}" placeholder="${['Eigene Cinema-Kamera?','Interviews auf Deutsch?','Reisebereit?'][n-1]}"></div>`).join('')}
+      <div class="f"><label class="lbl">Entscheidung bis (Pflicht)</label><input type="date" id="cdecide" value="${esc(c?.decide_by||'')}"></div>
+      ${[1,2,3].map(n=>`<div class="f"><label class="lbl">Frage ${num(n)} (Ja/Nein), optional</label>
+        <input id="cq${num(n)}" maxlength="120" value="${esc((Array.isArray(c?.questions)?c.questions:[]).find(q=>q?.id==='q'+n)?.text||'')}" placeholder="${esc(['Eigene Cinema-Kamera?','Interviews auf Deutsch?','Reisebereit?'][n-1])}"></div>`).join('')}
       <div class="cols3">
-        <div><label class="lbl">Plätze</label><input type="number" id="cslots" value="${c?.slots??1}"></div>
-        <div><label class="lbl">Frist</label><input type="date" id="cdead" value="${c?.deadline||''}"></div>
+        <div><label class="lbl">Plätze</label><input type="number" id="cslots" value="${esc(c?.slots??1)}"></div>
+        <div><label class="lbl">Frist</label><input type="date" id="cdead" value="${esc(c?.deadline||'')}"></div>
         <div><label class="lbl">Status</label><select id="copen">
           <option value="true" ${c?.is_open!==false?'selected':''}>Offen</option>
           <option value="false" ${c?.is_open===false?'selected':''}>Geschlossen</option></select></div>
@@ -886,6 +938,8 @@ function campaignDetail(id,c){
     }catch(err){ fail(err); }
   };
   if(id){
+    const crv=$('#crv');
+    if(crv) reviewControls(crv,id,()=>{ closePanel(); loadCampaigns(); });
     const cc=$('#ccomplete');
     if(cc) cc.onclick=async()=>{
       if(!confirm('Projekt abschließen? Alle Angenommenen bekommen 100 Punkte.')) return;
@@ -896,44 +950,52 @@ function campaignDetail(id,c){
       GRUND={budget:'Budget',timing:'Timing',profile:'Profil'};
     const antworten=x=>{
       const a=x.answers; if(!a) return '';
-      const fragen=(c?.questions||[]).filter(q=>typeof a.custom?.[q.id]==='boolean').map(q=>
+      const fragen=(Array.isArray(c?.questions)?c.questions:[]).filter(q=>typeof a.custom?.[q?.id]==='boolean').map(q=>
         `<div class="tiny" style="margin-top:4px">${esc(q.text)} <strong style="color:${a.custom[q.id]?'var(--txt)':'var(--warn)'}">${a.custom[q.id]?'Ja':'Nein'}</strong></div>`).join('');
-      return fragen+`<div class="tiny" style="margin-top:7px">Verfügbar: ${JN[a.availability]||'—'} · ab ${dd(a.earliest_start)}
-        · ${a.days_per_week} Tage/Woche · ${a.effort_min}–${a.effort_max} Arbeitstage · Budget: ${FIT[a.budget_fit]||'—'}</div>`
+      return fragen+`<div class="tiny" style="margin-top:7px">Verfügbar: ${esc(JN[a.availability]||'—')} · ab ${esc(dd(a.earliest_start))}
+        · ${num(a.days_per_week)} Tage/Woche · ${num(a.effort_min)}–${num(a.effort_max)} Arbeitstage · Budget: ${esc(FIT[a.budget_fit]||'—')}</div>`
         +(a.budget_note?`<div class="quote">${esc(a.budget_note)}</div>`:'')
-        +(a.samples?.length?`<div class="tiny" style="margin-top:7px">${a.samples.map(m=>
-          `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.url.replace(/^https?:\/\//,''))}</a>${m.role?' · '+esc(m.role):''}`).join('<br>')}</div>`:'')
+        +(Array.isArray(a.samples)&&a.samples.length?`<div class="tiny" style="margin-top:7px">${a.samples.map(m=>{
+          const u=sicherUrl(m?.url), t=esc(String(m?.url??'').trim().replace(/^https?:\/\//i,''));
+          return (u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${t}</a>`:t)+(m?.role?' · '+esc(m.role):'');
+        }).join('<br>')}</div>`:'')
         +(a.pitch?`<div class="quote" style="border-left-color:var(--accent)">${esc(a.pitch)}</div>`:'');
     };
-    sb.rpc('admin_applications',{p_campaign:id}).then(({data:a})=>{
+    const antwortzeit=m=>m==null?'noch keine Antwortzeit'
+      :m>=60?`antwortet in ~${num(Math.round(m/60))} h`:`antwortet in ~${num(Math.round(m))} min`;
+    sb.rpc('admin_applications',{p_campaign:id}).then(({data:a0})=>{
+      const a=(a0||[]).slice().sort((p,q)=>(p.status==='open'?0:1)-(q.status==='open'?0:1)
+        ||(p.reply_minutes==null)-(q.reply_minutes==null)||(p.reply_minutes??0)-(q.reply_minutes??0));
       $('#capps').innerHTML = !a?.length ? '<p class="tiny">Noch keine Bewerbungen.</p>'
-       : a.map(x=>`<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+       : a.map(x=>{ const pf=sicherUrl(x.portfolio_url); return `<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)">
           <div class="name">${esc(x.display_name)}
-            <span class="tiny"> · Stufe ${x.tier} · ${x.past_campaigns} Projekte</span></div>
+            <span class="tiny"> · Stufe ${num(x.tier)} · ${num(x.past_campaigns)} Projekte</span></div>
+          <div class="tiny">${esc(antwortzeit(x.reply_minutes))}${x.last_active_at?` · zuletzt aktiv ${esc(dd(x.last_active_at))}`:''}</div>
           <div class="tiny">${esc(x.job_title||'—')} · ${esc(x.city||'—')}
-            ${x.portfolio_url?` · <a href="${esc(x.portfolio_url)}" target="_blank" rel="noopener">Portfolio</a>`:''}</div>
+            ${pf?` · <a href="${esc(pf)}" target="_blank" rel="noopener noreferrer">Portfolio</a>`
+              :x.portfolio_url?` · Portfolio: ${esc(x.portfolio_url)}`:''}</div>
           ${x.answers?antworten(x)
             :x.message?`<div class="quote" style="border-left-color:var(--accent)">${esc(x.message)}</div>`:''}
           ${x.status==='open'
             ? `<div class="bar" style="margin-top:9px">
-                 <button class="btn blue" data-ok="${x.application_id}">Annehmen</button>
-                 <button class="btn quiet" data-no="${x.application_id}">Ablehnen</button></div>
-               <div data-decl="${x.application_id}" style="display:none;margin-top:9px">
-                 <div class="bar">${Object.entries(GRUND).map(([k,v])=>`<button class="btn quiet" data-why="${k}">${v}</button>`).join('')}</div>
+                 <button class="btn blue" data-ok="${esc(x.application_id)}">Annehmen</button>
+                 <button class="btn quiet" data-no="${esc(x.application_id)}">Ablehnen</button></div>
+               <div data-decl="${esc(x.application_id)}" style="display:none;margin-top:9px">
+                 <div class="bar">${Object.entries(GRUND).map(([k,v])=>`<button class="btn quiet" data-why="${esc(k)}">${esc(v)}</button>`).join('')}</div>
                  <input data-note maxlength="300" placeholder="Anmerkung, optional (max. 300 Zeichen)" style="margin-top:7px">
-                 <div class="bar" style="margin-top:7px"><button class="btn blue" data-send="${x.application_id}">Absage senden</button></div>
+                 <div class="bar" style="margin-top:7px"><button class="btn blue" data-send="${esc(x.application_id)}">Absage senden</button></div>
                </div>`
             : `<div class="tiny" style="margin-top:9px"><span class="dot ${x.status==='accepted'?'on':'off'}"></span>${x.status==='accepted'?'angenommen'
-                :x.status==='withdrawn'?'zurückgezogen':'abgelehnt'+(x.rejection_reason?' · '+(GRUND[x.rejection_reason]||esc(x.rejection_reason)):'')}</div>
+                :x.status==='withdrawn'?'zurückgezogen':'abgelehnt'+(x.rejection_reason?' · '+esc(GRUND[x.rejection_reason]||x.rejection_reason):'')}</div>
                ${x.rejection_note?`<div class="tiny">${esc(x.rejection_note)}</div>`:''}`}
-          </div>`).join('');
+          </div>`; }).join('');
       const fertig=msg=>{ toast(msg); campaignDetail(id,c); };
       $('#capps').querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{
         try{ await rpc('decide_application',{p_application:b.dataset.ok,p_accept:true});
           fertig('Angenommen · Gruppenchat angelegt'); }catch(err){ fail(err); }
       });
       $('#capps').querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>{
-        const box=$('#capps').querySelector(`[data-decl="${b.dataset.no}"]`);
+        const box=$('#capps').querySelector(`[data-decl="${CSS.escape(b.dataset.no)}"]`);
         box.style.display=box.style.display==='none'?'block':'none';
       });
       $('#capps').querySelectorAll('[data-decl]').forEach(box=>{
@@ -957,10 +1019,10 @@ async function loadPoints(){
   const {data}=await sb.rpc('admin_leaderboard',{p_limit:40});
   $('#lbList').innerHTML = !data?.length ? '<p class="tiny">Noch keine Punkte vergeben.</p>'
    : `<table><thead><tr><th>#</th><th>Name</th><th>Punkte</th><th>Stufe</th><th>Check-ins</th></tr></thead><tbody>`
-   + data.map((x,i)=>`<tr class="click" data-id="${x.profile_id}">
-      <td class="tiny">${i+1}</td>
+   + data.map((x,i)=>`<tr class="click" data-id="${esc(x.profile_id)}">
+      <td class="tiny">${num(i+1)}</td>
       <td class="name">${esc(x.display_name)}${x.is_cut?' · The Cut':''}<div class="tiny">${esc(x.city||'—')}</div></td>
-      <td><strong>${x.points}</strong></td><td>${x.tier}</td><td class="tiny">${x.check_ins}</td></tr>`).join('')+'</tbody></table>';
+      <td><strong>${num(x.points)}</strong></td><td>${num(x.tier)}</td><td class="tiny">${num(x.check_ins)}</td></tr>`).join('')+'</tbody></table>';
   $('#lbList').querySelectorAll('tr.click').forEach(r=>r.onclick=()=>memberDetail(r.dataset.id));
 }
 
@@ -970,8 +1032,8 @@ async function loadInvites(){
   $('#invList').innerHTML = !data?.length ? empty('Keine Codes','Leg oben einen an.')
    : `<table><thead><tr><th>Code</th><th>Wofür</th><th>Eingelöst</th><th>Läuft ab</th><th></th></tr></thead><tbody>`
    + data.map(c=>`<tr><td><span class="dot ${c.is_active?'on':''}"></span><strong>${esc(c.code)}</strong></td>
-      <td class="tiny">${esc(c.note||'—')}</td><td>${c.used_count} / ${c.max_uses}</td>
-      <td class="tiny">${c.expires_at?dd(c.expires_at):'unbegrenzt'}</td>
+      <td class="tiny">${esc(c.note||'—')}</td><td>${num(c.used_count)} / ${num(c.max_uses)}</td>
+      <td class="tiny">${esc(c.expires_at?dd(c.expires_at):'unbegrenzt')}</td>
       <td>${c.is_active?`<button class="btn quiet" data-off="${esc(c.code)}">Schließen</button>`:''}</td></tr>`).join('')+'</tbody></table>';
   $('#invList').querySelectorAll('[data-off]').forEach(b=>b.onclick=async()=>{
     await sb.from('invite_codes').update({is_active:false}).eq('code',b.dataset.off);
@@ -998,8 +1060,8 @@ async function loadReferrals(){
       <td>${esc(r.referred_name)}${r.same_day?'<div class="tiny" style="color:var(--warn)">am selben Tag angelegt</div>':''}</td>
       <td><span class="dot ${r.discounts_applied?'on':r.qualified?'warn':''}"></span>
         ${r.discounts_applied?'gewährt':r.qualified?'offen':'noch nicht gezahlt'}</td>
-      <td class="tiny">${dd(r.created_at)}</td>
-      <td><button class="btn quiet" data-flag="${r.id}" data-v="${!r.flagged}">${r.flagged?'Markierung weg':'Markieren'}</button></td>
+      <td class="tiny">${esc(dd(r.created_at))}</td>
+      <td><button class="btn quiet" data-flag="${esc(r.id)}" data-v="${esc(!r.flagged)}">${r.flagged?'Markierung weg':'Markieren'}</button></td>
      </tr>`).join('')+'</tbody></table>';
   $('#refList').querySelectorAll('[data-flag]').forEach(b=>b.onclick=async()=>{
     try{ await rpc('admin_flag_referral',{p_id:b.dataset.flag,p_flag:b.dataset.v==='true'});
@@ -1018,26 +1080,26 @@ async function loadNumbers(){
       ['Check-ins',m.checkins],['Buchungen',m.bookings],['Nicht erschienen',m.no_shows],
       ['Nachrichten',m.messages],['Verbindungen',m.matches],['Bewerbungen',m.applications],
       ['Radar aktiv',m.radar_enabled],['Unter 5 Fotos',m.photos_missing]];
-    $('#kpis').innerHTML=k.map(([l,n,a])=>`<div class="kpi ${a?'alert':''}"><div class="n">${n??0}</div><div class="l">${l}</div></div>`).join('');
+    $('#kpis').innerHTML=k.map(([l,n,a])=>`<div class="kpi ${a?'alert':''}"><div class="n">${esc(n??0)}</div><div class="l">${esc(l)}</div></div>`).join('');
   }
   const {data:d}=await sb.rpc('dormant_members',{p_days:21});
   $('#dormant').innerHTML = !d?.length ? '<p class="tiny">Alle waren in den letzten drei Wochen da.</p>'
-   : '<table><tbody>'+d.slice(0,25).map(x=>`<tr class="click" data-id="${x.id}">
+   : '<table><tbody>'+d.slice(0,25).map(x=>`<tr class="click" data-id="${esc(x.id)}">
       <td class="name">${esc(x.display_name)}</td><td class="tiny">${esc(x.city||'—')}</td>
       <td class="tiny">${esc(x.plan||'—')}</td>
-      <td><span class="dot ${x.days_away>45?'off':'warn'}"></span>vor ${x.days_away} Tagen</td></tr>`).join('')+'</tbody></table>';
+      <td><span class="dot ${x.days_away>45?'off':'warn'}"></span>vor ${num(x.days_away)} Tagen</td></tr>`).join('')+'</tbody></table>';
   $('#dormant').querySelectorAll('tr.click').forEach(r=>r.onclick=()=>memberDetail(r.dataset.id));
 
   const {data:ac}=await sb.rpc('admin_access_activity',{p_days:7});
   $('#accList').innerHTML = !ac?.length ? '<p class="tiny">Keine Codes in den letzten 7 Tagen.</p>'
    : '<table><tbody>'+ac.slice(0,15).map(x=>`<tr><td>${esc(x.member_name)}</td>
-      <td><span class="dot ${x.suspicious?'off':'on'}"></span>${x.codes} Codes</td>
-      <td class="tiny">zuletzt ${dt(x.last_code)}</td></tr>`).join('')+'</tbody></table>';
+      <td><span class="dot ${x.suspicious?'off':'on'}"></span>${num(x.codes)} Codes</td>
+      <td class="tiny">zuletzt ${esc(dt(x.last_code))}</td></tr>`).join('')+'</tbody></table>';
 
   const {data:cr}=await sb.rpc('admin_crews');
   $('#crewList').innerHTML = !cr?.length ? '<p class="tiny">Noch keine Crews.</p>'
    : '<table><tbody>'+cr.slice(0,20).map(x=>`<tr><td class="name">${esc(x.name)}${x.is_agency?' · Agentur':''}</td>
-      <td class="tiny">${x.members} Mitglieder · ${x.messages} Nachrichten</td>
+      <td class="tiny">${num(x.members)} Mitglieder · ${num(x.messages)} Nachrichten</td>
       <td class="tiny">${esc(x.owner_name||'—')}</td></tr>`).join('')+'</tbody></table>';
 }
 
@@ -1047,7 +1109,7 @@ async function loadSettings(){
   $('#pcList').innerHTML = (pc||[]).map(x=>`<div class="bar" style="margin-bottom:8px">
       <div style="flex:1"><strong>${esc(x.description||x.key)}</strong>
         <div class="tiny">${esc(x.key)}</div></div>
-      <input type="number" value="${x.value}" data-pc="${esc(x.key)}" style="max-width:100px">
+      <input type="number" value="${esc(x.value)}" data-pc="${esc(x.key)}" style="max-width:100px">
     </div>`).join('') + '<button class="btn blue" id="pcSave" style="margin-top:8px">Punktwerte speichern</button>';
   $('#pcSave').onclick=async()=>{
     for(const i of document.querySelectorAll('[data-pc]')){
@@ -1059,7 +1121,7 @@ async function loadSettings(){
   const {data:tt}=await sb.from('tier_thresholds').select('*').order('tier');
   $('#tierList').innerHTML = (tt||[]).map(x=>`<div class="bar" style="margin-bottom:8px">
       <div style="flex:1"><strong>${esc(x.name)}</strong></div>
-      <input type="number" value="${x.min_points}" data-tt="${x.tier}" style="max-width:110px">
+      <input type="number" value="${esc(x.min_points)}" data-tt="${esc(x.tier)}" style="max-width:110px">
       <span class="tiny">Punkte nötig</span></div>`).join('')
     + '<button class="btn blue" id="ttSave" style="margin-top:8px">Stufen speichern</button>';
   $('#ttSave').onclick=async()=>{
@@ -1071,16 +1133,16 @@ async function loadSettings(){
 
   $('#planList').innerHTML = `<table><thead><tr><th>Tarif</th><th>Preis</th><th>Tage</th>
     <th>Raum h</th><th>Gäste</th><th>Stripe</th></tr></thead><tbody>`
-   + plans.map(p=>`<tr><td class="name">${esc(p.name)}</td><td>${eur(p.price_cents)}</td>
-      <td>${p.unlimited?'unbegrenzt':p.office_days}</td><td>${p.meeting_room_hours}</td>
-      <td>${p.guest_passes}</td>
+   + plans.map(p=>`<tr><td class="name">${esc(p.name)}</td><td>${esc(eur(p.price_cents))}</td>
+      <td>${esc(p.unlimited?'unbegrenzt':num(p.office_days))}</td><td>${num(p.meeting_room_hours)}</td>
+      <td>${num(p.guest_passes)}</td>
       <td><span class="dot ${p.stripe_price_id?'on':'off'}"></span>
         ${p.stripe_price_id?'verknüpft':'<span style="color:var(--danger)">fehlt</span>'}</td></tr>`).join('')
    + '</tbody></table><p class="tiny" style="margin-top:10px">Ohne Stripe-Verknüpfung schlägt jede Zahlung fehl. Die price_id legst du in Stripe an und trägst sie in membership_plans ein.</p>';
 
   const {data:au}=await sb.rpc('admin_audit',{p_limit:60});
   $('#auditList').innerHTML = !au?.length ? '<p class="tiny">Noch nichts protokolliert.</p>'
-   : '<table><tbody>'+au.map(x=>`<tr><td class="tiny">${dt(x.created_at)}</td>
+   : '<table><tbody>'+au.map(x=>`<tr><td class="tiny">${esc(dt(x.created_at))}</td>
       <td>${esc(x.actor_name||'System')}</td><td class="tiny">${esc(x.action)}</td></tr>`).join('')+'</tbody></table>';
 }
 
