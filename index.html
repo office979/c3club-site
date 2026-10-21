@@ -1,17 +1,18 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>c3 Creative Creator Club – Coworking für Kreative in Wien</title>
-<meta name="description" content="c3 ist der Coworking-Club für Kreative: Schreibtische, Studios und Community. Erster Space in Wien ab 1. Februar 2027. Jetzt vorregistrieren und zum Launch als Erste dabei sein.">
+<title>c3 Creative Creator Club – The Club for Creatives, opening soon in Wien</title>
+<meta name="description" content="c3 is the club for creatives. From creatives, for creatives: desks, studios, crew and projects. First space in Wien, opening February 2027. Get on the list and be first in.">
 <link rel="canonical" href="https://c3club.io/">
-<meta property="og:title" content="c3 Creative Creator Club – Coming soon">
-<meta property="og:description" content="Coworking-Club für Kreative. Wien ab 1. Februar 2027. Jetzt vorregistrieren.">
+<meta property="og:title" content="c3 – The Club for Creatives. Opening soon.">
+<meta property="og:description" content="From creatives, for creatives. Wien, Februar 2027. Get on the list.">
 <meta property="og:image" content="https://c3club.io/social.png">
 <meta property="og:url" content="https://c3club.io/">
 <meta property="og:type" content="website">
-<meta property="og:locale" content="de_AT">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="de_AT">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#03040A">
 <link rel="icon" href="/favicon.png">
@@ -29,8 +30,27 @@
             padding: 6px 14px; border-radius: 99px; border: 1px solid var(--kante);
             background: var(--glas); color: var(--txt2); font-size: 13px;
             letter-spacing: 1.5px; text-transform: uppercase; }
-  .held h1 { font-size: 42px; line-height: 1.12; margin: 22px 0 14px; letter-spacing: -0.01em; }
+  .held h1 { font-size: 46px; line-height: 1.08; margin: 22px 0 14px; letter-spacing: -0.02em; }
+  .held h1 .soon { display: block; color: transparent;
+                   background: linear-gradient(90deg, #6694FF 0%, #2365FF 45%, #B8C8FF 100%);
+                   -webkit-background-clip: text; background-clip: text; }
   .held p.lead { font-size: 18px; max-width: 560px; margin: 0 auto; color: var(--txt2); }
+  .motto { margin: 26px auto 0; font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
+           color: var(--txt3); }
+  .motto b { color: var(--txt); font-weight: 600; }
+  @keyframes puls { 0%,100% { box-shadow: 0 0 10px var(--glow); } 50% { box-shadow: 0 0 22px var(--glow), 0 0 40px rgba(102,148,255,0.45); } }
+  .kicker .leuchte { animation: puls 2.2s ease-in-out infinite; }
+
+  .ticker { overflow: hidden; margin: 44px -20px 0; border-top: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(255,255,255,0.07); padding: 12px 0;
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .ticker .lauf { display: flex; gap: 0; width: max-content; animation: lauf 38s linear infinite; }
+  .ticker span { white-space: nowrap; padding: 0 22px; font-size: 13px; letter-spacing: 2.5px;
+                 text-transform: uppercase; color: var(--txt3); }
+  .ticker span i { font-style: normal; color: var(--akzent); padding-right: 22px; }
+  @keyframes lauf { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .ticker .lauf, .kicker .leuchte { animation: none; } }
 
   .karte { background: rgba(18,20,32,0.72); border: 1px solid rgba(255,255,255,0.08);
            border-top-color: rgba(255,255,255,0.16); border-radius: 22px;
@@ -79,6 +99,8 @@
   .stadt .name { font-weight: 600; font-size: 18px; }
   .stadt .lage { color: var(--txt2); font-size: 14px; }
   .stadt .bald { color: var(--txt3); font-size: 13px; margin-top: 6px; }
+  .stadt.geheim .name { filter: blur(7px); user-select: none; color: var(--txt2); }
+  .stadt.geheim { border-style: dashed; }
   .leuchte { width: 8px; height: 8px; border-radius: 99px; background: var(--akzent);
              box-shadow: 0 0 10px var(--glow); display: inline-block;
              margin-right: 8px; vertical-align: 1px; }
@@ -86,11 +108,13 @@
   .punkte { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
   .punkt { background: var(--glas); border: 1px solid var(--kante); border-radius: 18px; padding: 20px 22px; }
   .punkt h3 { margin-top: 0; }
+  .punkt .tag { display: inline-block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+                color: var(--akzent); margin-bottom: 8px; }
   .punkt p { margin-bottom: 0; font-size: 15px; }
   .mitglied { text-align: center; color: var(--txt3); font-size: 14px; margin-top: 36px; }
   .mitglied a { color: var(--txt2); }
   @media (max-width: 520px) {
-    .held h1 { font-size: 32px; }
+    .held h1 { font-size: 34px; }
     .zwei { grid-template-columns: 1fr; }
     .karte { padding: 22px 18px; }
   }
@@ -103,44 +127,47 @@
   <img src="/wortmarke.png" alt="c3" class="logo-bild">
   <div class="klein">creative · creator · club</div>
 
-  <div class="kicker"><span class="leuchte"></span>Coming soon · Wien, 1. Februar 2027</div>
-  <h1>Der Club für Kreative<br>öffnet bald.</h1>
+  <div class="kicker"><span class="leuchte"></span>Wien · opening Februar 2027</div>
+  <h1>The Club for Creatives.<span class="soon">Opening soon.</span></h1>
   <p class="lead">
-    Schreibtische, Studios und Meetingräume für Filmemacher, Fotografinnen,
-    Podcaster und Designer. Dazu eine Community, in der du die Leute für dein
-    nächstes Projekt findest. Trag dich ein und sei beim Launch als Erste dabei.
+    Desks, Studios und Meetingräume für Filmmaker, Fotografinnen, Podcaster
+    und Designer. Plus eine Crew, mit der du dein nächstes Projekt startest.
+    Kein Konzernbüro, kein Café-Hopping. Ein Space, der sich wie deiner anfühlt.
   </p>
+  <p class="motto"><b>From Creatives.</b> For Creatives.</p>
 </div>
 
 <div class="karte" id="karte">
   <form id="form" novalidate>
-    <h2>Vorregistrieren</h2>
-    <p class="unter">Kostenlos und unverbindlich. Wir melden uns, sobald die App und der Space starten.</p>
+    <h2>Get on the list.</h2>
+    <p class="unter">Kostenlos, unverbindlich, first come first in. Wir pingen dich an, sobald App und Space live gehen.</p>
 
     <div class="feld">
-      <label for="email">E-Mail-Adresse</label>
-      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="du@beispiel.at" required>
+      <label for="email">E-Mail</label>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@yourstudio.at" required>
     </div>
     <div class="feld">
       <label for="name">Name</label>
-      <input id="name" name="name" type="text" autocomplete="name" placeholder="Wie dürfen wir dich nennen?" maxlength="80">
+      <input id="name" name="name" type="text" autocomplete="name" placeholder="Wie nennt dich deine Crew?" maxlength="80">
     </div>
     <div class="zwei">
       <div class="feld">
-        <label for="stadt">Stadt</label>
+        <label for="stadt">Deine Stadt</label>
         <select id="stadt" name="stadt">
-          <option value="">Bitte wählen</option>
+          <option value="">Wähl aus</option>
           <option>Wien</option>
-          <option>Berlin</option>
-          <option>München</option>
-          <option>Zürich</option>
+          <option>Graz</option>
+          <option>Linz</option>
+          <option>Salzburg</option>
+          <option>Deutschland</option>
+          <option>Schweiz</option>
           <option>Andere</option>
         </select>
       </div>
       <div class="feld">
-        <label for="gewerk">Was machst du?</label>
+        <label for="gewerk">Dein Craft</label>
         <select id="gewerk" name="gewerk">
-          <option value="">Bitte wählen</option>
+          <option value="">Wähl aus</option>
           <option>Film &amp; Video</option>
           <option>Fotografie</option>
           <option>Podcast &amp; Audio</option>
@@ -157,18 +184,25 @@
     </div>
     <label class="einwilligung">
       <input id="ok" type="checkbox" required>
-      <span>Ich bin einverstanden, dass c3 meine Angaben speichert und mich zum Launch per E-Mail kontaktiert.
-        Abmelden jederzeit mit einer Mail an hallo@c3club.io.
+      <span>Okay für mich: c3 speichert meine Angaben und pingt mich zum Launch per Mail an.
+        Raus jederzeit mit einer Mail an hallo@c3club.io.
         <a href="/datenschutz">Datenschutz</a></span>
     </label>
-    <button class="knopf breit" id="senden" type="submit">Auf die Liste</button>
+    <button class="knopf breit" id="senden" type="submit">Count me in</button>
     <p class="fehler" id="fehler" aria-live="polite"></p>
   </form>
 
   <div class="danke" id="danke" hidden>
     <div class="stern">★</div>
-    <h2>Du bist auf der Liste.</h2>
-    <p>Wir melden uns, sobald es losgeht. Bis dahin: weiter Gutes machen.</p>
+    <h2>You're in.</h2>
+    <p>Wir melden uns, sobald es losgeht. Bis dahin: keep creating.</p>
+  </div>
+</div>
+
+<div class="ticker" aria-hidden="true">
+  <div class="lauf">
+    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Projects</span><span><i>·</i>Nights</span>
+    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Projects</span><span><i>·</i>Nights</span>
   </div>
 </div>
 
@@ -176,46 +210,49 @@
   <div class="stadt">
     <div class="name">Wien</div>
     <div class="lage">Neubau · Lindengasse 25</div>
-    <div class="bald"><span class="leuchte"></span>eröffnet am 1. Februar 2027</div>
+    <div class="bald"><span class="leuchte"></span>opening 1. Februar 2027</div>
   </div>
-  <div class="stadt">
-    <div class="name">Berlin</div>
-    <div class="lage">Kreuzberg</div>
-    <div class="bald">in Planung</div>
+  <div class="stadt geheim">
+    <div class="name">Nächste Stadt</div>
+    <div class="lage">Location in Planung</div>
+    <div class="bald">dropping later</div>
   </div>
-  <div class="stadt">
-    <div class="name">München</div>
-    <div class="lage">Glockenbach</div>
-    <div class="bald">in Planung</div>
+  <div class="stadt geheim">
+    <div class="name">Übernächste</div>
+    <div class="lage">Location in Planung</div>
+    <div class="bald">dropping later</div>
   </div>
 </div>
 
-<h2>Was dich erwartet</h2>
+<h2>What's in the box</h2>
 <div class="punkte">
   <div class="punkt">
-    <h3>Die Räume</h3>
-    <p>Schreibtische, Studios, Podcast-Raum, Meetingräume. Buchbar im
-       Raumplan, mit echter Belegung in Echtzeit. Türcode direkt aus der App.</p>
+    <span class="tag">The Space</span>
+    <h3>Desks, Studios, Rooms.</h3>
+    <p>Dein Desk, dein Studio, der Podcast-Raum. Buchen im Raumplan, Belegung
+       live, Türcode direkt in der App. Kein Rumfragen, kein Schlüssel-Drama.</p>
   </div>
   <div class="punkt">
-    <h3>Die Leute</h3>
-    <p>Mitgliederverzeichnis nach Gewerk, Teams mit eigenem Kanal und ein
-       Partner Up, das dir Creator in deiner Nähe vorschlägt. Für jedes
-       Mitglied kostenlos.</p>
+    <span class="tag">The Crew</span>
+    <h3>Find your people.</h3>
+    <p>Member Directory nach Craft, Teams mit eigenem Channel und Partner Up,
+       das dir Creatives in deiner Nähe zeigt. Für jedes Mitglied kostenlos, forever.</p>
   </div>
   <div class="punkt">
-    <h3>Die Projekte</h3>
-    <p>Projekte von Kunden und von Mitgliedern, vom Team geprüft, bevor sie
-       live gehen. Bewerben mit einem kurzen Fragebogen, kostenlos.</p>
+    <span class="tag">The Projects</span>
+    <h3>Gigs that pay.</h3>
+    <p>Projekte von Kunden und aus der Community, vom Team gecheckt, bevor sie
+       live gehen. Bewerben in zwei Minuten, Gruppenchat ab Zusage.</p>
   </div>
   <div class="punkt">
-    <h3>Die Abende</h3>
-    <p>Frühstücke, Workshops, Screenings. Zusagen in der App, Warteliste
-       rückt automatisch nach.</p>
+    <span class="tag">The Nights</span>
+    <h3>After hours.</h3>
+    <p>Breakfasts, Workshops, Screenings, Studio-Nights. Zusagen in der App,
+       Warteliste rückt von selbst nach.</p>
   </div>
 </div>
 
-<p class="mitglied">Schon ein Konto? <a href="https://c3club.app">Zur Web-App</a></p>
+<p class="mitglied">Already in? <a href="https://c3club.app">Zur Web-App</a></p>
 
 <footer>
   <a href="/agb">AGB</a>
@@ -247,10 +284,10 @@
     fehler.textContent = '';
     var email = document.getElementById('email').value.trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) { fehler.textContent = 'Bitte eine gültige E-Mail-Adresse angeben.'; return; }
-    if (!document.getElementById('ok').checked) { fehler.textContent = 'Bitte bestätige, dass wir dich kontaktieren dürfen.'; return; }
+    if (!document.getElementById('ok').checked) { fehler.textContent = 'Bitte kurz bestätigen, dass wir dich anpingen dürfen.'; return; }
     if (form.website.value) { form.hidden = true; document.getElementById('danke').hidden = false; return; }
 
-    knopf.disabled = true; knopf.textContent = 'Einen Moment …';
+    knopf.disabled = true; knopf.textContent = 'One sec …';
     try {
       var r = await fetch(SUPABASE_URL + '/rest/v1/rpc/vorregistrieren', {
         method: 'POST',
@@ -273,7 +310,7 @@
       document.getElementById('karte').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (e) {
       fehler.textContent = e.message || 'Hat gerade nicht geklappt. Bitte später noch einmal.';
-      knopf.disabled = false; knopf.textContent = 'Auf die Liste';
+      knopf.disabled = false; knopf.textContent = 'Count me in';
     }
   });
 })();
