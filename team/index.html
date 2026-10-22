@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'">
+<title>c3 Team</title>
+<!-- Keine Google Fonts: Abruf von fonts.googleapis.com uebertraegt die IP an Google (DSGVO). Outfit greift nur, wenn lokal installiert. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#030308;--accent:#2365FF;--glow:#6694FF;
+  --glass:rgba(255,255,255,.055);--glass2:rgba(255,255,255,.09);
+  --edge:rgba(255,255,255,.13);
+  --txt:#fff;--txt2:rgba(255,255,255,.55);--txt3:rgba(255,255,255,.35);
+  --danger:#FF5D5D;--warn:#FF9F45;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Outfit,system-ui,sans-serif;background:var(--bg);color:var(--txt);
+  min-height:100vh;background-image:radial-gradient(120% 80% at 50% -20%,rgba(30,30,214,.5),transparent 60%);
+  background-attachment:fixed;font-size:14px}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit}
+input,select,textarea{font-family:inherit;background:rgba(255,255,255,.04);
+  border:1px solid var(--edge);border-radius:11px;padding:9px 12px;color:#fff;font-size:13px;width:100%}
+input:focus,select,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+select option{background:#0b0b18}
+textarea{min-height:78px;resize:vertical;line-height:1.5}
+a{color:var(--glow)}
+
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px}
+.gate form{width:100%;max-width:340px;background:var(--glass);border:1px solid var(--edge);
+  border-radius:22px;padding:28px;backdrop-filter:blur(18px)}
+.gate h1{font-size:15px;font-weight:500;margin-bottom:4px}
+.gate p{font-size:13px;color:var(--txt2);margin-bottom:22px}
+.lbl{display:block;font-size:11px;color:var(--txt2);margin:0 0 5px}
+.f{margin-bottom:12px}
+.primary{background:#fff;color:var(--bg);border-radius:99px;padding:11px 24px;
+  font-size:13.5px;font-weight:600;box-shadow:0 0 26px -6px rgba(255,255,255,.5);width:100%}
+.primary:disabled{opacity:.45;box-shadow:none}
+.btn{background:var(--glass2);border:1px solid var(--edge);border-radius:99px;
+  padding:7px 14px;font-size:12px;font-weight:500}
+.btn:hover{border-color:rgba(255,255,255,.32)}
+.btn.red{background:rgba(255,93,93,.16);border-color:rgba(255,93,93,.45);color:#FFB4B4}
+.btn.blue{background:rgba(35,101,255,.2);border-color:rgba(102,148,255,.5)}
+.btn.quiet{background:transparent;color:var(--txt2)}
+
+.shell{display:none;max-width:1240px;margin:0 auto;padding:24px 18px 80px}
+.shell.on{display:block}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.mark{font-size:19px;font-weight:600;letter-spacing:-.5px}
+.mark em{font-style:normal;color:var(--glow)}
+.who{margin-left:auto;font-size:12px;color:var(--txt2)}
+nav{display:flex;gap:6px;margin-bottom:22px;overflow-x:auto;padding-bottom:3px}
+nav button{background:var(--glass);border:1px solid var(--edge);color:var(--txt2);
+  border-radius:99px;padding:8px 15px;font-size:12.5px;font-weight:500;white-space:nowrap}
+nav button.sel{background:rgba(35,101,255,.18);border-color:rgba(102,148,255,.5);color:#fff}
+nav button b{margin-left:6px;background:var(--danger);font-size:10px;font-weight:600;
+  padding:1px 6px;border-radius:99px}
+.page{display:none}.page.on{display:block}
+
+h2{font-size:24px;font-weight:600;letter-spacing:-.6px;margin-bottom:4px}
+.hint{font-size:13px;color:var(--txt2);margin-bottom:18px}
+.card{background:var(--glass);border:1px solid var(--edge);border-radius:18px;
+  padding:18px;margin-bottom:14px}
+.card h3{font-size:13px;font-weight:500;color:var(--txt2);margin-bottom:13px}
+.bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bar input,.bar select{width:auto;min-width:130px;flex:0 1 auto}
+.bar .grow{flex:1;min-width:170px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+@media(max-width:700px){.cols,.cols3{grid-template-columns:1fr}}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--txt3);padding:0 9px 9px;
+  border-bottom:1px solid var(--edge)}
+td{padding:10px 9px;border-bottom:1px solid rgba(255,255,255,.055);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
+.name{font-weight:500}
+.tiny{font-size:11.5px;color:var(--txt2)}
+
+/* Punkte statt Haken — c3-Regel */
+.dot{display:inline-block;width:7px;height:7px;border-radius:99px;
+  background:rgba(255,255,255,.18);margin-right:7px;vertical-align:middle}
+.dot.on{background:var(--accent);box-shadow:0 0 9px var(--glow)}
+.dot.warn{background:var(--warn);box-shadow:0 0 9px var(--warn)}
+.dot.off{background:var(--danger);box-shadow:0 0 9px rgba(255,93,93,.7)}
+
+/* Meldungen */
+.rep{background:var(--glass);border:1px solid var(--edge);border-radius:18px;padding:16px 18px;
+  margin-bottom:11px;display:grid;grid-template-columns:82px 1fr auto;gap:16px;align-items:start}
+.rep.late{border-color:rgba(255,93,93,.55);background:rgba(255,93,93,.07)}
+.clock{position:relative;width:82px;height:82px}
+.clock svg{transform:rotate(-90deg)}
+.clock .val{position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:600}
+.clock .val small{display:block;font-size:9px;font-weight:400;color:var(--txt2);margin-top:1px}
+.quote{margin-top:9px;padding:9px 12px;background:rgba(0,0,0,.28);
+  border-left:2px solid var(--danger);border-radius:0 10px 10px 0;font-size:13px;white-space:pre-wrap}
+.acts{display:flex;flex-direction:column;gap:7px;min-width:140px}
+@media(max-width:640px){.rep{grid-template-columns:1fr}.acts{flex-direction:row;flex-wrap:wrap}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:10px}
+.kpi{background:var(--glass);border:1px solid var(--edge);border-radius:16px;padding:14px}
+.kpi .n{font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1.1}
+.kpi .l{font-size:11.5px;color:var(--txt2);margin-top:3px}
+.kpi.alert{border-color:rgba(255,93,93,.5)}.kpi.alert .n{color:#FF8F8F}
+.empty{text-align:center;padding:42px 20px;color:var(--txt2)}
+.empty b{display:block;font-size:16px;color:#fff;font-weight:500;margin-bottom:6px}
+
+/* Ablage rechts */
+.panel{position:fixed;inset:0 0 0 auto;width:min(520px,100%);background:#080812;
+  border-left:1px solid var(--edge);padding:24px;overflow-y:auto;z-index:50;
+  transform:translateX(100%);transition:transform .22s ease}
+.panel.on{transform:none}
+.panel .x{position:absolute;top:18px;right:18px}
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:49;display:none}
+.veil.on{display:block}
+@media(prefers-reduced-motion:reduce){.panel{transition:none}}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99;
+  background:rgba(20,20,40,.96);border:1px solid var(--edge);border-radius:99px;
+  padding:11px 22px;font-size:13px;backdrop-filter:blur(18px);opacity:0;
+  pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.toast.bad{border-color:rgba(255,93,93,.5)}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <form id="loginForm">
+    <h1>c3 Team</h1>
+    <p>Verwaltung. Nur für Team-Konten.</p>
+    <div class="f"><label class="lbl">E-Mail</label><input type="email" id="email" required autocomplete="username"></div>
+    <div class="f"><label class="lbl">Passwort</label><input type="password" id="pw" required autocomplete="current-password"></div>
+    <button class="primary" type="submit" id="loginBtn">Anmelden</button>
+    <p id="loginMsg" style="margin-top:12px;font-size:12.5px;color:var(--danger);min-height:17px"></p>
+  </form>
+</div>
+
+<div class="shell" id="shell">
+  <div class="top">
+    <div class="mark">c<em>3</em> Team</div>
+    <div class="who" id="who"></div>
+    <button class="btn quiet" id="reload">Aktualisieren</button>
+    <button class="btn quiet" id="logout">Abmelden</button>
+  </div>
+
+  <nav>
+    <button class="sel" data-p="reports">Meldungen<b id="repBadge" style="display:none">0</b></button>
+    <button data-p="members">Mitglieder</button>
+    <button data-p="bookings">Buchungen</button>
+    <button data-p="events">Events</button>
+    <button data-p="campaigns">Ausschreibungen</button>
+    <button data-p="points">Punkte</button>
+    <button data-p="invites">Einladungen</button>
+    <button data-p="referrals">Referral</button>
+    <button data-p="vorreg">Vorregistrierungen<b id="vrBadge" style="display:none">0</b></button>
+    <button data-p="numbers">Zahlen</button>
+    <button data-p="settings">Einstellungen</button>
+  </nav>
+
+  <section class="page on" id="p-reports">
+    <h2>Meldungen</h2>
+    <p class="hint">Zugesagt sind 24 Stunden. Der Ring zeigt, was davon übrig ist.</p>
+    <div id="repList"></div>
+  </section>
+
+  <section class="page" id="p-members">
+    <h2>Mitglieder</h2>
+    <p class="hint">Zeile anklicken für alle Details und Aktionen.</p>
+    <div class="bar">
+      <input class="grow" id="mq" placeholder="Name oder Beruf suchen">
+      <select id="mfilter">
+        <option value="">Alle</option>
+        <option value="past_due">Zahlung offen</option>
+        <option value="paused">Gesperrt</option>
+        <option value="dormant">Lange nicht da</option>
+        <option value="nophotos">Unter 5 Fotos</option>
+        <option value="cut">The Cut</option>
+      </select>
+    </div>
+    <div class="card"><div id="memList"></div></div>
+  </section>
+
+  <section class="page" id="p-bookings">
+    <h2>Buchungen</h2>
+    <p class="hint">Stornieren oder Plätze für Events und Wartung sperren.</p>
+    <div class="bar">
+      <select id="bloc"><option value="">Alle Standorte</option></select>
+      <select id="bdays"><option value="7">7 Tage</option><option value="14">14 Tage</option><option value="30">30 Tage</option></select>
+      <button class="btn blue" id="blockBtn">Platz sperren</button>
+      <button class="btn" id="seatsBtn">Raumplan bearbeiten</button>
+    </div>
+    <div class="card"><div id="bookList"></div></div>
+    <div class="card"><h3>Check-ins der letzten 14 Tage</h3><div id="ciList"></div></div>
+  </section>
+
+  <section class="page" id="p-events">
+    <h2>Events</h2>
+    <p class="hint">Anlegen, bearbeiten, Zusagen sehen, beim Einlass abhaken.</p>
+    <div class="bar"><button class="btn blue" id="newEvent">Neues Event</button></div>
+    <div class="card"><div id="evList"></div></div>
+  </section>
+
+  <section class="page" id="p-campaigns">
+    <h2>Ausschreibungen</h2>
+    <p class="hint">Mitglieder mit Tarif legen Ausschreibungen selbst an. Sie gehen erst nach Freigabe durch das Team online.</p>
+    <div class="card" id="cpReview" style="display:none"></div>
+    <div class="bar"><button class="btn blue" id="newCampaign">Neue Ausschreibung</button></div>
+    <div class="card"><div id="cpList"></div></div>
+  </section>
+
+  <section class="page" id="p-points">
+    <h2>Punkte</h2>
+    <p class="hint">Rangliste und manuelle Buchungen, zum Beispiel für Speaker.</p>
+    <div class="card"><h3>Rangliste, rollende 12 Monate</h3><div id="lbList"></div></div>
+  </section>
+
+  <section class="page" id="p-invites">
+    <h2>Einladungen</h2>
+    <div class="card">
+      <h3>Neuen Code anlegen</h3>
+      <div class="bar">
+        <input id="icode" placeholder="Code, z.B. C3WELLE2" style="max-width:200px">
+        <input class="grow" id="inote" placeholder="Wofür ist der Code?">
+        <input id="imax" type="number" value="1" min="1" style="max-width:88px">
+        <button class="btn blue" id="icreate">Anlegen</button>
+      </div>
+    </div>
+    <div class="card"><h3>Bestehende Codes</h3><div id="invList"></div></div>
+  </section>
+
+  <section class="page" id="p-referrals">
+    <h2>Referral</h2>
+    <p class="hint">Werber und Geworbene. Auffälligkeiten sind markiert.</p>
+    <div class="card"><div id="refList"></div></div>
+  </section>
+
+  <section class="page" id="p-vorreg">
+    <h2>Vorregistrierungen</h2>
+    <p class="hint">Eintragungen über die Coming-Soon-Seite auf c3club.io. Löschen bei Widerruf; „Eingeladen" markiert, wem die Einladung schon geschickt wurde.</p>
+    <div class="bar"><button class="btn quiet" id="vrCsv">Als CSV herunterladen</button><span class="tiny" id="vrStat"></span></div>
+    <div class="card"><div id="vrList"></div></div>
+  </section>
+
+  <section class="page" id="p-numbers">
+    <h2>Zahlen</h2>
+    <p class="hint">Letzte 30 Tage.</p>
+    <div class="grid" id="kpis"></div>
+    <div class="card" style="margin-top:14px"><h3>Lange nicht mehr da</h3><div id="dormant"></div></div>
+    <div class="card"><h3>Zutrittscodes — auffällige Häufung</h3><div id="accList"></div></div>
+    <div class="card"><h3>Crews</h3><div id="crewList"></div></div>
+  </section>
+
+  <section class="page" id="p-settings">
+    <h2>Einstellungen</h2>
+    <p class="hint">Werte, die das Punktesystem und die Tarife steuern.</p>
+    <div class="card"><h3>Punktwerte</h3><div id="pcList"></div></div>
+    <div class="card"><h3>Stufen</h3><div id="tierList"></div></div>
+    <div class="card"><h3>Tarife</h3><div id="planList"></div></div>
+    <div class="card"><h3>Protokoll</h3><div id="auditList"></div></div>
+  </section>
+</div>
+
+<div class="veil" id="veil"></div>
+<aside class="panel" id="panel"><button class="btn quiet x" id="closePanel">Schließen</button><div id="panelBody"></div></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   EINRICHTUNG — beide Werte stehen in Supabase unter Settings → API.
+   Nimm den anon-Schlüssel. Der service_role-Schlüssel gehört NIE
+   in diese Datei.
+   ══════════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://lbqdugnrfnmytsuxmeww.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicWR1Z25yZm5teXRzdXhtZXd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzU3MTAsImV4cCI6MjEwNTMxMTcxMH0.uMon51b-jcETsiGiPBFPoeuXrgfayk5u-ut2GOmRGt0';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = s => document.querySelector(s);
+let timer, locations = [], plans = [], members = [];
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* Zahl fuers HTML: nur endliche Zahlen (auch als Ziffern-String), sonst "?". */
+const num = v => { const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN;
+  return Number.isFinite(n) ? String(n) : '?'; };
+/* Link aus der Datenbank: nur http(s), sonst null und es wird kein Link gerendert. */
+const sicherUrl = u => { const s = typeof u === 'string' ? u.trim() : ''; return /^https?:\/\//i.test(s) ? s : null; };
+const dt = s => s ? new Date(s).toLocaleString('de-DE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+const dd = s => s ? new Date(s).toLocaleDateString('de-DE') : '—';
+const eur = c => '€ ' + (c/100).toLocaleString('de-DE',{maximumFractionDigits:0});
+const forInput = s => s ? new Date(new Date(s).getTime() - new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16) : '';
+
+function toast(m, bad){ const t=$('#toast'); t.textContent=m; t.className='toast on'+(bad?' bad':''); setTimeout(()=>t.className='toast',2800); }
+function fail(e){ toast(e?.message || 'Hat nicht geklappt.', true); }
+function openPanel(html){ $('#panelBody').innerHTML=html; $('#panel').classList.add('on'); $('#veil').classList.add('on'); }
+function closePanel(){ $('#panel').classList.remove('on'); $('#veil').classList.remove('on'); }
+$('#closePanel').onclick = closePanel; $('#veil').onclick = closePanel;
+const empty = (t,s) => `<div class="empty"><b>${esc(t)}</b>${esc(s)}</div>`;
+
+/* ── Anmeldung ───────────────────────────── */
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault();
+  const b=$('#loginBtn'); b.disabled=true; $('#loginMsg').textContent='';
+  const {error} = await sb.auth.signInWithPassword({email:$('#email').value,password:$('#pw').value});
+  if(error){ $('#loginMsg').textContent='E-Mail oder Passwort stimmt nicht.'; b.disabled=false; return; }
+  const {data:p} = await sb.from('profiles').select('display_name,is_admin').single();
+  if(!p?.is_admin){ $('#loginMsg').textContent='Dieses Konto hat keine Team-Rechte.'; await sb.auth.signOut(); b.disabled=false; return; }
+  $('#who').textContent=p.display_name; start();
+};
+$('#logout').onclick = async()=>{ clearInterval(timer); await sb.auth.signOut(); location.reload(); };
+$('#reload').onclick = ()=>loadAll();
+
+async function start(){
+  $('#gate').style.display='none'; $('#shell').classList.add('on');
+  const [{data:l},{data:pl}] = await Promise.all([
+    sb.from('locations').select('id,city,area,floor_plan').order('sort_order'),
+    sb.from('membership_plans').select('*').order('sort_order')]);
+  locations = l||[]; plans = pl||[];
+  $('#bloc').innerHTML = '<option value="">Alle Standorte</option>' +
+    locations.map(x=>`<option value="${esc(x.id)}">${esc(x.city)}</option>`).join('');
+  loadAll();
+  timer = setInterval(loadReports, 60000);
+}
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('sel'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  b.classList.add('sel'); $('#p-'+b.dataset.p).classList.add('on');
+});
+
+async function loadAll(){
+  await Promise.all([loadReports(),loadMembers(),loadBookings(),loadEvents(),
+    loadCampaigns(),loadPoints(),loadInvites(),loadReferrals(),loadNumbers(),loadSettings(),loadVorreg()]);
+}
+
+/* ── Meldungen ───────────────────────────── */
+async function loadReports(){
+  const {data,error} = await sb.rpc('open_reports');
+  if(error) return;
+  const n=data?.length??0, b=$('#repBadge');
+  b.style.display=n?'inline-block':'none'; b.textContent=n;
+  if(!n) return $('#repList').innerHTML=empty('Nichts offen','Alle Meldungen sind bearbeitet.');
+
+  $('#repList').innerHTML = data.map(r=>{
+    const left=Number(r.hours_left), pct=Math.max(0,Math.min(1,left/24)), C=2*Math.PI*33;
+    const col = r.overdue?'var(--danger)':left<6?'var(--warn)':'var(--accent)';
+    const lab = r.overdue?'überfällig':left<1?num(Math.round(left*60))+'<small>Min übrig</small>':num(Math.round(left))+'<small>Std übrig</small>';
+    return `<div class="rep ${r.overdue?'late':''}">
+      <div class="clock"><svg width="82" height="82">
+        <circle cx="41" cy="41" r="33" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
+        <circle cx="41" cy="41" r="33" fill="none" stroke="${esc(col)}" stroke-width="5" stroke-linecap="round"
+          stroke-dasharray="${num(C)}" stroke-dashoffset="${num(C*(1-pct))}"/></svg>
+        <div class="val" style="color:${esc(col)}">${lab}</div></div>
+      <div><div style="font-size:15px;font-weight:500;margin-bottom:3px">${esc(r.reason)}</div>
+        <div class="tiny" style="line-height:1.65">Gemeldet: <strong>${esc(r.reported_name||'—')}</strong> ·
+          von ${esc(r.reporter_name||'—')} · ${esc(dt(r.created_at))}${r.details?'<br>'+esc(r.details):''}</div>
+        ${r.message_body?`<div class="quote">${esc(r.message_body)}</div>`:''}</div>
+      <div class="acts">
+        <button class="btn red" data-a="suspend" data-id="${esc(r.id)}">Konto sperren</button>
+        <button class="btn" data-a="resolve" data-id="${esc(r.id)}">Erledigt</button>
+        <button class="btn quiet" data-a="dismiss" data-id="${esc(r.id)}">Kein Verstoß</button>
+      </div></div>`;
+  }).join('');
+  $('#repList').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>handleReport(b));
+}
+
+async function handleReport(btn){
+  const {a,id}=btn.dataset; btn.disabled=true;
+  if(a==='suspend' && !confirm('Konto sperren? Die Person verliert sofort den Zugang zur App und zu allen Spaces.')){ btn.disabled=false; return; }
+  const {data:me}=await sb.auth.getUser();
+  const {error}=await sb.from('reports').update({status:a==='dismiss'?'dismissed':'resolved',
+    handled_by:me.user.id, handled_at:new Date().toISOString()}).eq('id',id);
+  if(error){ fail(error); btn.disabled=false; return; }
+  if(a==='suspend'){
+    const {data:r}=await sb.from('reports').select('reported_profile_id').eq('id',id).single();
+    if(r?.reported_profile_id){
+      const {error:e2}=await sb.rpc('admin_suspend',
+        {p_profile:r.reported_profile_id,p_reason:'Verstoß gegen die Nutzungsbedingungen.'});
+      if(e2) return fail(e2);
+    }
+  }
+  toast(a==='suspend'?'Konto gesperrt':a==='dismiss'?'Abgelegt':'Erledigt');
+  loadReports(); loadMembers();
+}
+
+/* ── Mitglieder ──────────────────────────── */
+async function loadMembers(){
+  const [{data:p},{data:s}] = await Promise.all([
+    sb.from('profiles').select('id,display_name,job_title,city,photo_count,created_at,last_active_at,is_admin,is_cut_member')
+      .is('deleted_at',null).order('created_at',{ascending:false}).limit(400),
+    sb.from('memberships').select('profile_id,plan_code,status,suspended_at')]);
+  const by=new Map((s||[]).map(x=>[x.profile_id,x]));
+  members=(p||[]).map(m=>({...m,sub:by.get(m.id)}));
+  renderMembers();
+}
+$('#mq').oninput=renderMembers; $('#mfilter').onchange=renderMembers;
+
+function renderMembers(){
+  const q=$('#mq').value.toLowerCase(), f=$('#mfilter').value, now=Date.now();
+  const rows=members.filter(m=>{
+    if(q && !((m.display_name||'')+(m.job_title||'')).toLowerCase().includes(q)) return false;
+    if(f==='past_due') return m.sub?.status==='past_due';
+    if(f==='paused')   return !!m.sub?.suspended_at;
+    if(f==='nophotos') return (m.photo_count??0)<5;
+    if(f==='cut')      return m.is_cut_member;
+    if(f==='dormant')  return !m.last_active_at || (now-new Date(m.last_active_at))>21*864e5;
+    return true;
+  });
+  if(!rows.length) return $('#memList').innerHTML=empty('Nichts gefunden','Andere Suche versuchen.');
+
+  $('#memList').innerHTML=`<table><thead><tr><th>Name</th><th>Tarif</th><th>Stadt</th>
+    <th>Fotos</th><th>Zuletzt aktiv</th></tr></thead><tbody>`+rows.map(m=>{
+    const st=m.sub?.status;
+    const susp=!!m.sub?.suspended_at;
+    const cls=susp?'off':(st==='active'||st==='trialing')?'on':st==='past_due'?'warn':'';
+    const lbl=m.sub?m.sub.plan_code[0].toUpperCase()+m.sub.plan_code.slice(1):'kein Tarif';
+    const note=susp?' · gesperrt':st==='past_due'?' · Zahlung offen':'';
+    return `<tr class="click" data-id="${esc(m.id)}">
+      <td><div class="name">${esc(m.display_name)}${m.is_admin?' · Team':''}${m.is_cut_member?' · The Cut':''}</div>
+        <div class="tiny">${esc(m.job_title||'—')}</div></td>
+      <td><span class="dot ${esc(cls)}"></span>${esc(lbl)}<span class="tiny">${esc(note)}</span></td>
+      <td class="tiny">${esc(m.city||'—')}</td>
+      <td><span class="dot ${(m.photo_count??0)>=5?'on':''}"></span>${num(m.photo_count??0)}</td>
+      <td class="tiny">${esc(dt(m.last_active_at))}</td></tr>`;
+  }).join('')+'</tbody></table>';
+  $('#memList').querySelectorAll('tr.click').forEach(r=>r.onclick=()=>memberDetail(r.dataset.id));
+}
+
+async function memberDetail(id){
+  const {data:d,error}=await sb.rpc('admin_member',{p_profile:id});
+  if(error||d?.error) return fail(error);
+  const p=d.profile, m=d.membership, s=d.stats||{}, u=d.usage||{};
+  const planOpts=plans.map(x=>`<option value="${esc(x.code)}" ${m?.plan_code===x.code?'selected':''}>${esc(x.name)}</option>`).join('');
+
+  openPanel(`
+    <h2 style="padding-right:90px">${esc(p.display_name)}</h2>
+    <p class="hint">${esc(p.job_title||'—')} · ${esc(p.city||'—')} · dabei seit ${esc(dd(p.created_at))}</p>
+
+    <div class="card"><h3>Überblick</h3>
+      <table><tbody>
+      <tr><td class="tiny">Tarif</td><td>${esc(m?m.plan_code:'kein Tarif')} · ${esc(m?m.status:'—')}</td></tr>
+      <tr><td class="tiny">Kontingent diesen Monat</td><td>${num(u.office_days_used??0)} Tage · ${num(u.meeting_hours_used??0)} h Raum · ${num(u.guest_passes_used??0)} Gäste</td></tr>
+      <tr><td class="tiny">Punkte</td><td>${num(s.points??0)} · Stufe ${num(s.tier??1)}</td></tr>
+      <tr><td class="tiny">Buchungen · Check-ins</td><td>${num(s.bookings??0)} · ${num(d.check_ins??0)}</td></tr>
+      <tr><td class="tiny">Zuletzt im Space</td><td>${esc(dt(d.last_check_in))}</td></tr>
+      <tr><td class="tiny">Crews</td><td>${esc((Array.isArray(d.crews)?d.crews:[]).join(', ')||'—')}</td></tr>
+      <tr><td class="tiny">Fotos · Radar</td><td>${num(p.photo_count??0)} · ${p.radar_visible?'an':'aus'}</td></tr>
+      <tr><td class="tiny">Kam über</td><td>${esc(d.referred_by||d.invite_code||'—')}</td></tr>
+      <tr><td class="tiny">Meldungen gegen die Person</td><td>${num(d.reports_against??0)}</td></tr>
+      </tbody></table></div>
+
+    <div class="card"><h3>Zugang</h3>
+      <div class="bar">
+        ${d.suspended
+          ? `<button class="btn blue" data-x="unpause">Wieder freigeben</button>`
+          : `<button class="btn red" data-x="pause">Konto sperren</button>`}
+        <select id="pplan" style="max-width:150px">${planOpts}</select>
+        <button class="btn" data-x="plan">Tarif setzen</button>
+        <button class="btn" data-x="vip">VIP für 12 Monate</button>
+      </div>
+      <p class="tiny">Tarifwechsel wirkt nur in der App. Stripe musst du separat anpassen.</p></div>
+
+    <div class="card"><h3>Rechte</h3>
+      <div class="bar">
+        <button class="btn" data-x="admin">${p.is_admin?'Team-Rechte entziehen':'Team-Rechte geben'}</button>
+        <button class="btn" data-x="cut">${p.is_cut_member?'The Cut entfernen':'In The Cut aufnehmen'}</button>
+      </div></div>
+
+    <div class="card"><h3>Punkte buchen</h3>
+      <div class="cols"><input type="number" id="ppts" placeholder="z.B. 150 oder -50">
+        <input id="pnote" placeholder="Grund, z.B. Speaker beim Meetup"></div>
+      <div class="bar" style="margin-top:11px"><button class="btn blue" data-x="points">Buchen</button></div>
+      <div id="phist" style="margin-top:12px"></div></div>
+
+    <div class="card"><h3>Letzte Buchungen</h3>
+      ${(d.bookings||[]).length?`<table><tbody>`+d.bookings.map(b=>`<tr>
+        <td class="tiny">${esc(dt(b.starts_at))}</td><td>${esc(b.label)}</td>
+        <td class="tiny">${esc(b.city)}</td><td class="tiny">${esc(b.status)}</td></tr>`).join('')+'</tbody></table>'
+        :'<p class="tiny">Noch keine Buchungen.</p>'}</div>
+  `);
+
+  sb.rpc('admin_points_history',{p_profile:id}).then(({data:h})=>{
+    $('#phist').innerHTML = h?.length
+      ? '<table><tbody>'+h.slice(0,12).map(x=>`<tr><td class="tiny">${esc(dd(x.created_at))}</td>
+          <td><strong>${x.points>0?'+':''}${num(x.points)}</strong></td>
+          <td class="tiny">${esc(x.note||x.source)}</td></tr>`).join('')+'</tbody></table>'
+      : '<p class="tiny">Noch keine Punkte.</p>';
+  });
+
+  $('#panelBody').querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{
+    const x=b.dataset.x; b.disabled=true;
+    try{
+      if(x==='pause'){ if(!confirm('Konto sperren? Zugang zur App und zu allen Spaces endet sofort.')){b.disabled=false;return;}
+        await rpc('admin_suspend',{p_profile:id,p_reason:prompt('Grund? Die Person bekommt das als Nachricht.')||null}); }
+      if(x==='unpause') await rpc('admin_unsuspend',{p_profile:id});
+      if(x==='plan')    await rpc('admin_set_plan',{p_profile:id,p_plan:$('#pplan').value});
+      if(x==='vip')     await rpc('admin_grant_vip',{p_profile:id,p_months:12});
+      if(x==='admin')   await rpc('admin_set_flags',{p_profile:id,p_is_admin:!p.is_admin});
+      if(x==='cut')     await rpc('admin_set_flags',{p_profile:id,p_is_cut:!p.is_cut_member});
+      if(x==='points'){ await rpc('admin_award_points',
+        {p_profile:id,p_points:+$('#ppts').value||0,p_note:$('#pnote').value}); }
+      toast('Gespeichert'); closePanel(); loadMembers(); loadPoints();
+    }catch(e){ fail(e); b.disabled=false; }
+  });
+}
+
+async function rpc(fn,args){ const {data,error}=await sb.rpc(fn,args); if(error) throw error; return data; }
+
+/* ── Buchungen ───────────────────────────── */
+$('#bloc').onchange=loadBookings; $('#bdays').onchange=loadBookings;
+async function loadBookings(){
+  const {data}=await sb.rpc('admin_bookings',{p_location:$('#bloc').value||null,p_days:+$('#bdays').value});
+  $('#bookList').innerHTML = !data?.length ? empty('Keine Buchungen','In diesem Zeitraum ist nichts gebucht.')
+   : `<table><thead><tr><th>Wann</th><th>Platz</th><th>Wer</th><th>Standort</th><th></th></tr></thead><tbody>`
+   + data.map(b=>`<tr>
+      <td class="tiny">${esc(dt(b.starts_at))}<br>bis ${esc(new Date(b.ends_at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}))}</td>
+      <td>${esc(b.seat_label)}<div class="tiny">${esc(b.seat_kind)}</div></td>
+      <td>${b.is_block?'<span class="dot warn"></span>Gesperrt':esc(b.member_name)}
+        ${b.is_guest?'<div class="tiny">Gast: '+esc(b.guest_name||'')+'</div>':''}</td>
+      <td class="tiny">${esc(b.city)}</td>
+      <td>${b.status==='confirmed'?`<button class="btn quiet" data-cancel="${esc(b.id)}">Stornieren</button>`:`<span class="tiny">${esc(b.status)}</span>`}</td>
+     </tr>`).join('')+'</tbody></table>';
+
+  $('#bookList').querySelectorAll('[data-cancel]').forEach(b=>b.onclick=async()=>{
+    const reason=prompt('Grund für die Stornierung? Die Person bekommt das als Nachricht.');
+    if(reason===null) return;
+    try{ await rpc('admin_cancel_booking',{p_booking:b.dataset.cancel,p_reason:reason||null});
+      toast('Storniert'); loadBookings(); }catch(e){ fail(e); }
+  });
+
+  const {data:ci}=await sb.rpc('admin_check_ins',{p_location:$('#bloc').value||null,p_days:14});
+  $('#ciList').innerHTML = !ci?.length ? '<p class="tiny">Keine Check-ins.</p>'
+   : '<table><tbody>'+ci.slice(0,40).map(c=>`<tr><td class="tiny">${esc(dt(c.checked_in_at))}</td>
+      <td>${esc(c.member_name)}</td><td class="tiny">${esc(c.city)}</td>
+      <td class="tiny">${c.checked_out_at?'ausgecheckt':'noch da'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+$('#blockBtn').onclick=async()=>{
+  const loc=$('#bloc').value;
+  if(!loc) return toast('Bitte zuerst oben einen Standort wählen.',true);
+  const {data:seats}=await sb.from('seats').select('id,label,kind').eq('location_id',loc).eq('active',true).order('label');
+  openPanel(`<h2 style="padding-right:90px">Platz sperren</h2>
+    <p class="hint">Bestehende Buchungen in dem Zeitraum werden storniert. Die Betroffenen bekommen eine Nachricht.</p>
+    <div class="card">
+      <div class="f"><label class="lbl">Platz</label><select id="bseat">
+        ${(seats||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.label)} · ${esc(s.kind)}</option>`).join('')}</select></div>
+      <div class="cols">
+        <div><label class="lbl">Von</label><input type="datetime-local" id="bfrom"></div>
+        <div><label class="lbl">Bis</label><input type="datetime-local" id="bto"></div></div>
+      <div class="f" style="margin-top:11px"><label class="lbl">Grund</label>
+        <input id="bnote" placeholder="z.B. Creator Meetup №4"></div>
+      <button class="primary" id="bsave">Sperren</button></div>`);
+  $('#bsave').onclick=async()=>{
+    if(!$('#bfrom').value||!$('#bto').value) return toast('Bitte Zeitraum angeben.',true);
+    try{ await rpc('admin_block_seat',{p_seat:$('#bseat').value,
+      p_from:new Date($('#bfrom').value).toISOString(),
+      p_to:new Date($('#bto').value).toISOString(),
+      p_note:$('#bnote').value||'Reserviert'});
+      toast('Platz gesperrt'); closePanel(); loadBookings(); }catch(e){ fail(e); }
+  };
+};
+
+/* ── Raumplan ────────────────────────────── */
+$('#seatsBtn').onclick=async()=>{
+  const loc=$('#bloc').value;
+  if(!loc) return toast('Bitte zuerst oben einen Standort wählen.',true);
+  await seatEditor(loc);
+};
+
+async function seatEditor(loc, editId){
+  const {data:seats}=await sb.from('seats').select('*').eq('location_id',loc).order('label');
+  const e = editId ? (seats||[]).find(x=>x.id===editId) : null;
+  const city = locations.find(l=>l.id===loc)?.city || '';
+  const planOpts='<option value="">Alle Tarife</option>'+plans.map(p=>
+    `<option value="${esc(p.code)}" ${e?.min_plan===p.code?'selected':''}>ab ${esc(p.name)}</option>`).join('');
+  const kinds=[['desk','Schreibtisch'],['meeting_room','Meetingraum'],['studio','Studio'],
+               ['podcast','Podcast-Raum'],['phonebooth','Einzelkabine']];
+
+  const plan = locations.find(l=>l.id===loc)?.floor_plan || null;
+  const verh = Number(plan?.seitenverhaeltnis) > 0 ? Number(plan.seitenverhaeltnis) : 0.72;
+  const raeume = Array.isArray(plan?.raeume) ? plan.raeume : [];
+  const planBild = sicherUrl(plan?.bild);
+
+  openPanel(`
+    <h2 style="padding-right:90px">Raumplan ${esc(city)}</h2>
+    <p class="hint">Tipp in den Plan, um die Position zu setzen. Einen vorhandenen
+      Platz ziehst du mit der Maus an seine Stelle.</p>
+
+    <div class="card">
+      <div id="planFlaeche" style="position:relative;width:100%;aspect-ratio:${num(verh)};
+           border-radius:12px;overflow:hidden;background:#0d0d18;
+           border:1px solid var(--kante);cursor:crosshair;touch-action:none">
+        ${planBild ? `<img src="${esc(planBild)}" alt=""
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ''}
+        ${raeume.map(r=>`<div style="position:absolute;left:${num(r?.x)}%;top:${num(r?.y)}%;
+             width:${num(r?.b)}%;height:${num(r?.h)}%;border:1px solid rgba(255,255,255,.1);
+             background:rgba(255,255,255,.04);border-radius:8px;padding:5px 7px;
+             font-size:10px;color:var(--txt3);pointer-events:none">
+             ${r.b>=18?esc(r.name):''}</div>`).join('')}
+        ${(seats||[]).filter(x=>x.active!==false).map(x=>`
+          <div class="planPunkt" data-move="${esc(x.id)}" title="${esc(x.label)}"
+               style="position:absolute;left:${num(x.pos_x)}%;top:${num(x.pos_y)}%;
+                      transform:translate(-50%,-50%);min-width:34px;height:26px;
+                      display:flex;align-items:center;justify-content:center;
+                      border-radius:8px;font-size:10px;font-weight:600;color:#fff;
+                      background:${x.id===editId?'#fff':'#2365FF'};
+                      ${x.id===editId?'color:#0b0b14;':''}
+                      cursor:grab;user-select:none;padding:0 6px">
+            ${esc(x.label)}</div>`).join('')}
+      </div>
+      <p class="tiny" id="planHinweis" style="margin-top:8px">
+        ${raeume.length? '' : 'Für diesen Standort sind noch keine Räume hinterlegt — der Plan ist leer.'}
+      </p>
+    </div>
+
+    <div class="card"><h3>${e?'Platz bearbeiten':'Neuen Platz anlegen'}</h3>
+      <div class="cols">
+        <div><label class="lbl">Bezeichnung</label><input id="slabel" value="${esc(e?.label||'')}" placeholder="A1"></div>
+        <div><label class="lbl">Art</label><select id="skind">
+          ${kinds.map(([v,l])=>`<option value="${esc(v)}" ${e?.kind===v?'selected':''}>${esc(l)}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="cols3" style="margin-top:11px">
+        <div><label class="lbl">Position von links %</label><input type="number" id="sx" value="${esc(e?.pos_x??50)}" min="0" max="100"></div>
+        <div><label class="lbl">Position von oben %</label><input type="number" id="sy" value="${esc(e?.pos_y??50)}" min="0" max="100"></div>
+        <div><label class="lbl">Plätze</label><input type="number" id="scap" value="${esc(e?.capacity??1)}" min="1"></div>
+      </div>
+      <div class="cols" style="margin-top:11px">
+        <div><label class="lbl">Mindest-Tarif</label><select id="splan">${planOpts}</select></div>
+        <div><label class="lbl">Zustand</label><select id="sstate">
+          <option value="on"  ${(e?.active!==false&&e?.bookable!==false)?'selected':''}>Buchbar</option>
+          <option value="nob" ${(e?.active!==false&&e?.bookable===false)?'selected':''}>Sichtbar, nicht buchbar</option>
+          <option value="off" ${e?.active===false?'selected':''}>Ausgeblendet</option>
+        </select></div>
+      </div>
+      <div class="bar" style="margin-top:14px">
+        <button class="btn blue" id="ssave">${e?'Speichern':'Anlegen'}</button>
+        ${e?'<button class="btn quiet" id="snew">Neuen anlegen</button>':''}
+      </div>
+    </div>
+
+    <div class="card"><h3>Plätze an diesem Standort (${num((seats||[]).length)})</h3>
+      ${(seats||[]).length?`<table><tbody>`+seats.map(x=>`<tr class="click" data-seat="${esc(x.id)}">
+        <td><span class="dot ${x.active===false?'':x.bookable===false?'warn':'on'}"></span><strong>${esc(x.label)}</strong>
+          <div class="tiny">${esc(x.kind)}${x.min_plan?' · ab '+esc(x.min_plan):''}</div></td>
+        <td class="tiny">${num(x.pos_x)} / ${num(x.pos_y)}</td>
+        <td class="tiny">${num(x.capacity)} ${x.capacity===1?'Platz':'Plätze'}</td>
+      </tr>`).join('')+'</tbody></table>':'<p class="tiny">Noch keine Plätze. Leg oben den ersten an.</p>'}
+    </div>`);
+
+  $('#ssave').onclick=async()=>{
+    if(!$('#slabel').value.trim()) return toast('Bitte eine Bezeichnung angeben.',true);
+    const st=$('#sstate').value;
+    try{
+      await rpc('admin_save_seat',{p_id:e?.id||null,p_location:loc,p_label:$('#slabel').value.trim(),
+        p_kind:$('#skind').value,p_x:+$('#sx').value,p_y:+$('#sy').value,
+        p_capacity:+$('#scap').value||1,p_min_plan:$('#splan').value||null,
+        p_bookable:st==='on',p_active:st!=='off'});
+      toast(e?'Gespeichert':'Platz angelegt'); seatEditor(loc);
+    }catch(err){ fail(err); }
+  };
+  const sn=$('#snew'); if(sn) sn.onclick=()=>seatEditor(loc);
+  $('#panelBody').querySelectorAll('[data-seat]').forEach(r=>r.onclick=()=>seatEditor(loc,r.dataset.seat));
+
+  /* ── Plan bedienen ──────────────────────────────────────────────
+     Prozent statt Pixel, damit die Position unabhaengig davon stimmt,
+     wie breit das Panel gerade ist. Auf 0,1 gerundet: feiner koennte
+     niemand zielen, und die Datenbank haelt zwei Nachkommastellen. */
+  const flaeche = $('#planFlaeche');
+  if (flaeche) {
+    const prozent = (ev) => {
+      const r = flaeche.getBoundingClientRect();
+      const kx = (ev.touches?.[0]?.clientX ?? ev.clientX) - r.left;
+      const ky = (ev.touches?.[0]?.clientY ?? ev.clientY) - r.top;
+      return {
+        x: Math.round(Math.min(100, Math.max(0, kx / r.width  * 100)) * 10) / 10,
+        y: Math.round(Math.min(100, Math.max(0, ky / r.height * 100)) * 10) / 10,
+      };
+    };
+
+    // Klick ins Leere: Position ins Formular, nicht direkt speichern.
+    // Wer danebentippt, soll nichts verschoben haben.
+    flaeche.onclick = (ev) => {
+      if (ev.target.closest('[data-move]')) return;
+      const p = prozent(ev);
+      $('#sx').value = p.x; $('#sy').value = p.y;
+      $('#planHinweis').textContent =
+        `Position ${p.x} / ${p.y} übernommen — unten mit „${e?'Speichern':'Anlegen'}" bestätigen.`;
+    };
+
+    // Ziehen verschiebt sofort. Das ist die haeufigste Aenderung, und
+    // ein Zwischenschritt waere hier nur im Weg.
+    let zieht = null;
+    flaeche.querySelectorAll('[data-move]').forEach(el => {
+      el.onpointerdown = (ev) => {
+        zieht = el; el.setPointerCapture(ev.pointerId);
+        el.style.cursor = 'grabbing'; ev.preventDefault();
+      };
+      el.onpointermove = (ev) => {
+        if (zieht !== el) return;
+        const p = prozent(ev);
+        el.style.left = p.x + '%'; el.style.top = p.y + '%';
+      };
+      el.onpointerup = async (ev) => {
+        if (zieht !== el) return;
+        zieht = null; el.style.cursor = 'grab';
+        const p = prozent(ev);
+        try {
+          await rpc('platz_setzen', { p_seat: el.dataset.move, p_x: p.x, p_y: p.y });
+          toast(`${el.textContent.trim()} auf ${p.x} / ${p.y} gesetzt`);
+          await warnenWennDaneben();
+        } catch (err) { fail(err); seatEditor(loc, editId); }
+      };
+    });
+
+    // Nach jedem Verschieben pruefen, ob ein Platz neben seinem Raum
+    // gelandet ist. Faellt sonst erst auf, wenn jemand bucht.
+    const warnenWennDaneben = async () => {
+      try {
+        const daneben = await rpc('plaetze_ohne_raum');
+        const hier = (daneben||[]).filter(d => d.stadt === city);
+        $('#planHinweis').textContent = hier.length
+          ? `Achtung: ${hier.map(d=>d.platz).join(', ')} liegt ausserhalb aller Räume.`
+          : '';
+        $('#planHinweis').style.color = hier.length ? 'var(--warn)' : '';
+      } catch { /* Hinweis ist Beiwerk, kein Grund zu scheitern */ }
+    };
+    warnenWennDaneben();
+  }
+}
+
+/* ── Events ──────────────────────────────── */
+async function loadEvents(){
+  const {data}=await sb.rpc('events_feed',{p_upcoming_only:false,p_limit:80});
+  $('#evList').innerHTML = !data?.length ? empty('Keine Events','Leg oben eines an.')
+   : `<table><thead><tr><th>Event</th><th>Wann</th><th>Wo</th><th>Zusagen</th><th></th></tr></thead><tbody>`
+   + data.map(e=>`<tr>
+      <td><div class="name">${esc(e.title)}</div><div class="tiny">
+        ${e.kind==='exclusive'?'Exclusive':'Offen für alle'}${e.min_plan?' · ab '+esc(e.min_plan):''}${e.speaker?' · '+esc(e.speaker):''}</div></td>
+      <td class="tiny">${esc(dt(e.starts_at))}</td><td class="tiny">${esc(e.city||'—')}</td>
+      <td><span class="dot ${e.spots_left>0?'on':'warn'}"></span>${num(e.going)}${e.capacity?' / '+num(e.capacity):''}
+        ${e.waitlist?`<div class="tiny">${num(e.waitlist)} auf Warteliste</div>`:''}</td>
+      <td><button class="btn quiet" data-ev="${esc(e.id)}">Öffnen</button></td></tr>`).join('')+'</tbody></table>';
+  $('#evList').querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>eventDetail(b.dataset.ev,data.find(x=>x.id===b.dataset.ev)));
+}
+
+$('#newEvent').onclick=()=>eventDetail(null,null);
+
+function eventDetail(id,e){
+  const locOpts=locations.map(l=>`<option value="${esc(l.id)}" ${e?.location_id===l.id?'selected':''}>${esc(l.city)}</option>`).join('');
+  const planOpts='<option value="">Alle Tarife</option>'+plans.map(p=>`<option value="${esc(p.code)}" ${e?.min_plan===p.code?'selected':''}>ab ${esc(p.name)}</option>`).join('');
+  openPanel(`
+    <h2 style="padding-right:90px">${id?'Event bearbeiten':'Neues Event'}</h2>
+    <div class="card">
+      <div class="f"><label class="lbl">Titel</label><input id="etitle" value="${esc(e?.title||'')}"></div>
+      <div class="f"><label class="lbl">Beschreibung</label><textarea id="edesc">${esc(e?.description||'')}</textarea></div>
+      <div class="cols">
+        <div><label class="lbl">Speaker</label><input id="espeaker" value="${esc(e?.speaker||'')}"></div>
+        <div><label class="lbl">Standort</label><select id="eloc">${locOpts}</select></div>
+      </div>
+      <div class="cols" style="margin-top:11px">
+        <div><label class="lbl">Beginn</label><input type="datetime-local" id="estart" value="${esc(forInput(e?.starts_at))}"></div>
+        <div><label class="lbl">Ende</label><input type="datetime-local" id="eend" value="${esc(forInput(e?.ends_at))}"></div>
+      </div>
+      <div class="cols3" style="margin-top:11px">
+        <div><label class="lbl">Plätze</label><input type="number" id="ecap" value="${esc(e?.capacity??'')}"></div>
+        <div><label class="lbl">Art</label><select id="ekind">
+          <option value="regular" ${e?.kind==='regular'?'selected':''}>Offen für alle</option>
+          <option value="exclusive" ${e?.kind==='exclusive'?'selected':''}>Exclusive</option></select></div>
+        <div><label class="lbl">Mindest-Tarif</label><select id="eplan">${planOpts}</select></div>
+      </div>
+      <label class="lbl" style="margin-top:13px"><input type="checkbox" id="efeat" style="width:auto;margin-right:7px" ${e?.is_featured?'checked':''}>Auf der Startseite hervorheben</label>
+      <div class="bar" style="margin-top:14px">
+        <button class="btn blue" id="esave">Speichern</button>
+        ${id?`<button class="btn red" id="edel">Löschen</button>`:''}
+      </div>
+    </div>
+    ${id?`<div class="card"><h3>Zusagen</h3><div id="eatt"></div></div>
+          ${e?.kind==='exclusive'?`<div class="card"><h3>Einladungen vergeben</h3>
+            <p class="tiny" style="margin-bottom:10px">Vorschlag: die Mitglieder mit den meisten Punkten.</p>
+            <div id="ecand"></div></div>`:''}`:''}
+  `);
+
+  $('#esave').onclick=async()=>{
+    try{
+      await rpc('admin_save_event',{p_id:id,p_title:$('#etitle').value,p_description:$('#edesc').value,
+        p_speaker:$('#espeaker').value||null,p_location:$('#eloc').value,
+        p_starts_at:$('#estart').value?new Date($('#estart').value).toISOString():null,
+        p_ends_at:$('#eend').value?new Date($('#eend').value).toISOString():null,
+        p_capacity:+$('#ecap').value||null,p_kind:$('#ekind').value,
+        p_min_plan:$('#eplan').value||null,p_featured:$('#efeat').checked});
+      toast(id?'Gespeichert':'Event angelegt'); closePanel(); loadEvents();
+    }catch(err){ fail(err); }
+  };
+  if(id){
+    $('#edel').onclick=async()=>{
+      if(!confirm('Event löschen? Alle Zusagen gehen mit verloren.')) return;
+      try{ await rpc('admin_delete_event',{p_event:id}); toast('Gelöscht'); closePanel(); loadEvents(); }catch(err){ fail(err); }
+    };
+    sb.rpc('admin_event_attendees',{p_event:id}).then(({data:a})=>{
+      $('#eatt').innerHTML = !a?.length ? '<p class="tiny">Noch keine Zusagen.</p>'
+       : '<table><tbody>'+a.map(x=>`<tr>
+          <td><span class="dot ${x.checked_in?'on':x.status==='waitlist'?'warn':''}"></span>${esc(x.display_name)}
+            <div class="tiny">${esc(x.status==='waitlist'?'Warteliste '+num(x.waitlist_position):x.status)} · ${esc(x.plan||'—')}</div></td>
+          <td>${x.checked_in?'<span class="tiny">eingecheckt</span>':`<button class="btn quiet" data-ci="${esc(x.rsvp_id)}">Einchecken</button>`}</td>
+         </tr>`).join('')+'</tbody></table>';
+      $('#eatt').querySelectorAll('[data-ci]').forEach(b=>b.onclick=async()=>{
+        try{ await rpc('admin_check_in_attendee',{p_rsvp:b.dataset.ci}); toast('Eingecheckt · 25 Punkte'); eventDetail(id,e); }catch(err){ fail(err); }
+      });
+    });
+    if(e?.kind==='exclusive') sb.rpc('admin_invite_candidates',{p_event:id,p_limit:12}).then(({data:c})=>{
+      $('#ecand').innerHTML = !c?.length ? '<p class="tiny">Keine Kandidaten.</p>'
+       : '<table><tbody>'+c.map(x=>`<tr><td>${esc(x.display_name)}<div class="tiny">${num(x.points)} Punkte · Stufe ${num(x.tier)}</div></td>
+          <td>${x.already?'<span class="tiny"><span class="dot on"></span>eingeladen</span>'
+             :`<button class="btn quiet" data-inv="${esc(x.profile_id)}">Einladen</button>`}</td></tr>`).join('')+'</tbody></table>';
+      $('#ecand').querySelectorAll('[data-inv]').forEach(b=>b.onclick=async()=>{
+        try{ await rpc('admin_grant_event_invite',{p_event:id,p_profile:b.dataset.inv}); toast('Eingeladen'); eventDetail(id,e); }catch(err){ fail(err); }
+      });
+    });
+  }
+}
+
+/* ── Ausschreibungen ─────────────────────── */
+const REVIEW={pending:['warn','wartet'],approved:['on','frei'],refused:['off','abgelehnt']};
+
+/* Freigeben / Ablehnen für eine Ausschreibung, in `host` eingehängt. */
+function reviewControls(host,cid,after){
+  host.innerHTML=`<div class="bar" style="margin-top:9px">
+      <button class="btn blue" data-rv-ok>Freigeben</button>
+      <button class="btn quiet" data-rv-no>Ablehnen</button></div>
+    <div data-rv-box style="display:none;margin-top:9px">
+      <input data-rv-note maxlength="300" placeholder="Anmerkung für den Ersteller, optional (max. 300 Zeichen)">
+      <div class="bar" style="margin-top:7px"><button class="btn blue" data-rv-send>Ablehnung senden</button></div></div>`;
+  const box=host.querySelector('[data-rv-box]');
+  const run=async(approve,note,msg)=>{
+    try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:approve,p_note:note});
+      toast(msg); after(); }catch(err){ fail(err); }
+  };
+  host.querySelector('[data-rv-ok]').onclick=()=>run(true,null,'Freigegeben');
+  host.querySelector('[data-rv-no]').onclick=()=>{ box.style.display=box.style.display==='none'?'block':'none'; };
+  host.querySelector('[data-rv-send]').onclick=()=>run(false,host.querySelector('[data-rv-note]').value.trim().slice(0,300)||null,'Abgelehnt');
+}
+
+async function loadCampaigns(){
+  const {data}=await sb.rpc('campaigns_feed',{p_open_only:false,p_limit:80});
+  const pend=(data||[]).filter(c=>c.review_state==='pending');
+  const rv=$('#cpReview');
+  rv.style.display=pend.length?'':'none';
+  if(pend.length){
+    rv.innerHTML=`<h3>Zur Freigabe · ${num(pend.length)}</h3>`+pend.map(c=>`<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)" data-rvrow="${esc(c.id)}">
+        <div class="name">${esc(c.title)}</div>
+        <div class="tiny">Ersteller: ${esc(c.client_name||'—')} · Budget: ${esc(c.budget_text||'—')} · Frist: ${esc(c.deadline?dd(c.deadline):'laufend')}</div>
+        <div class="bar" style="margin-top:9px"><button class="btn quiet" data-rvopen="${esc(c.id)}">Öffnen</button></div>
+        <div data-rvctl></div></div>`).join('');
+    rv.querySelectorAll('[data-rvrow]').forEach(row=>{
+      const cid=row.dataset.rvrow;
+      row.querySelector('[data-rvopen]').onclick=()=>campaignDetail(cid,data.find(x=>x.id===cid));
+      reviewControls(row.querySelector('[data-rvctl]'),cid,loadCampaigns);
+    });
+  } else rv.innerHTML='';
+  const status=c=>{
+    if(c.completed_at) return '<span class="dot off"></span>abgeschlossen';
+    const [k,t]=REVIEW[c.review_state]||['','—'];
+    return `<span class="dot ${esc(k)}"></span>${esc(t)}`;
+  };
+  $('#cpList').innerHTML = !data?.length ? empty('Keine Ausschreibungen','Leg oben eine an.')
+   : `<table><thead><tr><th>Ausschreibung</th><th>Status</th><th>Budget</th><th>Bewerbungen</th><th>Frist</th><th>Entscheidung bis</th><th></th></tr></thead><tbody>`
+   + data.map(c=>`<tr>
+      <td><div class="name">${esc(c.title)}</div><div class="tiny">${esc(c.client_name||'—')}</div></td>
+      <td class="tiny">${status(c)}</td>
+      <td class="tiny">${esc(c.budget_text||'—')}</td>
+      <td><strong>${num(c.applications)}</strong><span class="tiny"> / ${num(c.slots)} Plätze</span></td>
+      <td class="tiny">${esc(c.deadline?dd(c.deadline):'laufend')}</td>
+      <td class="tiny">${esc(c.decide_by?dd(c.decide_by):'—')}</td>
+      <td><span class="dot ${c.is_open?'on':''}"></span><button class="btn quiet" data-cp="${esc(c.id)}">Öffnen</button></td>
+     </tr>`).join('')+'</tbody></table>';
+  $('#cpList').querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>campaignDetail(b.dataset.cp,data.find(x=>x.id===b.dataset.cp)));
+}
+$('#newCampaign').onclick=()=>campaignDetail(null,null);
+
+/* ── Vorregistrierungen (Migration 67) ───────── */
+let vorreg=[];
+async function loadVorreg(){
+  const {data,error}=await sb.rpc('admin_vorregistrierungen');
+  if(error){ $('#vrList').innerHTML=empty('Nicht geladen',error.message); return; }
+  vorreg=data||[];
+  const offen=vorreg.filter(v=>!v.invited_at).length;
+  const b=$('#vrBadge'); b.textContent=num(offen); b.style.display=offen?'':'none';
+  const woche=vorreg.filter(v=>new Date(v.created_at)>Date.now()-7*864e5).length;
+  $('#vrStat').textContent=vorreg.length?` ${num(vorreg.length)} gesamt · ${num(woche)} in den letzten 7 Tagen · ${num(offen)} noch nicht eingeladen`:'';
+  $('#vrList').innerHTML = !vorreg.length ? empty('Noch keine Eintragungen','Die Seite ist unter c3club.io erreichbar.')
+   : `<table><thead><tr><th>E-Mail</th><th>Name</th><th>Stadt</th><th>Gewerk</th><th>Herkunft</th><th>Eingetragen</th><th>Status</th><th></th></tr></thead><tbody>`
+   + vorreg.map(v=>`<tr>
+      <td><div class="name">${esc(v.email)}</div></td>
+      <td class="tiny">${esc(v.name||'—')}</td>
+      <td class="tiny">${esc(v.city||'—')}</td>
+      <td class="tiny">${esc(v.craft||'—')}</td>
+      <td class="tiny">${esc(v.source||'—')}</td>
+      <td class="tiny">${esc(dt(v.created_at))}</td>
+      <td class="tiny">${v.invited_at?`<span class="dot on"></span>eingeladen ${esc(dd(v.invited_at))}`:'<span class="dot"></span>offen'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn quiet" data-vr="${esc(v.id)}" data-vrx="${v.invited_at?'offen':'eingeladen'}">${v.invited_at?'Wieder offen':'Eingeladen'}</button>
+        <button class="btn quiet" data-vr="${esc(v.id)}" data-vrx="loeschen">Löschen</button>
+      </td></tr>`).join('')+'</tbody></table>';
+  $('#vrList').querySelectorAll('[data-vr]').forEach(b=>b.onclick=async()=>{
+    const x=b.dataset.vrx;
+    if(x==='loeschen' && !confirm('Eintrag endgültig löschen?')) return;
+    try{ await rpc('admin_vorregistrierung_setzen',{p_id:b.dataset.vr,p_aktion:x}); toast(x==='loeschen'?'Gelöscht':'Gespeichert'); loadVorreg(); }
+    catch(err){ fail(err); }
+  });
+}
+$('#vrCsv').onclick=()=>{
+  const z=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
+  const zeilen=[['email','name','stadt','gewerk','herkunft','sprache','eingetragen','eingeladen'].map(z).join(';')]
+    .concat(vorreg.map(v=>[v.email,v.name,v.city,v.craft,v.source,v.locale,v.created_at,v.invited_at].map(z).join(';')));
+  const blob=new Blob(['\ufeff'+zeilen.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='c3-vorregistrierungen-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+
+function campaignDetail(id,c){
+  openPanel(`
+    <h2 style="padding-right:90px">${id?'Ausschreibung':'Neue Ausschreibung'}</h2>
+    ${id&&c?.review_state?`<div class="tiny" style="margin:-6px 0 12px"><span class="dot ${esc(REVIEW[c.review_state]?.[0]||'')}"></span>${esc(REVIEW[c.review_state]?.[1]||c.review_state)}
+      ${c.review_note?`<div class="quote">${esc(c.review_note)}</div>`:''}
+      ${c.review_state!=='approved'?'<div id="crv"></div>':''}</div>`:''}
+    <div class="card">
+      <div class="f"><label class="lbl">Titel</label><input id="ctitle" value="${esc(c?.title||'')}"></div>
+      <div class="f"><label class="lbl">Beschreibung</label><textarea id="cdesc">${esc(c?.description||'')}</textarea></div>
+      <div class="f"><label class="lbl">Auftraggeber</label><input id="cclient" value="${esc(c?.client_name||'')}"></div>
+      <div class="f"><label class="lbl">Ziel in einem Satz (Pflicht)</label>
+        <input id="cgoal" maxlength="200" value="${esc(c?.goal||'')}" placeholder="Was soll am Ende stehen?"></div>
+      <div class="cols">
+        <div><label class="lbl">Zeitraum von (Pflicht)</label><input type="date" id="cstart" value="${esc(c?.starts_on||'')}"></div>
+        <div><label class="lbl">Zeitraum bis (Pflicht)</label><input type="date" id="cend" value="${esc(c?.ends_on||'')}"></div>
+      </div>
+      <div class="cols" style="margin-top:11px">
+        <div><label class="lbl">Budgetrahmen von, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmin" value="${esc(c?.budget_min_cents!=null?num(c.budget_min_cents/100):'')}" placeholder="3000"></div>
+        <div><label class="lbl">Budgetrahmen bis, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmax" value="${esc(c?.budget_max_cents!=null?num(c.budget_max_cents/100):'')}" placeholder="5000"></div>
+      </div>
+      <div class="f" style="margin-top:11px"><label class="lbl">Kurzzeile</label>
+        <input id="cmeta" value="${esc(c?.meta||'')}" placeholder="Filmproduktion · Remote + Berlin"></div>
+      <div class="f"><label class="lbl">Gesuchte Gewerke, mit Komma getrennt</label>
+        <input id="cskills" value="${esc((c?.skills||[]).join(', '))}" placeholder="Video, Schnitt, Color Grading"></div>
+      <div class="f"><label class="lbl">Anforderungen, eine pro Zeile</label>
+        <textarea id="creqs">${esc((c?.requirements||[]).join('\n'))}</textarea></div>
+      <div class="f"><label class="lbl">Kriterien für die Auswahl, mit Komma getrennt, höchstens 6</label>
+        <input id="ccrit" value="${esc((c?.criteria||[]).join(', '))}" placeholder="Erfahrung mit Dokumentarfilm, Verfügbarkeit, Preis"></div>
+      <div class="f"><label class="lbl">Entscheidung bis (Pflicht)</label><input type="date" id="cdecide" value="${esc(c?.decide_by||'')}"></div>
+      ${[1,2,3].map(n=>`<div class="f"><label class="lbl">Frage ${num(n)} (Ja/Nein), optional</label>
+        <input id="cq${num(n)}" maxlength="120" value="${esc((Array.isArray(c?.questions)?c.questions:[]).find(q=>q?.id==='q'+n)?.text||'')}" placeholder="${esc(['Eigene Cinema-Kamera?','Interviews auf Deutsch?','Reisebereit?'][n-1])}"></div>`).join('')}
+      <div class="cols3">
+        <div><label class="lbl">Plätze</label><input type="number" id="cslots" value="${esc(c?.slots??1)}"></div>
+        <div><label class="lbl">Frist</label><input type="date" id="cdead" value="${esc(c?.deadline||'')}"></div>
+        <div><label class="lbl">Status</label><select id="copen">
+          <option value="true" ${c?.is_open!==false?'selected':''}>Offen</option>
+          <option value="false" ${c?.is_open===false?'selected':''}>Geschlossen</option></select></div>
+      </div>
+      <div class="bar" style="margin-top:14px">
+        <button class="btn blue" id="csave">Speichern</button>
+        ${id&&c?.is_open?`<button class="btn" id="ccomplete">Projekt abschließen</button>`:''}
+      </div>
+      <p class="tiny">Jede Bewerbung bekommt eine Antwort bis zum Entscheidungsdatum.</p>
+      ${id?'<p class="tiny">Abschließen bucht 100 Punkte an alle Angenommenen und schließt die Ausschreibung.</p>':''}
+    </div>
+    ${id?`<div class="card"><h3>Bewerbungen</h3><div id="capps"></div></div>`:''}
+  `);
+
+  $('#csave').onclick=async()=>{
+    try{
+      const crit=$('#ccrit').value.split(',').map(s=>s.trim()).filter(Boolean);
+      if(crit.length>6) throw new Error('Höchstens sechs Kriterien.');
+      const cents=v=>v===''?null:Math.round(parseFloat(v)*100);
+      const questions=[1,2,3].map(n=>({id:'q'+n,text:$('#cq'+n).value.trim()})).filter(q=>q.text);
+      await rpc('admin_save_campaign',{p_id:id,p_title:$('#ctitle').value,p_description:$('#cdesc').value,
+        p_client:$('#cclient').value||null,p_meta:$('#cmeta').value||null,
+        p_skills:$('#cskills').value.split(',').map(s=>s.trim()).filter(Boolean),
+        p_requirements:$('#creqs').value.split('\n').map(s=>s.trim()).filter(Boolean),
+        p_slots:+$('#cslots').value||1,p_deadline:$('#cdead').value||null,
+        p_is_open:$('#copen').value==='true',
+        p_goal:$('#cgoal').value.trim(),p_starts_on:$('#cstart').value||null,p_ends_on:$('#cend').value||null,
+        p_budget_min_cents:cents($('#cbmin').value),p_budget_max_cents:cents($('#cbmax').value),
+        p_criteria:crit,p_decide_by:$('#cdecide').value||null,p_questions:questions});
+      toast(id?'Gespeichert':'Angelegt'); closePanel(); loadCampaigns();
+    }catch(err){ fail(err); }
+  };
+  if(id){
+    const crv=$('#crv');
+    if(crv) reviewControls(crv,id,()=>{ closePanel(); loadCampaigns(); });
+    const cc=$('#ccomplete');
+    if(cc) cc.onclick=async()=>{
+      if(!confirm('Projekt abschließen? Alle Angenommenen bekommen 100 Punkte.')) return;
+      try{ const n=await rpc('admin_complete_campaign',{p_campaign:id});
+        toast(`Abgeschlossen · ${n} Mitwirkende`); closePanel(); loadCampaigns(); }catch(err){ fail(err); }
+    };
+    const JN={yes:'Ja',partly:'Teilweise',no:'Nein'}, FIT={yes:'passt',note:'passt mit Anmerkung',no:'passt nicht'},
+      GRUND={budget:'Budget',timing:'Timing',profile:'Profil'};
+    const antworten=x=>{
+      const a=x.answers; if(!a) return '';
+      const fragen=(Array.isArray(c?.questions)?c.questions:[]).filter(q=>typeof a.custom?.[q?.id]==='boolean').map(q=>
+        `<div class="tiny" style="margin-top:4px">${esc(q.text)} <strong style="color:${a.custom[q.id]?'var(--txt)':'var(--warn)'}">${a.custom[q.id]?'Ja':'Nein'}</strong></div>`).join('');
+      return fragen+`<div class="tiny" style="margin-top:7px">Verfügbar: ${esc(JN[a.availability]||'—')} · ab ${esc(dd(a.earliest_start))}
+        · ${num(a.days_per_week)} Tage/Woche · ${num(a.effort_min)}–${num(a.effort_max)} Arbeitstage · Budget: ${esc(FIT[a.budget_fit]||'—')}</div>`
+        +(a.budget_note?`<div class="quote">${esc(a.budget_note)}</div>`:'')
+        +(Array.isArray(a.samples)&&a.samples.length?`<div class="tiny" style="margin-top:7px">${a.samples.map(m=>{
+          const u=sicherUrl(m?.url), t=esc(String(m?.url??'').trim().replace(/^https?:\/\//i,''));
+          return (u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${t}</a>`:t)+(m?.role?' · '+esc(m.role):'');
+        }).join('<br>')}</div>`:'')
+        +(a.pitch?`<div class="quote" style="border-left-color:var(--accent)">${esc(a.pitch)}</div>`:'');
+    };
+    const antwortzeit=m=>m==null?'noch keine Antwortzeit'
+      :m>=60?`antwortet in ~${num(Math.round(m/60))} h`:`antwortet in ~${num(Math.round(m))} min`;
+    sb.rpc('admin_applications',{p_campaign:id}).then(({data:a0})=>{
+      const a=(a0||[]).slice().sort((p,q)=>(p.status==='open'?0:1)-(q.status==='open'?0:1)
+        ||(p.reply_minutes==null)-(q.reply_minutes==null)||(p.reply_minutes??0)-(q.reply_minutes??0));
+      $('#capps').innerHTML = !a?.length ? '<p class="tiny">Noch keine Bewerbungen.</p>'
+       : a.map(x=>{ const pf=sicherUrl(x.portfolio_url); return `<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+          <div class="name">${esc(x.display_name)}
+            <span class="tiny"> · Stufe ${num(x.tier)} · ${num(x.past_campaigns)} Projekte</span></div>
+          <div class="tiny">${esc(antwortzeit(x.reply_minutes))}${x.last_active_at?` · zuletzt aktiv ${esc(dd(x.last_active_at))}`:''}</div>
+          <div class="tiny">${esc(x.job_title||'—')} · ${esc(x.city||'—')}
+            ${pf?` · <a href="${esc(pf)}" target="_blank" rel="noopener noreferrer">Portfolio</a>`
+              :x.portfolio_url?` · Portfolio: ${esc(x.portfolio_url)}`:''}</div>
+          ${x.answers?antworten(x)
+            :x.message?`<div class="quote" style="border-left-color:var(--accent)">${esc(x.message)}</div>`:''}
+          ${x.status==='open'
+            ? `<div class="bar" style="margin-top:9px">
+                 <button class="btn blue" data-ok="${esc(x.application_id)}">Annehmen</button>
+                 <button class="btn quiet" data-no="${esc(x.application_id)}">Ablehnen</button></div>
+               <div data-decl="${esc(x.application_id)}" style="display:none;margin-top:9px">
+                 <div class="bar">${Object.entries(GRUND).map(([k,v])=>`<button class="btn quiet" data-why="${esc(k)}">${esc(v)}</button>`).join('')}</div>
+                 <input data-note maxlength="300" placeholder="Anmerkung, optional (max. 300 Zeichen)" style="margin-top:7px">
+                 <div class="bar" style="margin-top:7px"><button class="btn blue" data-send="${esc(x.application_id)}">Absage senden</button></div>
+               </div>`
+            : `<div class="tiny" style="margin-top:9px"><span class="dot ${x.status==='accepted'?'on':'off'}"></span>${x.status==='accepted'?'angenommen'
+                :x.status==='withdrawn'?'zurückgezogen':'abgelehnt'+(x.rejection_reason?' · '+esc(GRUND[x.rejection_reason]||x.rejection_reason):'')}</div>
+               ${x.rejection_note?`<div class="tiny">${esc(x.rejection_note)}</div>`:''}`}
+          </div>`; }).join('');
+      const fertig=msg=>{ toast(msg); campaignDetail(id,c); };
+      $('#capps').querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{
+        try{ await rpc('decide_application',{p_application:b.dataset.ok,p_accept:true});
+          fertig('Angenommen · Gruppenchat angelegt'); }catch(err){ fail(err); }
+      });
+      $('#capps').querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>{
+        const box=$('#capps').querySelector(`[data-decl="${CSS.escape(b.dataset.no)}"]`);
+        box.style.display=box.style.display==='none'?'block':'none';
+      });
+      $('#capps').querySelectorAll('[data-decl]').forEach(box=>{
+        box.querySelectorAll('[data-why]').forEach(w=>w.onclick=()=>{
+          box.dataset.why=w.dataset.why;
+          box.querySelectorAll('[data-why]').forEach(o=>o.className=o===w?'btn blue':'btn quiet');
+        });
+        box.querySelector('[data-send]').onclick=async()=>{
+          if(!box.dataset.why){ toast('Bitte einen Grund wählen.',true); return; }
+          try{ await rpc('decide_application',{p_application:box.dataset.decl,p_accept:false,
+              p_reason:box.dataset.why,p_note:box.querySelector('[data-note]').value.trim()||null});
+            fertig('Abgelehnt'); }catch(err){ fail(err); }
+        };
+      });
+    });
+  }
+}
+
+/* ── Punkte ──────────────────────────────── */
+async function loadPoints(){
+  const {data}=await sb.rpc('admin_leaderboard',{p_limit:40});
+  $('#lbList').innerHTML = !data?.length ? '<p class="tiny">Noch keine Punkte vergeben.</p>'
+   : `<table><thead><tr><th>#</th><th>Name</th><th>Punkte</th><th>Stufe</th><th>Check-ins</th></tr></thead><tbody>`
+   + data.map((x,i)=>`<tr class="click" data-id="${esc(x.profile_id)}">
+      <td class="tiny">${num(i+1)}</td>
+      <td class="name">${esc(x.display_name)}${x.is_cut?' · The Cut':''}<div class="tiny">${esc(x.city||'—')}</div></td>
+      <td><strong>${num(x.points)}</strong></td><td>${num(x.tier)}</td><td class="tiny">${num(x.check_ins)}</td></tr>`).join('')+'</tbody></table>';
+  $('#lbList').querySelectorAll('tr.click').forEach(r=>r.onclick=()=>memberDetail(r.dataset.id));
+}
+
+/* ── Einladungen ─────────────────────────── */
+async function loadInvites(){
+  const {data}=await sb.from('invite_codes').select('*').order('created_at',{ascending:false});
+  $('#invList').innerHTML = !data?.length ? empty('Keine Codes','Leg oben einen an.')
+   : `<table><thead><tr><th>Code</th><th>Wofür</th><th>Eingelöst</th><th>Läuft ab</th><th></th></tr></thead><tbody>`
+   + data.map(c=>`<tr><td><span class="dot ${c.is_active?'on':''}"></span><strong>${esc(c.code)}</strong></td>
+      <td class="tiny">${esc(c.note||'—')}</td><td>${num(c.used_count)} / ${num(c.max_uses)}</td>
+      <td class="tiny">${esc(c.expires_at?dd(c.expires_at):'unbegrenzt')}</td>
+      <td>${c.is_active?`<button class="btn quiet" data-off="${esc(c.code)}">Schließen</button>`:''}</td></tr>`).join('')+'</tbody></table>';
+  $('#invList').querySelectorAll('[data-off]').forEach(b=>b.onclick=async()=>{
+    await sb.from('invite_codes').update({is_active:false}).eq('code',b.dataset.off);
+    toast('Geschlossen'); loadInvites();
+  });
+}
+$('#icreate').onclick=async()=>{
+  const code=$('#icode').value.trim().toUpperCase();
+  if(!code) return toast('Bitte einen Code eingeben.',true);
+  const {data:me}=await sb.auth.getUser();
+  const {error}=await sb.from('invite_codes').insert({code,note:$('#inote').value||null,
+    max_uses:Math.max(1,+$('#imax').value||1),created_by:me.user.id});
+  if(error) return toast('Diesen Code gibt es schon.',true);
+  $('#icode').value=''; $('#inote').value=''; toast('Angelegt'); loadInvites();
+};
+
+/* ── Referral ────────────────────────────── */
+async function loadReferrals(){
+  const {data}=await sb.rpc('admin_referrals');
+  $('#refList').innerHTML = !data?.length ? empty('Noch keine Referrals','Sobald jemand über einen Link kommt, steht es hier.')
+   : `<table><thead><tr><th>Werber</th><th>Geworben</th><th>Rabatt</th><th>Wann</th><th></th></tr></thead><tbody>`
+   + data.map(r=>`<tr>
+      <td>${esc(r.referrer_name)}</td>
+      <td>${esc(r.referred_name)}${r.same_day?'<div class="tiny" style="color:var(--warn)">am selben Tag angelegt</div>':''}</td>
+      <td><span class="dot ${r.discounts_applied?'on':r.qualified?'warn':''}"></span>
+        ${r.discounts_applied?'gewährt':r.qualified?'offen':'noch nicht gezahlt'}</td>
+      <td class="tiny">${esc(dd(r.created_at))}</td>
+      <td><button class="btn quiet" data-flag="${esc(r.id)}" data-v="${esc(!r.flagged)}">${r.flagged?'Markierung weg':'Markieren'}</button></td>
+     </tr>`).join('')+'</tbody></table>';
+  $('#refList').querySelectorAll('[data-flag]').forEach(b=>b.onclick=async()=>{
+    try{ await rpc('admin_flag_referral',{p_id:b.dataset.flag,p_flag:b.dataset.v==='true'});
+      toast('Gespeichert'); loadReferrals(); }catch(e){ fail(e); }
+  });
+}
+
+/* ── Zahlen ──────────────────────────────── */
+async function loadNumbers(){
+  const {data:m}=await sb.rpc('club_metrics',{p_days:30});
+  if(m&&!m.error){
+    const k=[['Mitglieder aktiv',m.members_active],['Monatserlös',eur(m.mrr_cents)],
+      ['Zahlung offen',m.members_past_due,m.members_past_due>0],
+      ['Meldungen offen',m.reports_open,m.reports_open>0],
+      ['davon überfällig',m.reports_overdue,m.reports_overdue>0],
+      ['Check-ins',m.checkins],['Buchungen',m.bookings],['Nicht erschienen',m.no_shows],
+      ['Nachrichten',m.messages],['Verbindungen',m.matches],['Bewerbungen',m.applications],
+      ['Radar aktiv',m.radar_enabled],['Unter 5 Fotos',m.photos_missing]];
+    $('#kpis').innerHTML=k.map(([l,n,a])=>`<div class="kpi ${a?'alert':''}"><div class="n">${esc(n??0)}</div><div class="l">${esc(l)}</div></div>`).join('');
+  }
+  const {data:d}=await sb.rpc('dormant_members',{p_days:21});
+  $('#dormant').innerHTML = !d?.length ? '<p class="tiny">Alle waren in den letzten drei Wochen da.</p>'
+   : '<table><tbody>'+d.slice(0,25).map(x=>`<tr class="click" data-id="${esc(x.id)}">
+      <td class="name">${esc(x.display_name)}</td><td class="tiny">${esc(x.city||'—')}</td>
+      <td class="tiny">${esc(x.plan||'—')}</td>
+      <td><span class="dot ${x.days_away>45?'off':'warn'}"></span>vor ${num(x.days_away)} Tagen</td></tr>`).join('')+'</tbody></table>';
+  $('#dormant').querySelectorAll('tr.click').forEach(r=>r.onclick=()=>memberDetail(r.dataset.id));
+
+  const {data:ac}=await sb.rpc('admin_access_activity',{p_days:7});
+  $('#accList').innerHTML = !ac?.length ? '<p class="tiny">Keine Codes in den letzten 7 Tagen.</p>'
+   : '<table><tbody>'+ac.slice(0,15).map(x=>`<tr><td>${esc(x.member_name)}</td>
+      <td><span class="dot ${x.suspicious?'off':'on'}"></span>${num(x.codes)} Codes</td>
+      <td class="tiny">zuletzt ${esc(dt(x.last_code))}</td></tr>`).join('')+'</tbody></table>';
+
+  const {data:cr}=await sb.rpc('admin_crews');
+  $('#crewList').innerHTML = !cr?.length ? '<p class="tiny">Noch keine Crews.</p>'
+   : '<table><tbody>'+cr.slice(0,20).map(x=>`<tr><td class="name">${esc(x.name)}${x.is_agency?' · Agentur':''}</td>
+      <td class="tiny">${num(x.members)} Mitglieder · ${num(x.messages)} Nachrichten</td>
+      <td class="tiny">${esc(x.owner_name||'—')}</td></tr>`).join('')+'</tbody></table>';
+}
+
+/* ── Einstellungen ───────────────────────── */
+async function loadSettings(){
+  const {data:pc}=await sb.from('points_config').select('*').order('key');
+  $('#pcList').innerHTML = (pc||[]).map(x=>`<div class="bar" style="margin-bottom:8px">
+      <div style="flex:1"><strong>${esc(x.description||x.key)}</strong>
+        <div class="tiny">${esc(x.key)}</div></div>
+      <input type="number" value="${esc(x.value)}" data-pc="${esc(x.key)}" style="max-width:100px">
+    </div>`).join('') + '<button class="btn blue" id="pcSave" style="margin-top:8px">Punktwerte speichern</button>';
+  $('#pcSave').onclick=async()=>{
+    for(const i of document.querySelectorAll('[data-pc]')){
+      await sb.from('points_config').update({value:+i.value}).eq('key',i.dataset.pc);
+    }
+    toast('Gespeichert');
+  };
+
+  const {data:tt}=await sb.from('tier_thresholds').select('*').order('tier');
+  $('#tierList').innerHTML = (tt||[]).map(x=>`<div class="bar" style="margin-bottom:8px">
+      <div style="flex:1"><strong>${esc(x.name)}</strong></div>
+      <input type="number" value="${esc(x.min_points)}" data-tt="${esc(x.tier)}" style="max-width:110px">
+      <span class="tiny">Punkte nötig</span></div>`).join('')
+    + '<button class="btn blue" id="ttSave" style="margin-top:8px">Stufen speichern</button>';
+  $('#ttSave').onclick=async()=>{
+    for(const i of document.querySelectorAll('[data-tt]')){
+      await sb.from('tier_thresholds').update({min_points:+i.value}).eq('tier',+i.dataset.tt);
+    }
+    toast('Gespeichert');
+  };
+
+  $('#planList').innerHTML = `<table><thead><tr><th>Tarif</th><th>Preis</th><th>Tage</th>
+    <th>Raum h</th><th>Gäste</th><th>Stripe</th></tr></thead><tbody>`
+   + plans.map(p=>`<tr><td class="name">${esc(p.name)}</td><td>${esc(eur(p.price_cents))}</td>
+      <td>${esc(p.unlimited?'unbegrenzt':num(p.office_days))}</td><td>${num(p.meeting_room_hours)}</td>
+      <td>${num(p.guest_passes)}</td>
+      <td><span class="dot ${p.stripe_price_id?'on':'off'}"></span>
+        ${p.stripe_price_id?'verknüpft':'<span style="color:var(--danger)">fehlt</span>'}</td></tr>`).join('')
+   + '</tbody></table><p class="tiny" style="margin-top:10px">Ohne Stripe-Verknüpfung schlägt jede Zahlung fehl. Die price_id legst du in Stripe an und trägst sie in membership_plans ein.</p>';
+
+  const {data:au}=await sb.rpc('admin_audit',{p_limit:60});
+  $('#auditList').innerHTML = !au?.length ? '<p class="tiny">Noch nichts protokolliert.</p>'
+   : '<table><tbody>'+au.map(x=>`<tr><td class="tiny">${esc(dt(x.created_at))}</td>
+      <td>${esc(x.actor_name||'System')}</td><td class="tiny">${esc(x.action)}</td></tr>`).join('')+'</tbody></table>';
+}
+
+/* ── Bestehende Sitzung ──────────────────── */
+sb.auth.getSession().then(async({data})=>{
+  if(!data.session) return;
+  const {data:p}=await sb.from('profiles').select('display_name,is_admin').single();
+  if(p?.is_admin){ $('#who').textContent=p.display_name; start(); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+/* c3 — gemeinsamer Stil für die Web-Seiten (Landing, Recht, Support) */
+
+/* Outfit, selbst gehostet (gleicher Server, keine Google-Fonts-Anfrage). */
+@font-face { font-family: Outfit; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/Outfit_400Regular.ttf') format('truetype'); }
+@font-face { font-family: Outfit; font-weight: 500; font-style: normal; font-display: swap; src: url('/fonts/Outfit_500Medium.ttf') format('truetype'); }
+@font-face { font-family: Outfit; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/Outfit_600SemiBold.ttf') format('truetype'); }
+@font-face { font-family: Outfit; font-weight: 700; font-style: normal; font-display: swap; src: url('/fonts/Outfit_700Bold.ttf') format('truetype'); }
+
+:root {
+  --bg: #030308;
+  --blau: #1E1ED6;
+  --akzent: #2365FF;
+  --glow: #6694FF;
+  --txt: #ffffff;
+  --txt2: rgba(255,255,255,0.58);
+  --txt3: rgba(255,255,255,0.36);
+  --kante: rgba(255,255,255,0.13);
+  --glas: rgba(255,255,255,0.055);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image: linear-gradient(150deg, #030308 0%, #0a0a2e 55%, #1E1ED6 140%);
+  background-attachment: fixed;
+  color: var(--txt);
+  font-family: Outfit, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.seite {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 20px 100px;
+}
+
+header.marke {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+header.marke a { line-height: 0; text-decoration: none; }
+/* Das echte Zeichen statt eines getippten "c3". Freigestellt auf
+   transparent, damit es auf dem dunklen Grund wie auf dem blauen
+   Ende des Verlaufs richtig liegt. */
+header.marke .marke-bild { height: 44px; width: auto; display: block; }
+header.marke .zusatz { color: var(--txt3); font-size: 13px; }
+
+h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; font-weight: 600; }
+h2 { font-size: 21px; margin: 40px 0 10px; font-weight: 600; }
+h3 { font-size: 16px; margin: 24px 0 6px; font-weight: 600; color: var(--txt); }
+p, li { color: var(--txt2); }
+li { margin-bottom: 6px; }
+strong { color: var(--txt); font-weight: 600; }
+a { color: var(--glow); }
+
+.stand { color: var(--txt3); font-size: 13px; margin-bottom: 32px; }
+
+.karte {
+  background: var(--glas);
+  border: 1px solid var(--kante);
+  border-radius: 20px;
+  padding: 22px 24px;
+  margin: 22px 0;
+}
+
+.warnung {
+  border-color: rgba(255,159,69,0.45);
+  background: rgba(255,159,69,0.08);
+}
+.warnung strong { color: #FF9F45; }
+
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--kante);
+         vertical-align: top; color: var(--txt2);
+         -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word; }
+th { color: var(--txt); font-weight: 600; }
+
+.knopf {
+  display: inline-block;
+  background: #fff;
+  color: var(--bg);
+  border-radius: 99px;
+  padding: 13px 28px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 0 22px rgba(255,255,255,0.28);
+}
+.knopf.geist {
+  background: var(--glas);
+  color: var(--txt);
+  border: 1px solid var(--kante);
+  box-shadow: none;
+}
+
+footer {
+  margin-top: 64px; padding-top: 22px;
+  border-top: 1px solid var(--kante);
+  color: var(--txt3); font-size: 13px;
+  display: flex; flex-wrap: wrap; gap: 18px;
+}
+footer a { color: var(--txt3); }
+
+@media (max-width: 600px) {
+  h1 { font-size: 28px; }
+  .seite { padding: 28px 18px 80px; }
+}
