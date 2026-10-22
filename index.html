@@ -349,10 +349,17 @@
 (function () {
   var v = document.getElementById('loop');
   var bewegt = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var gross = window.matchMedia('(min-width: 700px)').matches;
-  if (v && bewegt && gross) {
+  if (v && bewegt) {
     var q = document.createElement('source'); q.src = '/bg/loop.mp4'; q.type = 'video/mp4';
-    v.appendChild(q); v.load(); var p = v.play(); if (p && p.catch) p.catch(function () {});
+    v.appendChild(q); v.load();
+    var start = function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
+    start();
+    /* iOS im Stromsparmodus blockiert Autoplay: beim ersten Tippen oder Scrollen nochmal anstossen */
+    var nachholen = function () {
+      if (v.paused) start();
+      if (!v.paused) { ['touchstart','scroll','click'].forEach(function (e) { window.removeEventListener(e, nachholen); }); }
+    };
+    ['touchstart','scroll','click'].forEach(function (e) { window.addEventListener(e, nachholen, { passive: true }); });
   }
 })();
 (function () {
