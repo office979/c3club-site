@@ -138,6 +138,16 @@
   @media (max-width: 980px) { .punkte.drei { grid-template-columns: 1fr; } }
   .punkt { background: var(--glas); border: 1px solid var(--kante); border-radius: 18px; padding: 20px 22px; }
   .punkt h3 { margin-top: 0; }
+  .punkt.bild { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .punkt.bild .visual { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #0a0b14; }
+  .punkt.bild .visual img { width: 100%; height: 100%; object-fit: cover; display: block;
+    filter: grayscale(0.55) contrast(1.08) brightness(0.82); transform: scale(1.02);
+    transition: transform 0.9s ease, filter 0.9s ease; }
+  .punkt.bild:hover .visual img { transform: scale(1.08); filter: grayscale(0.2) contrast(1.08) brightness(0.9); }
+  .punkt.bild .visual::before { content: ""; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(35,101,255,0.22), rgba(30,30,214,0.10) 50%, rgba(10,11,20,0.0) 70%),
+                linear-gradient(180deg, rgba(10,11,20,0) 55%, rgba(14,16,28,0.95) 100%); mix-blend-mode: normal; }
+  .punkt.bild .text { padding: 16px 22px 22px; }
   .punkt .tag { display: inline-block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
                 color: var(--akzent); margin-bottom: 8px; }
   .punkt p { margin-bottom: 0; font-size: 15px; }
@@ -239,8 +249,8 @@
 
 <div class="ticker" aria-hidden="true">
   <div class="lauf">
-    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Projects</span><span><i>·</i>Nights</span>
-    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Projects</span><span><i>·</i>Nights</span>
+    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Events</span><span><i>·</i>Projects</span>
+    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Events</span><span><i>·</i>Projects</span>
   </div>
 </div>
 
@@ -264,29 +274,41 @@
 
 <h2 class="abschnitt">What creatives need.</h2>
 <div class="punkte">
-  <div class="punkt">
+  <div class="punkt bild">
+    <div class="visual"><img src="/img/space.jpg" alt="" loading="lazy"></div>
+    <div class="text">
     <span class="tag">The Space</span>
     <h3>Book it. Badge in. Create.</h3>
     <p>Dein Desk, dein Studio, der Podcast-Room. Live-Belegung im Raumplan,
        Türcode direkt in der App. Kein Rumfragen, kein Schlüssel-Drama.</p>
+    </div>
   </div>
-  <div class="punkt">
+  <div class="punkt bild">
+    <div class="visual"><img src="/img/crew.jpg" alt="" loading="lazy"></div>
+    <div class="text">
     <span class="tag">The Crew</span>
     <h3>Find your people.</h3>
     <p>Member Directory nach Craft, Teams mit eigenem Channel, Partner Up zeigt
        dir Creatives in deiner Nähe. Dein nächstes Projekt ist einen Chat entfernt.</p>
+    </div>
   </div>
-  <div class="punkt">
+  <div class="punkt bild">
+    <div class="visual"><img src="/img/events.jpg" alt="" loading="lazy"></div>
+    <div class="text">
+    <span class="tag">The Events</span>
+    <h3>After hours.</h3>
+    <p>Breakfasts, Workshops, Screenings, Studio-Nights. Zusagen in der App,
+       Warteliste rückt von selbst nach. Wer früher drin ist, sieht Events zuerst.</p>
+    </div>
+  </div>
+  <div class="punkt bild">
+    <div class="visual"><img src="/img/projects.jpg" alt="" loading="lazy"></div>
+    <div class="text">
     <span class="tag">The Projects</span>
     <h3>Clients that pay.</h3>
     <p>Briefs von Kunden und aus der Community, vom c3 Team gecheckt, bevor sie
        live gehen. Bewerben in zwei Minuten, Budget steht dabei, Gruppenchat ab Zusage.</p>
-  </div>
-  <div class="punkt">
-    <span class="tag">The Nights</span>
-    <h3>After hours.</h3>
-    <p>Breakfasts, Workshops, Screenings, Studio-Nights. Zusagen in der App,
-       Warteliste rückt von selbst nach. Wer früher drin ist, sieht Events zuerst.</p>
+    </div>
   </div>
 </div>
 
