@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /team/
-Allow: /
-Sitemap: https://c3club.io/sitemap.xml
