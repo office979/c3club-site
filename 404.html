@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>c3</title>
+<script>
+  (function () {
+    var p = location.pathname;
+    var m = p.match(/^\/(invite|event)\/([A-Za-z0-9-]{1,64})\/?$/);
+    location.replace(m ? 'https://c3club.app/' + m[1] + '/' + m[2] : '/');
+  })();
+</script>
+</head><body style="background:#0b0b0f;color:#fff;font-family:system-ui,sans-serif">
+<p style="margin:40px 16px"><a style="color:#fff" href="/">c3club.io</a></p>
+</body></html>

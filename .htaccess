@@ -3,6 +3,9 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Einladungs- und Event-Links in die Web-App (A-17)
+RewriteRule ^(invite|event)/([A-Za-z0-9-]+)/?$ https://c3club.app/$1/$2 [R=302,L]
+
 # Saubere Adressen: /agb statt /agb.html
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
