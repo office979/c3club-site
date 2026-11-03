@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Bestätigt – c3</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/_stil.css">
+<style>
+  .bestaetigt { max-width: 520px; margin: 48px auto 0; text-align: center; }
+  .bestaetigt .stern { width: 56px; height: 56px; border-radius: 99px; margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff;
+    background: #2365FF; box-shadow: 0 0 34px rgba(102,148,255,0.55); }
+  .bestaetigt h1 { margin: 0 0 10px; }
+  .bestaetigt p { color: rgba(248,248,250,0.68); margin: 0 auto; max-width: 440px; }
+  .bestaetigt .wir { margin-top: 18px; color: #F8F8FA; font-weight: 600; }
+  .bestaetigt a.zurueck { display: inline-block; margin-top: 28px; }
+  .bestaetigt[data-stand="laedt"] .stern { opacity: 0.4; box-shadow: none; }
+  .bestaetigt[data-stand="fehler"] .stern { background: rgba(255,255,255,0.12); box-shadow: none; }
+</style>
+</head>
+<body>
+<div class="seite">
+
+<header class="marke">
+  <a href="/"><img src="/wortmarke.png" alt="c3" class="marke-bild"></a>
+  <span class="zusatz">creative · creator · club</span>
+</header>
+
+<div class="bestaetigt" id="feld" data-stand="laedt">
+  <div class="stern">★</div>
+  <h1 id="titel">Einen Moment …</h1>
+  <p id="text">Wir bestätigen deine Adresse.</p>
+  <p class="wir" id="wir" hidden>We are c3.</p>
+  <a class="zurueck" href="/">Zur Startseite</a>
+</div>
+
+</div>
+<script>
+(function () {
+  var SUPABASE_URL = 'https://lbqdugnrfnmytsuxmeww.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicWR1Z25yZm5teXRzdXhtZXd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzU3MTAsImV4cCI6MjEwNTMxMTcxMH0.uMon51b-jcETsiGiPBFPoeuXrgfayk5u-ut2GOmRGt0';
+  var feld = document.getElementById('feld');
+  var titel = document.getElementById('titel');
+  var text = document.getElementById('text');
+
+  function zeigen(stand, t, s) {
+    feld.setAttribute('data-stand', stand);
+    titel.textContent = t; text.textContent = s;
+    document.getElementById('wir').hidden = stand !== 'ok';
+  }
+
+  var token = '';
+  try { token = new URLSearchParams(location.search).get('t') || ''; } catch (e) {}
+  if (!/^[0-9a-f-]{36}$/i.test(token)) {
+    zeigen('fehler', 'Link unvollständig.', 'Öffne den Link bitte direkt aus der Mail. Wenn es nicht klappt, trag dich auf der Startseite noch einmal ein, dann schicken wir eine neue Mail.');
+    return;
+  }
+
+  fetch(SUPABASE_URL + '/rest/v1/rpc/vorregistrierung_bestaetigen', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+    body: JSON.stringify({ p_token: token })
+  }).then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function (ergebnis) {
+      if (ergebnis === 'ok') {
+        zeigen('ok', "You're in.", 'Deine Adresse ist bestätigt. Du bist jetzt offiziell Teil von c3 und erfährst als Erste:r, wann App und Space in Wien starten.');
+        try { history.replaceState(null, '', '/bestaetigen'); } catch (e) {}
+      } else {
+        zeigen('fehler', 'Link nicht gefunden.', 'Vielleicht wurde der Eintrag gelöscht. Trag dich auf der Startseite einfach noch einmal ein.');
+      }
+    })
+    .catch(function () {
+      zeigen('fehler', 'Hat gerade nicht geklappt.', 'Bitte lade die Seite in ein paar Minuten noch einmal.');
+    });
+})();
+</script>
+</body>
+</html>

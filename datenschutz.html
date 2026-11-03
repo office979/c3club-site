@@ -435,11 +435,16 @@
   auf unseren Servern in Frankfurt (Supabase, Abschnitt 7). Zweck ist
   allein, dich zum Start der App und des Spaces per E-Mail zu informieren
   und dir eine Einladung zu schicken; Grundlage ist deine Einwilligung
-  (lit. a), die du mit dem Absenden des Formulars gibst. Du kannst sie
+  (lit. a), die du mit dem Absenden des Formulars gibst. Damit niemand
+  fremde Adressen eintragen kann, schicken wir dir eine Bestätigungsmail
+  (Double Opt-in); erst nach deinem Klick gilt die Vormerkung als bestätigt,
+  und wir speichern den Zeitpunkt als Nachweis. Versand und unsere interne
+  Liste laufen über Google Workspace (Abschnitt 7). Du kannst sie
   jederzeit mit einer E-Mail an hallo@c3club.io widerrufen, dann löschen wir
   den Eintrag. Spätestens drei Monate nach dem Launch oder nach deiner
-  Registrierung in der App löschen wir die Vormerkung von selbst. Eine
-  Weitergabe findet nicht statt.
+  Registrierung in der App löschen wir die Vormerkung von selbst; nie
+  bestätigte Einträge löschen wir nach 30 Tagen. Eine Weitergabe an Dritte
+  findet nicht statt.
 </p>
 
 <h2>7 · Empfänger und Dienstleister</h2>
@@ -504,7 +509,7 @@
   </tr>
   <tr>
     <td>Google Ireland Ltd., Irland, und Google LLC, USA (Google Workspace)</td>
-    <td>Postfach hallo@c3club.io</td>
+    <td>Postfach hallo@c3club.io, Versand der Bestätigungsmails, interne Liste der Vorregistrierungen</td>
     <td>Auftragsverarbeiter</td>
     <td>Irland und USA; EU-US Data Privacy Framework</td>
   </tr>
