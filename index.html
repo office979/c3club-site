@@ -367,9 +367,36 @@
 (function () {
   var SUPABASE_URL = 'https://lbqdugnrfnmytsuxmeww.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicWR1Z25yZm5teXRzdXhtZXd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzU3MTAsImV4cCI6MjEwNTMxMTcxMH0.uMon51b-jcETsiGiPBFPoeuXrgfayk5u-ut2GOmRGt0';
+  // Cloudflare Turnstile (Migration 72): unsichtbar, nur bei Verdacht eine
+  // Abfrage. Ohne eingesetzten Schluessel wird es nicht geladen.
+  var TURNSTILE_SITEKEY = 'DEIN-TURNSTILE-SITEKEY';
   var form = document.getElementById('form');
   var fehler = document.getElementById('fehler');
   var knopf = document.getElementById('senden');
+  var turnstileAn = !/^DEIN-/.test(TURNSTILE_SITEKEY);
+  var turnstileId = null;
+
+  if (turnstileAn) {
+    var feld = document.createElement('div');
+    feld.id = 'turnstile';
+    feld.style.marginTop = '12px';
+    knopf.parentNode.insertBefore(feld, knopf);
+    window.c3TurnstileBereit = function () {
+      turnstileId = window.turnstile.render('#turnstile', {
+        sitekey: TURNSTILE_SITEKEY, appearance: 'interaction-only', theme: 'dark', language: 'de',
+        callback: function () { if (fehler.dataset.turnstile) { fehler.textContent = ''; delete fehler.dataset.turnstile; } }
+      });
+    };
+    var s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=c3TurnstileBereit&render=explicit';
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  function turnstileToken() {
+    if (!turnstileAn || !window.turnstile || turnstileId === null) return '';
+    return window.turnstile.getResponse(turnstileId) || '';
+  }
 
   function quelle() {
     try {
@@ -386,24 +413,35 @@
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) { fehler.textContent = 'Bitte eine gültige E-Mail-Adresse angeben.'; return; }
     if (!document.getElementById('ok').checked) { fehler.textContent = 'Bitte kurz bestätigen, dass wir dich anpingen dürfen.'; return; }
     if (form.website.value) { form.hidden = true; document.getElementById('danke').hidden = false; return; }
+    // Turnstile braucht einen Moment fuer sein Zeichen. Ohne Zeichen gar
+    // nicht erst senden, sonst antwortet der Server mit "Bot".
+    if (turnstileAn && !turnstileToken()) {
+      fehler.textContent = 'Kurzer Sicherheitscheck läuft. Bitte in ein paar Sekunden noch einmal senden.';
+      fehler.dataset.turnstile = '1';
+      return;
+    }
 
     knopf.disabled = true; knopf.textContent = 'One sec …';
     try {
-      var r = await fetch(SUPABASE_URL + '/rest/v1/rpc/vorregistrieren', {
+      // Seit Migration 72 ueber die Function `warteliste` (Turnstile, Limit
+      // pro IP); die Datenbankfunktion ist von aussen nicht mehr aufrufbar.
+      var r = await fetch(SUPABASE_URL + '/functions/v1/warteliste', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
         body: JSON.stringify({
-          p_email: email,
-          p_name: document.getElementById('name').value.trim() || null,
-          p_city: document.getElementById('stadt').value || null,
-          p_craft: document.getElementById('gewerk').value || null,
-          p_source: quelle(),
-          p_locale: (navigator.language || 'de').slice(0, 10)
+          email: email,
+          name: document.getElementById('name').value.trim() || null,
+          city: document.getElementById('stadt').value || null,
+          craft: document.getElementById('gewerk').value || null,
+          source: quelle(),
+          locale: (navigator.language || 'de').slice(0, 10),
+          turnstile: turnstileToken()
         })
       });
       if (!r.ok) {
         var j = null; try { j = await r.json(); } catch (e) {}
-        throw new Error((j && j.message) || 'Hat gerade nicht geklappt. Bitte später noch einmal.');
+        if (turnstileAn && window.turnstile && turnstileId !== null) window.turnstile.reset(turnstileId);
+        throw new Error((j && (j.error || j.message)) || 'Hat gerade nicht geklappt. Bitte später noch einmal.');
       }
       form.hidden = true;
       document.getElementById('danke').hidden = false;
