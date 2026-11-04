@@ -21,7 +21,7 @@ body{font-family:Outfit,system-ui,sans-serif;background:var(--bg);color:var(--tx
   background-attachment:fixed;font-size:14px}
 button{font-family:inherit;cursor:pointer;border:0;color:inherit}
 input,select,textarea{font-family:inherit;background:rgba(255,255,255,.04);
-  border:1px solid var(--edge);border-radius:11px;padding:9px 12px;color:#fff;font-size:13px;width:100%}
+  border:1px solid var(--edge);border-radius:13px;padding:9px 12px;color:#fff;font-size:13px;width:100%}
 input:focus,select,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
 select option{background:#0b0b18}
 textarea{min-height:78px;resize:vertical;line-height:1.5}
@@ -29,7 +29,7 @@ a{color:var(--glow)}
 
 .gate{min-height:100vh;display:grid;place-items:center;padding:24px}
 .gate form{width:100%;max-width:340px;background:var(--glass);border:1px solid var(--edge);
-  border-radius:22px;padding:28px;backdrop-filter:blur(18px)}
+  border-radius:20px;padding:28px;backdrop-filter:blur(18px)}
 .gate h1{font-size:15px;font-weight:500;margin-bottom:4px}
 .gate p{font-size:13px;color:var(--txt2);margin-bottom:22px}
 .lbl{display:block;font-size:11px;color:var(--txt2);margin:0 0 5px}
@@ -60,7 +60,7 @@ nav button b{margin-left:6px;background:var(--danger);font-size:10px;font-weight
 
 h2{font-size:24px;font-weight:600;letter-spacing:-.6px;margin-bottom:4px}
 .hint{font-size:13px;color:var(--txt2);margin-bottom:18px}
-.card{background:var(--glass);border:1px solid var(--edge);border-radius:18px;
+.card{background:var(--glass);border:1px solid var(--edge);border-radius:20px;
   padding:18px;margin-bottom:14px}
 .card h3{font-size:13px;font-weight:500;color:var(--txt2);margin-bottom:13px}
 .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
@@ -87,7 +87,7 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
 .dot.off{background:var(--danger);box-shadow:0 0 9px rgba(255,93,93,.7)}
 
 /* Meldungen */
-.rep{background:var(--glass);border:1px solid var(--edge);border-radius:18px;padding:16px 18px;
+.rep{background:var(--glass);border:1px solid var(--edge);border-radius:20px;padding:16px 18px;
   margin-bottom:11px;display:grid;grid-template-columns:82px 1fr auto;gap:16px;align-items:start}
 .rep.late{border-color:rgba(255,93,93,.55);background:rgba(255,93,93,.07)}
 .clock{position:relative;width:82px;height:82px}
@@ -100,7 +100,7 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
 @media(max-width:640px){.rep{grid-template-columns:1fr}.acts{flex-direction:row;flex-wrap:wrap}}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:10px}
-.kpi{background:var(--glass);border:1px solid var(--edge);border-radius:16px;padding:14px}
+.kpi{background:var(--glass);border:1px solid var(--edge);border-radius:20px;padding:14px}
 .kpi .n{font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1.1}
 .kpi .l{font-size:11.5px;color:var(--txt2);margin-top:3px}
 .kpi.alert{border-color:rgba(255,93,93,.5)}.kpi.alert .n{color:#FF8F8F}
@@ -152,12 +152,18 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
     <button data-p="bookings">Buchungen</button>
     <button data-p="events">Events</button>
     <button data-p="campaigns">Ausschreibungen</button>
+    <button data-p="anbieter">Anbieter<b id="anBadge" style="display:none">0</b></button>
     <button data-p="points">Punkte</button>
     <button data-p="invites">Einladungen</button>
     <button data-p="referrals">Referral</button>
     <button data-p="vorreg">Vorregistrierungen<b id="vrBadge" style="display:none">0</b></button>
+    <button data-p="concierge">Concierge</button>
     <button data-p="numbers">Zahlen</button>
     <button data-p="settings">Einstellungen</button>
+    <button data-p="standorte">Standorte</button>
+    <button data-p="broadcast">Nachrichten</button>
+    <button data-p="tarife">Tarife</button>
+    <button data-p="kanaele">Kanäle</button>
   </nav>
 
   <section class="page on" id="p-reports">
@@ -211,6 +217,12 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
     <div class="card"><div id="cpList"></div></div>
   </section>
 
+  <section class="page" id="p-anbieter">
+    <h2>Anbieter</h2>
+    <p class="hint">Nur echte, direkte Auftraggeber: keine Agenturen, keine Vermittler mit Marge. Erst nach dieser Prüfung können Anbieter Projekte einreichen.</p>
+    <div class="card"><div id="anList"></div></div>
+  </section>
+
   <section class="page" id="p-points">
     <h2>Punkte</h2>
     <p class="hint">Rangliste und manuelle Buchungen, zum Beispiel für Speaker.</p>
@@ -244,6 +256,23 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
     <div class="card"><div id="vrList"></div></div>
   </section>
 
+  <section class="page" id="p-concierge">
+    <h2>Concierge-Wissen</h2>
+    <p class="hint">Was der KI-Concierge in der App über c3 weiß (Englisch, er antwortet in der Sprache der Frage).
+      Tarife, Preise, Standorte und Events liest er live aus der Datenbank, die gehören nicht hierher.
+      Änderungen gelten sofort, ohne App-Update. Nur belegte Fakten eintragen.</p>
+    <div class="bar"><button class="btn blue" id="kwNeu">Neues Thema</button>
+      <span class="tiny" id="kwInfo"></span></div>
+    <div id="kwList"></div>
+    <h2 style="margin-top:22px">Wochenlauf</h2>
+    <p class="hint">Claude wird dabei nicht neu trainiert: Jeden Montag fasst ein Lauf die Fragen der letzten 7 Tage zusammen.
+      Es zählen nur Muster von mindestens 3 Personen. Hinweise ohne neue Fakten erscheinen automatisch, alles andere wartet hier auf euch.</p>
+    <div class="card"><h3>Offene Vorschläge</h3><div id="lnVorschlaege"></div></div>
+    <div class="card"><h3>Aktive Hinweise</h3><div id="lnGelernt"></div></div>
+    <div class="card"><h3>Letzte Läufe</h3><div id="lnLaeufe"></div></div>
+    <div class="card" style="margin-top:14px"><h3>App-Fehler (7 Tage)</h3><div id="afList"></div></div>
+  </section>
+
   <section class="page" id="p-numbers">
     <h2>Zahlen</h2>
     <p class="hint">Letzte 30 Tage.</p>
@@ -255,11 +284,60 @@ tr.click:hover{background:rgba(255,255,255,.03);cursor:pointer}
 
   <section class="page" id="p-settings">
     <h2>Einstellungen</h2>
-    <p class="hint">Werte, die das Punktesystem und die Tarife steuern.</p>
+    <p class="hint">Werte, die das Punktesystem steuern. Tarife haben einen eigenen Tab.</p>
     <div class="card"><h3>Punktwerte</h3><div id="pcList"></div></div>
     <div class="card"><h3>Stufen</h3><div id="tierList"></div></div>
-    <div class="card"><h3>Tarife</h3><div id="planList"></div></div>
     <div class="card"><h3>Protokoll</h3><div id="auditList"></div></div>
+  </section>
+
+  <section class="page" id="p-standorte">
+    <h2>Standorte</h2>
+    <p class="hint">Status, Eröffnungsdatum und Stammdaten. Status und Datum wirken auf die Probezeiten in Stripe.</p>
+    <div class="bar"><button class="btn blue" id="stNeu">Neuer Standort</button></div>
+    <div class="card"><div id="stList"></div></div>
+  </section>
+
+  <section class="page" id="p-broadcast">
+    <h2>Nachrichten</h2>
+    <p class="hint">Push an Mitglieder, optional auch im Ankündigungskanal. Höchstens eine Nachricht in 10 Minuten und 5 in 24 Stunden.</p>
+    <div class="card"><h3>Neue Nachricht</h3>
+      <div class="f"><label class="lbl">Titel, höchstens 80 Zeichen</label><input id="brTitel" maxlength="80"></div>
+      <div class="f"><label class="lbl">Text, höchstens 500 Zeichen</label><textarea id="brText" maxlength="500"></textarea></div>
+      <p class="tiny" style="margin-bottom:12px">Die App ist englisch. Der Text kommt genau so an, wie er hier steht.</p>
+      <div class="cols">
+        <div><label class="lbl">Zielgruppe</label><select id="brArt">
+          <option value="alle">Alle Mitglieder</option>
+          <option value="standort">Ein Standort</option>
+          <option value="stadt">Eine Stadt</option>
+          <option value="tarife">Bestimmte Tarife</option></select></div>
+        <div id="brZiel"></div>
+      </div>
+      <div class="f" style="margin-top:11px"><label class="lbl">Auch im Ankündigungskanal posten</label>
+        <select id="brKanal"><option value="">Nein, nur Push</option></select></div>
+      <p class="tiny" id="brZahl" style="margin-bottom:12px"></p>
+      <div class="bar"><button class="btn blue" id="brSenden">Senden</button></div>
+    </div>
+    <div class="card"><h3>Gesendet</h3><div id="brVerlauf"></div></div>
+  </section>
+
+  <section class="page" id="p-tarife">
+    <h2>Tarife</h2>
+    <p class="hint">Was die App zu jedem Tarif und Tagespass zeigt und gewährt.</p>
+    <div class="card" style="border-color:rgba(255,159,69,.5)">
+      <h3 style="color:var(--warn)">Preise leben in Stripe</h3>
+      <p class="tiny" style="line-height:1.65">price_cents ändert nur die Anzeige in der App. Abgebucht wird, was in Stripe hinter der Preis-ID steht.
+        Eine Preisänderung braucht deshalb einen neuen Preis in Stripe und dessen neue price-ID hier. Bestehende Abos bleiben auf ihrem alten Stripe-Preis, bis sie dort umgestellt werden.
+        Ohne Preis-ID ist ein Tarif nicht buchbar.</p>
+    </div>
+    <div class="card"><h3>Tarife</h3><div id="planList"></div></div>
+    <div class="card"><h3>Tagespässe</h3><div id="passList"></div></div>
+  </section>
+
+  <section class="page" id="p-kanaele">
+    <h2>Kanäle</h2>
+    <p class="hint">Stadt-, Themen- und Ankündigungskanäle. Neue erscheinen sofort in der App, archivierte verschwinden dort.</p>
+    <div class="bar"><button class="btn blue" id="kaNeu">Neuer Kanal</button></div>
+    <div class="card"><div id="kaList"></div></div>
   </section>
 </div>
 
@@ -286,10 +364,19 @@ const num = v => { const n = typeof v === 'number' ? v : typeof v === 'string' &
   return Number.isFinite(n) ? String(n) : '?'; };
 /* Link aus der Datenbank: nur http(s), sonst null und es wird kein Link gerendert. */
 const sicherUrl = u => { const s = typeof u === 'string' ? u.trim() : ''; return /^https?:\/\//i.test(s) ? s : null; };
-const dt = s => s ? new Date(s).toLocaleString('de-DE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-const dd = s => s ? new Date(s).toLocaleDateString('de-DE') : '—';
+/* Alle Zeiten in Wiener Zeit, egal wo das Team gerade sitzt: Wer im Ausland ein Event auf
+   09:00 legt, meint 09:00 in Wien. Sonst laege es um Stunden daneben. */
+const ZONE='Europe/Vienna';
+const dt = s => s ? new Date(s).toLocaleString('de-DE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:ZONE}) : '—';
+const dd = s => s ? new Date(s).toLocaleDateString('de-DE',{timeZone:ZONE}) : '—';
 const eur = c => '€ ' + (c/100).toLocaleString('de-DE',{maximumFractionDigits:0});
-const forInput = s => s ? new Date(new Date(s).getTime() - new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16) : '';
+/* Versatz der Wiener Zeit zu UTC in ms, zu einem Zeitpunkt. */
+const wienVersatz = ms => { const t=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:ZONE,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(ms)).map(p=>[p.type,p.value]));
+  return Date.UTC(+t.year,+t.month-1,+t.day,+t.hour,+t.minute)-Math.floor(ms/6e4)*6e4; };
+/* datetime-local (Wiener Wanduhr) → ISO */
+const ausWien = v => { if(!v) return null; const u=Date.parse(v+':00Z'); return new Date(u-wienVersatz(u-wienVersatz(u))).toISOString(); };
+/* ISO → datetime-local (Wiener Wanduhr) */
+const forInput = s => { if(!s) return ''; const ms=new Date(s).getTime(); return new Date(ms+wienVersatz(ms)).toISOString().slice(0,16); };
 
 function toast(m, bad){ const t=$('#toast'); t.textContent=m; t.className='toast on'+(bad?' bad':''); setTimeout(()=>t.className='toast',2800); }
 function fail(e){ toast(e?.message || 'Hat nicht geklappt.', true); }
@@ -302,9 +389,10 @@ const empty = (t,s) => `<div class="empty"><b>${esc(t)}</b>${esc(s)}</div>`;
 $('#loginForm').onsubmit = async e => {
   e.preventDefault();
   const b=$('#loginBtn'); b.disabled=true; $('#loginMsg').textContent='';
-  const {error} = await sb.auth.signInWithPassword({email:$('#email').value,password:$('#pw').value});
+  const {data:anmeldung,error} = await sb.auth.signInWithPassword({email:$('#email').value,password:$('#pw').value});
   if(error){ $('#loginMsg').textContent='E-Mail oder Passwort stimmt nicht.'; b.disabled=false; return; }
-  const {data:p} = await sb.from('profiles').select('display_name,is_admin').single();
+  /* Mit Filter: Das Team darf alle Profile lesen, ohne Filter scheitert .single() ab zwei Mitgliedern. */
+  const {data:p} = await sb.from('profiles').select('display_name,is_admin').eq('id',anmeldung.user.id).single();
   if(!p?.is_admin){ $('#loginMsg').textContent='Dieses Konto hat keine Team-Rechte.'; await sb.auth.signOut(); b.disabled=false; return; }
   $('#who').textContent=p.display_name; start();
 };
@@ -330,8 +418,115 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 });
 
 async function loadAll(){
-  await Promise.all([loadReports(),loadMembers(),loadBookings(),loadEvents(),
-    loadCampaigns(),loadPoints(),loadInvites(),loadReferrals(),loadNumbers(),loadSettings(),loadVorreg()]);
+  /* Ein fehlgeschlagener Bereich darf die anderen nicht mitnehmen. */
+  await Promise.allSettled([loadReports(),loadMembers(),loadBookings(),loadEvents(),
+    loadCampaigns(),loadPoints(),loadInvites(),loadReferrals(),loadNumbers(),loadSettings(),loadVorreg(),
+    loadWissen(),loadAppFehler(),loadLernen()]);
+  await Promise.allSettled([loadAnbieter(),loadStandorte(),loadBroadcast(),loadTarife(),loadKanaele()]);
+}
+
+/* ── Concierge-Wissen (Migration 81) ─────── */
+async function loadWissen(){
+  const {data,error} = await sb.from('concierge_wissen').select('*').order('reihenfolge').order('thema');
+  if(error) return $('#kwList').innerHTML=empty('Nicht geladen', error.message);
+  $('#kwInfo').textContent = (data?.filter(x=>x.aktiv).length??0)+' aktive Themen';
+  $('#kwList').innerHTML = (data??[]).map(w=>`<div class="card" data-kw="${esc(w.id)}">
+      <div class="bar"><input class="grow" data-f="thema" value="${esc(w.thema)}" maxlength="80">
+        <input data-f="reihenfolge" type="number" value="${esc(w.reihenfolge)}" style="width:90px;min-width:90px" title="Reihenfolge">
+        <label class="tiny"><input data-f="aktiv" type="checkbox" ${w.aktiv?'checked':''} style="width:auto"> aktiv</label></div>
+      <textarea data-f="inhalt" rows="5" maxlength="3000">${esc(w.inhalt)}</textarea>
+      <div class="bar" style="margin:10px 0 0"><button class="btn blue" data-kwa="speichern">Speichern</button>
+        <button class="btn quiet" data-kwa="loeschen">Löschen</button>
+        <span class="tiny">zuletzt ${esc(dt(w.aktualisiert))}</span></div></div>`).join('')
+    || empty('Noch kein Wissen','Mit „Neues Thema“ anlegen.');
+}
+document.addEventListener('click', async e=>{
+  const b=e.target.closest('[data-kwa]'); if(!b) return;
+  const k=b.closest('[data-kw]'), id=k.dataset.kw, f=n=>k.querySelector(`[data-f="${n}"]`);
+  try{
+    if(b.dataset.kwa==='loeschen'){
+      if(!confirm('Thema löschen? Der Concierge kennt es danach nicht mehr.')) return;
+      const {error}=await sb.from('concierge_wissen').delete().eq('id',id); if(error) throw error;
+      toast('Gelöscht');
+    } else {
+      const thema=f('thema').value.trim(), inhalt=f('inhalt').value.trim();
+      if(!thema||!inhalt) return toast('Thema und Inhalt ausfüllen', true);
+      const {error}=await sb.from('concierge_wissen').update({thema, inhalt,
+        reihenfolge:Number(f('reihenfolge').value)||100, aktiv:f('aktiv').checked,
+        aktualisiert:new Date().toISOString()}).eq('id',id);
+      if(error) throw error; toast('Gespeichert');
+    }
+    loadWissen();
+  }catch(err){ fail(err); }
+});
+$('#kwNeu').onclick = async ()=>{
+  const thema=prompt('Name des Themas (z. B. „Parking“)'); if(!thema) return;
+  const {error}=await sb.from('concierge_wissen').insert({thema:thema.trim(), inhalt:'(bitte ausfüllen)', aktiv:false, reihenfolge:200});
+  if(error) return fail(error);
+  toast('Angelegt, noch inaktiv'); loadWissen();
+};
+/* ── Wochenlauf (Migration 86). Alle Texte stammen aus Fragen von Mitgliedern: nie ungeprüft ins HTML. ── */
+const LERN_STATUS = {laeuft:'läuft',fertig:'fertig',fehler:'Fehler'};
+const LERN_ART = {wissensluecke:'Wissenslücke',korrektur:'Korrektur'};
+async function loadLernen(){
+  const {data,error} = await sb.rpc('admin_concierge_lernen');
+  if(error){
+    $('#lnVorschlaege').innerHTML=empty('Nicht geladen', error.message);
+    $('#lnGelernt').innerHTML=''; $('#lnLaeufe').innerHTML=''; return;
+  }
+  /* Übernehmen ersetzt den Text des Themas: darum steht der heutige Text schon im Feld. */
+  const vorlage = v => v.wissen_inhalt ? v.wissen_inhalt+'\n\n'+v.inhalt : v.inhalt;
+  $('#lnVorschlaege').innerHTML = (data.vorschlaege||[]).map(v=>`<div class="card" data-lnv="${esc(v.id)}">
+      <div class="tiny">${esc(LERN_ART[v.art]||v.art)} · ${num(v.personen)} Personen · ${esc(dt(v.created_at))} · ${v.wissen_inhalt?'bestehendes Thema, Übernehmen ersetzt seinen Text':'neues Thema'}</div>
+      <div style="margin:6px 0 2px">${esc(v.frage)}</div>
+      ${v.begruendung?`<div class="quote">${esc(v.begruendung)}</div>`:''}
+      <div class="f" style="margin-top:10px"><label class="lbl">Thema</label><input data-f="thema" maxlength="80" value="${esc(v.thema)}"></div>
+      <div class="f"><label class="lbl">Endgültiger Text im Wissen</label><textarea data-f="inhalt" rows="6" maxlength="3000">${esc(vorlage(v))}</textarea></div>
+      <div class="bar" style="margin:10px 0 0"><button class="btn blue" data-lna="annehmen">Übernehmen</button>
+        <button class="btn quiet" data-lna="verwerfen">Verwerfen</button></div></div>`).join('')
+    || empty('Nichts offen','Der nächste Lauf ist am Montag.');
+  $('#lnGelernt').innerHTML = (data.gelernt||[]).length ? '<table><tbody>'+data.gelernt.map(g=>`<tr data-lng="${esc(g.id)}">
+      <td>${esc(g.frage)}<div class="tiny">${esc(g.hinweis)}</div><div class="tiny">${esc(g.thema)} · ${num(g.personen)} Personen · ${esc(dt(g.aktualisiert))}</div></td>
+      <td><button class="btn quiet" data-lna="deaktivieren">Deaktivieren</button></td></tr>`).join('')+'</tbody></table>'
+    : '<div class="tiny">Noch keine.</div>';
+  $('#lnLaeufe').innerHTML = (data.laeufe||[]).length ? '<table><tbody>'+data.laeufe.map(l=>`<tr>
+      <td class="tiny">${esc(dt(l.gestartet_am))}</td>
+      <td>${esc(LERN_STATUS[l.status]||l.status)}${l.fehler?`<div class="tiny">${esc(l.fehler)}</div>`:''}</td>
+      <td class="tiny">${num(l.fragen)} Fragen · ${num(l.personen)} Personen · ${num(l.schlecht)} schlecht · ${num(l.nicht_gewusst)} nicht gewusst</td>
+      <td class="tiny">${num(l.gelernt)} Hinweise · ${num(l.vorschlaege)} Vorschläge · ${num(l.verworfen)} verworfen · ${num(l.deaktiviert)} abgeschaltet</td>
+      <td class="tiny">${num(l.tokens_rein)} / ${num(l.tokens_raus)} Tokens</td></tr>`).join('')+'</tbody></table>'
+    : '<div class="tiny">Noch kein Lauf.</div>';
+}
+document.addEventListener('click', async e=>{
+  const b=e.target.closest('[data-lna]'); if(!b) return;
+  const a=b.dataset.lna; b.disabled=true;
+  try{
+    if(a==='deaktivieren'){
+      if(!confirm('Hinweis abschalten? Der Concierge nutzt ihn sofort nicht mehr, und der Wochenlauf bringt ihn nicht zurück.')){ b.disabled=false; return; }
+      const {error}=await sb.rpc('admin_concierge_gelernt_deaktivieren',{p_id:b.closest('[data-lng]').dataset.lng});
+      if(error) throw error; toast('Abgeschaltet');
+    } else {
+      const k=b.closest('[data-lnv]'), id=k.dataset.lnv;
+      if(a==='verwerfen'){
+        const {error}=await sb.rpc('admin_concierge_vorschlag_verwerfen',{p_id:id});
+        if(error) throw error; toast('Verworfen');
+      } else {
+        const thema=k.querySelector('[data-f="thema"]').value.trim(), inhalt=k.querySelector('[data-f="inhalt"]').value.trim();
+        if(!thema||!inhalt){ b.disabled=false; return toast('Thema und Text ausfüllen', true); }
+        const {error}=await sb.rpc('admin_concierge_vorschlag_annehmen',{p_id:id,p_thema:thema,p_inhalt:inhalt});
+        if(error) throw error; toast('Übernommen, gilt sofort'); loadWissen();
+      }
+    }
+    loadLernen();
+  }catch(err){ b.disabled=false; fail(err); }
+});
+async function loadAppFehler(){
+  const {data,error} = await sb.rpc('admin_app_fehler',{p_tage:7});
+  if(error) return $('#afList').innerHTML='<div class="tiny">'+esc(error.message)+'</div>';
+  $('#afList').innerHTML = data?.length ? '<table><tbody>'+data.map(f=>`<tr>
+      <td class="tiny">${esc(dt(f.zuletzt))}</td><td>${esc(f.meldung)}<div class="tiny">${esc(f.ort)} · ${esc(f.version||'')}</div></td>
+      <td class="tiny">${esc(f.anzahl)}× · ${esc(f.personen)} Pers.</td></tr>`).join('')+'</tbody></table>'
+    : '<div class="tiny">Keine Fehler gemeldet.</div>';
 }
 
 /* ── Meldungen ───────────────────────────── */
@@ -514,7 +709,7 @@ async function loadBookings(){
   $('#bookList').innerHTML = !data?.length ? empty('Keine Buchungen','In diesem Zeitraum ist nichts gebucht.')
    : `<table><thead><tr><th>Wann</th><th>Platz</th><th>Wer</th><th>Standort</th><th></th></tr></thead><tbody>`
    + data.map(b=>`<tr>
-      <td class="tiny">${esc(dt(b.starts_at))}<br>bis ${esc(new Date(b.ends_at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}))}</td>
+      <td class="tiny">${esc(dt(b.starts_at))}<br>bis ${esc(new Date(b.ends_at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',timeZone:ZONE}))}</td>
       <td>${esc(b.seat_label)}<div class="tiny">${esc(b.seat_kind)}</div></td>
       <td>${b.is_block?'<span class="dot warn"></span>Gesperrt':esc(b.member_name)}
         ${b.is_guest?'<div class="tiny">Gast: '+esc(b.guest_name||'')+'</div>':''}</td>
@@ -546,16 +741,16 @@ $('#blockBtn').onclick=async()=>{
       <div class="f"><label class="lbl">Platz</label><select id="bseat">
         ${(seats||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.label)} · ${esc(s.kind)}</option>`).join('')}</select></div>
       <div class="cols">
-        <div><label class="lbl">Von</label><input type="datetime-local" id="bfrom"></div>
-        <div><label class="lbl">Bis</label><input type="datetime-local" id="bto"></div></div>
+        <div><label class="lbl">Von (Wiener Zeit)</label><input type="datetime-local" id="bfrom"></div>
+        <div><label class="lbl">Bis (Wiener Zeit)</label><input type="datetime-local" id="bto"></div></div>
       <div class="f" style="margin-top:11px"><label class="lbl">Grund</label>
         <input id="bnote" placeholder="z.B. Creator Meetup №4"></div>
       <button class="primary" id="bsave">Sperren</button></div>`);
   $('#bsave').onclick=async()=>{
     if(!$('#bfrom').value||!$('#bto').value) return toast('Bitte Zeitraum angeben.',true);
     try{ await rpc('admin_block_seat',{p_seat:$('#bseat').value,
-      p_from:new Date($('#bfrom').value).toISOString(),
-      p_to:new Date($('#bto').value).toISOString(),
+      p_from:ausWien($('#bfrom').value),
+      p_to:ausWien($('#bto').value),
       p_note:$('#bnote').value||'Reserviert'});
       toast('Platz gesperrt'); closePanel(); loadBookings(); }catch(e){ fail(e); }
   };
@@ -589,7 +784,7 @@ async function seatEditor(loc, editId){
 
     <div class="card">
       <div id="planFlaeche" style="position:relative;width:100%;aspect-ratio:${num(verh)};
-           border-radius:12px;overflow:hidden;background:#0d0d18;
+           border-radius:13px;overflow:hidden;background:#0d0d18;
            border:1px solid var(--kante);cursor:crosshair;touch-action:none">
         ${planBild ? `<img src="${esc(planBild)}" alt=""
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ''}
@@ -760,8 +955,8 @@ function eventDetail(id,e){
         <div><label class="lbl">Standort</label><select id="eloc">${locOpts}</select></div>
       </div>
       <div class="cols" style="margin-top:11px">
-        <div><label class="lbl">Beginn</label><input type="datetime-local" id="estart" value="${esc(forInput(e?.starts_at))}"></div>
-        <div><label class="lbl">Ende</label><input type="datetime-local" id="eend" value="${esc(forInput(e?.ends_at))}"></div>
+        <div><label class="lbl">Beginn (Wiener Zeit)</label><input type="datetime-local" id="estart" value="${esc(forInput(e?.starts_at))}"></div>
+        <div><label class="lbl">Ende (Wiener Zeit)</label><input type="datetime-local" id="eend" value="${esc(forInput(e?.ends_at))}"></div>
       </div>
       <div class="cols3" style="margin-top:11px">
         <div><label class="lbl">Plätze</label><input type="number" id="ecap" value="${esc(e?.capacity??'')}"></div>
@@ -786,8 +981,8 @@ function eventDetail(id,e){
     try{
       await rpc('admin_save_event',{p_id:id,p_title:$('#etitle').value,p_description:$('#edesc').value,
         p_speaker:$('#espeaker').value||null,p_location:$('#eloc').value,
-        p_starts_at:$('#estart').value?new Date($('#estart').value).toISOString():null,
-        p_ends_at:$('#eend').value?new Date($('#eend').value).toISOString():null,
+        p_starts_at:ausWien($('#estart').value),
+        p_ends_at:ausWien($('#eend').value),
         p_capacity:+$('#ecap').value||null,p_kind:$('#ekind').value,
         p_min_plan:$('#eplan').value||null,p_featured:$('#efeat').checked});
       toast(id?'Gespeichert':'Event angelegt'); closePanel(); loadEvents();
@@ -822,25 +1017,170 @@ function eventDetail(id,e){
 }
 
 /* ── Ausschreibungen ─────────────────────── */
-const REVIEW={pending:['warn','wartet'],approved:['on','frei'],refused:['off','abgelehnt']};
+const REVIEW={pending:['warn','wartet'],approved:['on','frei'],refused:['off','abgelehnt'],changes_requested:['warn','Rückfrage']};
 
-/* Freigeben / Ablehnen für eine Ausschreibung, in `host` eingehängt. */
-function reviewControls(host,cid,after){
-  host.innerHTML=`<div class="bar" style="margin-top:9px">
-      <button class="btn blue" data-rv-ok>Freigeben</button>
-      <button class="btn quiet" data-rv-no>Ablehnen</button></div>
-    <div data-rv-box style="display:none;margin-top:9px">
-      <input data-rv-note maxlength="300" placeholder="Anmerkung für den Ersteller, optional (max. 300 Zeichen)">
-      <div class="bar" style="margin-top:7px"><button class="btn blue" data-rv-send>Ablehnung senden</button></div></div>`;
-  const box=host.querySelector('[data-rv-box]');
-  const run=async(approve,note,msg)=>{
-    try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:approve,p_note:note});
-      toast(msg); after(); }catch(err){ fail(err); }
-  };
-  host.querySelector('[data-rv-ok]').onclick=()=>run(true,null,'Freigegeben');
-  host.querySelector('[data-rv-no]').onclick=()=>{ box.style.display=box.style.display==='none'?'block':'none'; };
-  host.querySelector('[data-rv-send]').onclick=()=>run(false,host.querySelector('[data-rv-note]').value.trim().slice(0,300)||null,'Abgelehnt');
+/* Muss-Kriterien, gleich wie supabase/functions/projekt-vorpruefung/kriterien.ts (Test haelt beide gleich). */
+const KRITERIEN=[['A1','Echter Anbieter'],['A2','Bezahlt'],['A3','Klarer Auftrag'],['A4','Passt zur Community'],['A5','Keine Kosten für Bewerbende'],['A6','Rechtlich sauber'],['A7','Keine Diskriminierung'],['A8','Datensparsame Fragen'],['A9','Nutzungsrechte genannt'],['A10','KI und Werke offen'],['A11','Termine stimmig'],['A12','Heikle Bereiche'],['A13','Kein Zwischenhändler']];
+const KI_FARBE={passt:'on',ansehen:'warn',problem:'off'};
+const KI_WORT={passt:'passt',ansehen:'ansehen',problem:'Problem'};
+
+/* KI-Vorpruefung: nur ein Vorschlag. Das Team entscheidet. */
+async function kiLaden(cid,neu){
+  const {data,error}=await sb.functions.invoke('projekt-vorpruefung',{body:{campaign_id:cid,neu:!!neu}});
+  if(error){
+    let text='KI-Vorprüfung nicht erreichbar. Bitte selbst prüfen.';
+    try{ const j=await error.context.json(); if(j?.error) text=j.error; }catch(_){}
+    throw new Error(text);
+  }
+  return data;
 }
+
+/* Pruefung eines Projekts: Anbieter, KI-Vorschlag, Checkliste, Entscheidung. */
+async function pruefungEinhaengen(host,cid,after){
+  host.innerHTML='<p class="tiny" style="margin-top:9px">Lädt die Prüfung …</p>';
+  let stand;
+  try{ stand=await rpc('admin_pruefung_lesen',{p_campaign:cid}); }catch(err){ host.innerHTML=`<p class="tiny">Prüfung nicht geladen: ${esc(err.message)}</p>`; return; }
+  const team=Object.assign({},stand.team||{});
+  let ki=stand.ki||null, kiText='', kiLaeuft=false, notizWert='';
+  const a=stand.anbieter;
+  const zeichnen=()=>{
+    const feld=host.querySelector('[data-rv-note]');
+    if(feld) notizWert=feld.value;
+    const je=Object.fromEntries(reihe(ki?.ergebnisse).map(e=>[e?.kriterium,e]));
+    const kiZeile=!a?'Nicht für Projekte von Mitgliedern; hier prüft das Team allein.'
+      :kiLaeuft?'läuft …':ki?esc(ki.zusammenfassung||''):esc(kiText||'Noch nicht gestartet.');
+    host.innerHTML=`
+      ${a?`<div class="tiny" style="margin-top:9px"><strong>Anbieter:</strong> ${esc(a.name)} · ${esc(a.art==='personal_brand'?'Personal Brand':'Unternehmen')} · ${esc(a.status==='geprueft'?'geprüft':'noch nicht geprüft')}${a.website?' · '+esc(a.website):''}</div>`
+         :'<div class="tiny" style="margin-top:9px"><strong>Anbieter:</strong> Mitglied, kein Anbieter-Konto</div>'}
+      ${stand.projekt?`<div class="tiny" style="margin-top:9px;white-space:pre-wrap"><strong>Ziel:</strong> ${esc(stand.projekt.ziel||'—')}
+<strong>Beschreibung:</strong> ${esc(stand.projekt.beschreibung||'keine')}
+<strong>Nutzungsrechte:</strong> ${esc(stand.projekt.nutzungsrechte||'nicht genannt')}
+<strong>Eigener Auftrag bestätigt:</strong> ${stand.projekt.eigener_auftrag?'ja':'nein'}
+<strong>Zeitraum:</strong> ${esc(dd(stand.projekt.von))} bis ${esc(dd(stand.projekt.bis))} · <strong>Budget:</strong> ${esc(stand.projekt.budget||'—')} · <strong>Plätze:</strong> ${esc(String(stand.projekt.plaetze??'—'))}
+<strong>Bewerbung bis:</strong> ${esc(dd(stand.projekt.frist))} · <strong>Entscheidung bis:</strong> ${esc(dd(stand.projekt.entscheidung))}
+${(stand.projekt.fragen||[]).length?`<strong>Fragen an Bewerbende:</strong> ${stand.projekt.fragen.map(f=>esc(f.text)).join(' · ')}`:''}</div>`:''}
+      <div class="tiny" style="margin-top:9px"><strong>KI-Vorprüfung</strong> (nur Vorschlag): ${kiZeile}</div>
+      ${a?`<div class="bar" style="margin-top:7px"><button class="btn quiet" data-ki-start ${kiLaeuft?'disabled':''}>${ki?'KI neu prüfen':'KI-Vorprüfung starten'}</button></div>`:''}
+      <table style="margin-top:7px"><tbody>${KRITERIEN.map(([id,titel])=>{
+        const e=je[id];
+        return `<tr><td class="tiny"><strong>${esc(id)}</strong> ${esc(titel)}${e?`<div class="tiny"><span class="dot ${esc(KI_FARBE[e.urteil]||'')}"></span>KI: ${esc(KI_WORT[e.urteil]||'')}. ${esc(e.begruendung||'')}${e.textstelle?` „${esc(e.textstelle)}“`:''}</div>`:''}</td>
+          <td style="white-space:nowrap"><button class="btn ${team[id]==='ok'?'blue':'quiet'}" data-k="${esc(id)}" data-w="ok">ok</button>
+          <button class="btn ${team[id]==='problem'?'blue':'quiet'}" data-k="${esc(id)}" data-w="problem">Problem</button></td></tr>`;
+      }).join('')}</tbody></table>
+      ${ki?.rueckmeldung?`<div class="tiny" style="margin-top:9px"><strong>Textvorschlag der KI:</strong> ${esc(ki.rueckmeldung)} <button class="btn quiet" data-ki-text>Übernehmen</button></div>`:''}
+      <input data-rv-note maxlength="300" style="margin-top:9px" placeholder="Nachricht an den Ersteller (bei Rückfrage und Ablehnung Pflicht, max. 300 Zeichen)">
+      <div class="bar" style="margin-top:7px">
+        <button class="btn blue" data-rv-ok>Freigeben</button>
+        <button class="btn quiet" data-rv-frage>Rückfrage senden</button>
+        <button class="btn quiet" data-rv-no>Ablehnen</button></div>
+      <p class="tiny" data-rv-hinweis></p>`;
+    host.querySelector('[data-rv-note]').value=notizWert;
+    const alleOk=KRITERIEN.every(([id])=>team[id]==='ok');
+    const ok=host.querySelector('[data-rv-ok]');
+    const blockiert=a&&a.status!=='geprueft';
+    ok.disabled=!alleOk||blockiert;
+    host.querySelector('[data-rv-hinweis]').textContent=blockiert?'Erst den Anbieter im Reiter „Anbieter“ prüfen.':alleOk?'':'Freigabe, sobald alle 13 Kriterien auf ok stehen.';
+    host.querySelectorAll('[data-k]').forEach(b=>b.onclick=async()=>{
+      const id=b.dataset.k, alt=team[id];
+      team[id]=b.dataset.w;
+      try{ await rpc('admin_pruefung_speichern',{p_campaign:cid,p_team:{[id]:b.dataset.w},p_stand:stand.stand}); }
+      catch(err){ team[id]=alt; fail(err); after(); return; }
+      zeichnen();
+    });
+    const notiz=()=>host.querySelector('[data-rv-note]').value.trim().slice(0,300);
+    ok.onclick=async()=>{ try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:true,p_note:null}); toast('Freigegeben'); after(); }catch(err){ fail(err); after(); } };
+    host.querySelector('[data-rv-frage]').onclick=async()=>{
+      if(!notiz()){ toast('Bitte die Rückfrage formulieren',true); return; }
+      try{ await rpc('admin_rueckfrage_campaign',{p_campaign:cid,p_note:notiz()}); toast('Rückfrage gesendet'); after(); }catch(err){ fail(err); } };
+    host.querySelector('[data-rv-no]').onclick=async()=>{
+      if(!notiz()){ toast('Eine Ablehnung braucht eine Begründung',true); return; }
+      try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:false,p_note:notiz()}); toast('Abgelehnt'); after(); }catch(err){ fail(err); } };
+    const start=host.querySelector('[data-ki-start]');
+    if(start) start.onclick=async()=>{
+      const neu=!!ki;
+      kiLaeuft=true; kiText=''; ki=null; zeichnen();
+      try{ const r=await kiLaden(cid,neu); ki=r.ki; }catch(err){ kiText=err.message; }
+      kiLaeuft=false; zeichnen();
+    };
+    const uebernehmen=host.querySelector('[data-ki-text]');
+    if(uebernehmen) uebernehmen.onclick=()=>{ host.querySelector('[data-rv-note]').value=(ki?.rueckmeldung||'').slice(0,300); };
+  };
+  zeichnen();
+}
+
+/* ── Anbieter (Migration 83): Echtheitspruefung ─ */
+const AN_STATUS={offen:['warn','offen'],geprueft:['on','geprüft'],abgelehnt:['off','abgelehnt'],gesperrt:['off','gesperrt']};
+const ECHT=[['V1','Firma existiert','Firmenbuch, Handelsregister oder Gewerberegister selbst nachgeschlagen; Name und Anschrift stimmen.'],
+  ['V2','Website echt und aktiv','Impressum vorhanden und passend, das Geschäft ist erkennbar aktiv.'],
+  ['V3','Kontakt gehört dazu','Firmen-E-Mail, oder Rückruf über die öffentliche Nummer der Firma.'],
+  ['V4','Direkter Auftraggeber','Keine Agentur, kein Personal- oder Talentvermittler, keine Referenzen „für unsere Kunden“.'],
+  ['V5','Eigene Marke oder Produkt','Verkauft eigene Produkte oder Leistungen. Personal Brand: eigenes Gewerbe und belegbare eigene Reichweite.'],
+  ['V6','Kein Doppelkonto','Signale unten geprüft, kein zweites Konto derselben Firma oder Person.'],
+  ['V7','Passt zum Club','Auftreten und Vorhaben passen; im Zweifel nachfragen statt freigeben.']];
+const KI_ECHT={direkt:['on','direkter Auftraggeber'],unklar:['warn','unklar'],vermittler:['off','Hinweise auf Vermittler']};
+async function anbieterFn(body){
+  const {data,error}=await sb.functions.invoke('anbieter-pruefung',{body});
+  if(error){ let text='Nicht erreichbar. Bitte selbst prüfen.'; try{ const j=await error.context.json(); if(j?.error) text=j.error; }catch(_){} throw new Error(text); }
+  return data;
+}
+// KI-Antworten und alte Zeilen koennen eine falsche Form haben: Eine Zeile darf nie die ganze Liste kosten.
+const reihe=v=>Array.isArray(v)?v:[];
+function anbieterZeileSicher(x){
+  try{ return anbieterZeile(x); }
+  catch(err){ console.error('anbieterZeile',err); return `<div class="tiny" style="padding:13px 0">${esc(x?.name||'Anbieter')}: Zeile nicht darstellbar (${esc(err.message)}).</div>`; }
+}
+function anbieterZeile(x){
+  const [k,w]=AN_STATUS[x.status]||['','—'];
+  const v=x.vies, ki=x.ki, c=x.checkliste||{};
+  const alle=ECHT.every(([id])=>c[id]==='ok');
+  const [kk,kw]=ki?(KI_ECHT[ki.einschaetzung]||['warn','unklar']):['',''];
+  return `<div style="padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)" data-an="${esc(x.id)}">
+    <div class="name">${esc(x.name)} <span class="tiny"><span class="dot ${esc(k)}"></span>${esc(w)}${x.komplett?'':' · Angaben fehlen'}</span></div>
+    <div class="tiny">${esc(x.art==='personal_brand'?'Personal Brand':'Unternehmen')} · ${esc(x.email||'—')} · ${num(x.projekte)} Projekte · seit ${esc(dd(x.created_at))}</div>
+    <div class="tiny">${esc(x.website||'keine Website')} · ${esc(x.anschrift||'keine Anschrift')}</div>
+    <div class="tiny">UID: ${esc(x.uid_nummer||'—')} · Register: ${esc(x.firmenbuch||'—')} · Kontakt: ${esc(x.kontakt_name||'—')}${x.kontakt_telefon?' · '+esc(x.kontakt_telefon):''}</div>
+    <div class="tiny"><strong>Tätigkeit laut Anbieter:</strong> ${esc(x.taetigkeit||'—')}</div>
+    ${x.beschreibung?`<div class="tiny">${esc(x.beschreibung)}</div>`:''}
+    ${x.pruef_notiz?`<div class="tiny">Notiz: ${esc(x.pruef_notiz)}</div>`:''}
+    ${reihe(x.signale).length?`<div class="tiny" style="margin-top:7px"><strong>Automatische Hinweise:</strong><br>${reihe(x.signale).map(t=>'<span class="dot warn"></span>'+esc(t)).join('<br>')}</div>`:'<div class="tiny" style="margin-top:7px">Keine automatischen Hinweise.</div>'}
+    <div class="tiny" style="margin-top:7px"><strong>UID beim EU-Dienst:</strong> ${v?`<span class="dot ${v.gueltig?'on':'off'}"></span>${v.gueltig?'gültig':'ungültig'}${v.name?' · '+esc(v.name):''}${v.adresse?' · '+esc(v.adresse):''} · ${esc(dt(v.am))}`:'noch nicht geprüft'}</div>
+    <div class="tiny" style="margin-top:7px"><strong>KI-Recherche</strong> (nur Hinweis, Website-Inhalte sind ungeprüft): ${ki?`<span class="dot ${esc(kk)}"></span>${esc(kw)}. ${esc(ki.zusammenfassung||'')}${ki.geschaeft?'<br>Geschäft: '+esc(ki.geschaeft):''}${reihe(ki.hinweise).length?'<br>Hinweise: '+reihe(ki.hinweise).map(esc).join(' · '):''}${reihe(ki.quellen).length?'<br>Quellen: '+reihe(ki.quellen).map(esc).join(' · '):''}`:'noch nicht gestartet'}</div>
+    <div class="bar" style="margin-top:7px"><button class="btn quiet" data-an-uid ${x.uid_nummer?'':'disabled'}>UID prüfen</button> <button class="btn quiet" data-an-ki>${ki?'KI neu recherchieren':'KI recherchieren'}</button></div>
+    <table style="margin-top:7px"><tbody>${ECHT.map(([id,titel,text])=>`<tr><td class="tiny"><strong>${esc(id)}</strong> ${esc(titel)}<div class="tiny">${esc(text)}</div></td>
+      <td style="white-space:nowrap"><button class="btn ${c[id]==='ok'?'blue':'quiet'}" data-v="${esc(id)}" data-w="ok">ok</button> <button class="btn ${c[id]==='problem'?'blue':'quiet'}" data-v="${esc(id)}" data-w="problem">Problem</button></td></tr>`).join('')}</tbody></table>
+    <input data-an-notiz maxlength="300" style="margin-top:7px" placeholder="Begründung für den Anbieter (bei Ablehnen und Sperren Pflicht)">
+    <div class="bar" style="margin-top:7px">
+      <button class="btn blue" data-an-s="geprueft"${x.komplett&&alle?'':' disabled'}>Geprüft</button>
+      <button class="btn quiet" data-an-s="abgelehnt">Ablehnen</button>
+      <button class="btn quiet" data-an-s="gesperrt">Sperren</button></div>
+    ${alle&&x.komplett?'':'<p class="tiny">Geprüft geht erst, wenn alle Pflichtangaben da sind und alle 7 Punkte auf ok stehen.</p>'}</div>`;
+}
+async function loadAnbieter(){
+  const {data,error}=await sb.rpc('admin_anbieter_liste');
+  if(error){ $('#anList').innerHTML=empty('Nicht geladen',error.message); return; }
+  const liste=data||[];
+  const offen=liste.filter(x=>x.status==='offen'&&x.komplett).length;
+  const b=$('#anBadge'); b.textContent=num(offen); b.style.display=offen?'':'none';
+  $('#anList').innerHTML=!liste.length?empty('Noch keine Anbieter','Registrierung unter c3club.app/partner.'):liste.map(anbieterZeileSicher).join('');
+  $('#anList').querySelectorAll('[data-an]').forEach(row=>{
+    const x=liste.find(y=>y.id===row.dataset.an);
+    row.querySelectorAll('[data-v]').forEach(btn=>btn.onclick=async()=>{
+      try{ await rpc('admin_anbieter_checkliste',{p_id:x.id,p_punkte:{[btn.dataset.v]:btn.dataset.w},p_stand:x.updated_at}); }catch(err){ fail(err); }
+      loadAnbieter();
+    });
+    row.querySelector('[data-an-uid]').onclick=async e=>{ e.target.disabled=true; e.target.textContent='Fragt den EU-Dienst …';
+      try{ await anbieterFn({anbieter_id:x.id,aktion:'uid'}); }catch(err){ toast(err.message,true); } loadAnbieter(); };
+    row.querySelector('[data-an-ki]').onclick=async e=>{ e.target.disabled=true; e.target.textContent='Recherchiert, bis zu 2 Minuten …';
+      try{ await anbieterFn({anbieter_id:x.id,aktion:'ki'}); }catch(err){ toast(err.message,true); } loadAnbieter(); };
+    row.querySelectorAll('[data-an-s]').forEach(btn=>btn.onclick=async()=>{
+      const s=btn.dataset.anS, n=row.querySelector('[data-an-notiz]').value.trim();
+      if(s!=='geprueft'&&!n){ toast('Bitte begründen',true); return; }
+      if(s!=='geprueft'&&!confirm(s==='gesperrt'?'Anbieter sperren? Projekte gehen vom Netz, offene Bewerbungen werden abgesagt, Chat und Zugriff enden.':'Anbieter ablehnen? Projekte gehen vom Netz, offene Bewerbungen werden abgesagt.')) return;
+      try{ await rpc('admin_anbieter_pruefen',{p_id:x.id,p_status:s,p_notiz:n||null}); toast('Gespeichert'); loadAnbieter(); loadCampaigns(); }catch(err){ fail(err); }
+    });
+  });
+}
+
 
 async function loadCampaigns(){
   const {data}=await sb.rpc('campaigns_feed',{p_open_only:false,p_limit:80});
@@ -856,7 +1196,7 @@ async function loadCampaigns(){
     rv.querySelectorAll('[data-rvrow]').forEach(row=>{
       const cid=row.dataset.rvrow;
       row.querySelector('[data-rvopen]').onclick=()=>campaignDetail(cid,data.find(x=>x.id===cid));
-      reviewControls(row.querySelector('[data-rvctl]'),cid,loadCampaigns);
+      pruefungEinhaengen(row.querySelector('[data-rvctl]'),cid,loadCampaigns);
     });
   } else rv.innerHTML='';
   const status=c=>{
@@ -988,7 +1328,7 @@ function campaignDetail(id,c){
   };
   if(id){
     const crv=$('#crv');
-    if(crv) reviewControls(crv,id,()=>{ closePanel(); loadCampaigns(); });
+    if(crv) pruefungEinhaengen(crv,id,()=>{ closePanel(); loadCampaigns(); });
     const cc=$('#ccomplete');
     if(cc) cc.onclick=async()=>{
       if(!confirm('Projekt abschließen? Alle Angenommenen bekommen 100 Punkte.')) return;
@@ -1180,25 +1520,368 @@ async function loadSettings(){
     toast('Gespeichert');
   };
 
-  $('#planList').innerHTML = `<table><thead><tr><th>Tarif</th><th>Preis</th><th>Tage</th>
-    <th>Raum h</th><th>Gäste</th><th>Stripe</th></tr></thead><tbody>`
-   + plans.map(p=>`<tr><td class="name">${esc(p.name)}</td><td>${esc(eur(p.price_cents))}</td>
-      <td>${esc(p.unlimited?'unbegrenzt':num(p.office_days))}</td><td>${num(p.meeting_room_hours)}</td>
-      <td>${num(p.guest_passes)}</td>
-      <td><span class="dot ${p.stripe_price_id?'on':'off'}"></span>
-        ${p.stripe_price_id?'verknüpft':'<span style="color:var(--danger)">fehlt</span>'}</td></tr>`).join('')
-   + '</tbody></table><p class="tiny" style="margin-top:10px">Ohne Stripe-Verknüpfung schlägt jede Zahlung fehl. Die price_id legst du in Stripe an und trägst sie in membership_plans ein.</p>';
-
   const {data:au}=await sb.rpc('admin_audit',{p_limit:60});
   $('#auditList').innerHTML = !au?.length ? '<p class="tiny">Noch nichts protokolliert.</p>'
    : '<table><tbody>'+au.map(x=>`<tr><td class="tiny">${esc(dt(x.created_at))}</td>
       <td>${esc(x.actor_name||'System')}</td><td class="tiny">${esc(x.action)}</td></tr>`).join('')+'</tbody></table>';
 }
 
+/* ── Standorte ───────────────────────────── */
+const ORT_STATUS={open:['on','Offen'],opening_soon:['warn','Eröffnet bald'],coming_soon:['','Demnächst']};
+let standorte=[];
+
+async function loadStandorte(){
+  const {data,error}=await sb.from('locations').select('*').order('sort_order');
+  if(error){ $('#stList').innerHTML=empty('Nicht geladen',error.message); return; }
+  standorte=data||[];
+  locations=standorte;
+  const b=$('#bloc'), gewaehlt=b.value;
+  b.innerHTML='<option value="">Alle Standorte</option>'+locations.map(x=>`<option value="${esc(x.id)}">${esc(x.city)}</option>`).join('');
+  b.value=gewaehlt;
+  $('#stList').innerHTML = !standorte.length ? empty('Keine Standorte','Leg oben einen an.')
+   : `<table><thead><tr><th>Standort</th><th>Status</th><th>Eröffnung</th><th>Adresse</th><th></th></tr></thead><tbody>`
+   + standorte.map(l=>{ const [k,t]=ORT_STATUS[l.status]||['',l.status]; return `<tr>
+      <td><div class="name">${esc(l.city)}</div><div class="tiny">${esc(l.area||'—')}</div></td>
+      <td class="tiny"><span class="dot ${esc(k)}"></span>${esc(t)}</td>
+      <td class="tiny">${esc(l.opens_at?dd(l.opens_at):'—')}</td>
+      <td class="tiny">${esc(l.address||'—')}</td>
+      <td><button class="btn quiet" data-st="${esc(l.id)}">Bearbeiten</button></td></tr>`; }).join('')+'</tbody></table>';
+  $('#stList').querySelectorAll('[data-st]').forEach(x=>x.onclick=()=>standortDetail(x.dataset.st));
+}
+$('#stNeu').onclick=()=>standortDetail(null);
+
+/* Dieselbe Regel wie die Function eroeffnung-sync, auf den Stand nach der Aenderung angewandt. */
+function eroeffnungFolge(id,status,opensAt){
+  const zeilen=standorte.map(l=>l.id===id?{...l,status,opens_at:opensAt}:l);
+  if(zeilen.some(z=>z.status==='open'))
+    return 'Mindestens ein Standort ist dann offen. Der Abgleich verschiebt keine Probezeit mehr, und neue Mitgliedschaften bekommen keine Probezeit bis zur Eröffnung.';
+  const naechste=zeilen.filter(z=>z.status==='opening_soon'&&z.opens_at).map(z=>z.opens_at).sort()[0];
+  if(!naechste)
+    return 'Es gibt dann kein Eröffnungsdatum mehr. Die Probezeiten bleiben in Stripe auf ihrem bisherigen Tag und werden dort abgebucht, auch wenn noch kein Standort offen ist.';
+  /* Wie eroeffnung-sync: Ein Tag, dessen 09:00 Uhr nicht mehr gut eine Stunde entfernt ist, verschiebt nichts. */
+  const ziel=new Date(naechste+'T09:00:00+01:00');
+  if(ziel.getTime()<=Date.now()+3600e3)
+    return `Der ${dd(naechste)}, 09:00 Uhr, ist schon zu nah oder vorbei. Stripe verschiebt nichts; die Probezeiten bleiben auf ihrem bisherigen Tag.`;
+  return `Alle Probe-Abos bis zur Eröffnung werden in Stripe auf den ${dd(naechste)}, 09:00 Uhr Wiener Zeit, verschoben. An diesem Tag wird zum ersten Mal abgebucht.`;
+}
+
+function standortDetail(id){
+  const l=id?standorte.find(x=>x.id===id):null;
+  openPanel(`
+    <h2 style="padding-right:90px">${l?esc(l.city):'Neuer Standort'}</h2>
+    ${l?`<div class="card"><h3>Status und Eröffnung</h3>
+      <div class="cols">
+        <div><label class="lbl">Status</label><select id="stStatus">
+          ${Object.entries(ORT_STATUS).map(([v,[,t]])=>`<option value="${esc(v)}" ${l.status===v?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+        <div><label class="lbl">Eröffnungsdatum</label><input type="date" id="stDatum" value="${esc(l.opens_at||'')}"></div>
+      </div>
+      <p class="tiny" style="margin:11px 0">Änderungen hier verschieben die Probezeiten aller Abos bis zur Eröffnung in Stripe. Vor dem Speichern steht die genaue Folge im Bestätigungsfenster.</p>
+      <div class="bar"><button class="btn red" id="stOeffnung">Status und Datum übernehmen</button></div>
+    </div>`:`<p class="hint">Ein neuer Standort startet als „Demnächst“ ohne Datum und ändert nichts an den Probezeiten. Status und Datum setzt du danach hier. Plätze kommen über den Raumplan im Tab Buchungen.</p>`}
+    <div class="card"><h3>Stammdaten</h3>
+      ${l?'':`<div class="f"><label class="lbl">Stadt</label><input id="stStadt" maxlength="60" placeholder="Hamburg"></div>`}
+      <div class="cols">
+        <div><label class="lbl">Bezirk</label><input id="stBezirk" maxlength="80" value="${esc(l?.area||'')}"></div>
+        <div><label class="lbl">Adresse</label><input id="stAdresse" maxlength="200" value="${esc(l?.address||'')}"></div>
+      </div>
+      <div class="f" style="margin-top:11px"><label class="lbl">Eröffnungshinweis in der App (englisch)</label>
+        <input id="stHinweis" maxlength="120" value="${esc(l?.opens_note||'')}" placeholder="Opens Q1 '27"></div>
+      <div class="f"><label class="lbl">Ausstattung, eine pro Zeile</label>
+        <textarea id="stAusstattung">${esc((l?.amenities||[]).join('\n'))}</textarea></div>
+      <div class="f"><label class="lbl">Öffnungszeiten als JSON-Objekt</label>
+        <textarea id="stZeiten" placeholder='{"mo-fr":"08:00-20:00"}'>${esc(JSON.stringify(l?.opening_hours||{},null,2))}</textarea>
+        <p class="tiny" style="margin-top:5px">Die App zeigt die Öffnungszeiten derzeit nicht an.</p></div>
+      <div class="cols">
+        <div><label class="lbl">Farbton, 0 bis 360</label><input type="number" id="stFarbe" min="0" max="360" value="${esc(l?.hue??222)}"></div>
+        <div><label class="lbl">Reihenfolge</label><input type="number" id="stReihe" value="${esc(l?.sort_order??(standorte.length+1))}"></div>
+      </div>
+      <div class="bar" style="margin-top:14px"><button class="btn blue" id="stSpeichern">${l?'Speichern':'Anlegen'}</button></div>
+    </div>`);
+
+  $('#stSpeichern').onclick=async()=>{
+    let zeiten;
+    try{ zeiten=JSON.parse($('#stZeiten').value.trim()||'{}'); }
+    catch{ return toast('Die Öffnungszeiten sind kein gültiges JSON.',true); }
+    try{
+      await rpc('admin_standort_speichern',{p_id:id,p_city:id?null:$('#stStadt').value,p_area:$('#stBezirk').value,
+        p_address:$('#stAdresse').value,p_opening_hours:zeiten,
+        p_amenities:$('#stAusstattung').value.split('\n').map(x=>x.trim()).filter(Boolean),
+        p_opens_note:$('#stHinweis').value,p_hue:parseInt($('#stFarbe').value,10),p_sort_order:parseInt($('#stReihe').value,10)});
+      toast(id?'Gespeichert':'Standort angelegt'); closePanel(); loadStandorte();
+    }catch(err){ fail(err); }
+  };
+  if(!l) return;
+
+  $('#stOeffnung').onclick=async()=>{
+    const status=$('#stStatus').value, datum=$('#stDatum').value||null;
+    const neuStatus=status!==l.status, neuDatum=datum!==(l.opens_at||null);
+    if(!neuStatus&&!neuDatum) return toast('Nichts geändert.');
+    if(neuDatum&&datum&&datum<new Date().toISOString().slice(0,10)) return toast('Das Datum liegt in der Vergangenheit.',true);
+    const name=s=>ORT_STATUS[s]?.[1]||s, tag=d=>d?dd(d):'kein Datum';
+    const zeilen=[`${l.city} ändern:`];
+    if(neuStatus) zeilen.push(`Status: ${name(l.status)} wird ${name(status)}`);
+    if(neuDatum) zeilen.push(`Eröffnung: ${tag(l.opens_at)} wird ${tag(datum)}`);
+    zeilen.push('','Folge in Stripe:',eroeffnungFolge(id,status,datum),'','Wirklich übernehmen?');
+    if(!confirm(zeilen.join('\n'))) return;
+    try{
+      /* Oeffnet der Standort, zuerst der Status: Sonst verschoebe der Abgleich die
+         Probezeiten noch auf das neue Datum, obwohl er das bei „offen“ nicht mehr soll.
+         Sonst zuerst das Datum, damit der Abgleich nach dem Status den neuen Tag sieht. */
+      if(neuStatus&&status==='open') await rpc('admin_set_location_status',{p_location:id,p_status:status});
+      if(neuDatum) await rpc('admin_set_location_opens_at',{p_location:id,p_opens_at:datum});
+      if(neuStatus&&status!=='open') await rpc('admin_set_location_status',{p_location:id,p_status:status});
+      toast('Übernommen'); closePanel(); loadStandorte();
+    }catch(err){ fail(err); loadStandorte(); }
+  };
+}
+
+/* ── Nachrichten (Broadcast) ─────────────── */
+function brZielgruppe(){
+  const art=$('#brArt').value;
+  if(art==='standort') return {art,standort:$('#brOrt').value};
+  if(art==='stadt') return {art,stadt:$('#brStadt').value.trim()};
+  if(art==='tarife') return {art,tarife:[...document.querySelectorAll('[data-brplan]:checked')].map(x=>x.dataset.brplan)};
+  return {art:'alle'};
+}
+const brZahlText=v=>`${num(v.empfaenger)} Empfänger, davon ${num(v.mit_geraet)} mit registriertem Gerät. ${num(v.abgemeldet)} haben diese Nachrichten abgeschaltet.`;
+
+let brLauf=0, brWarte;
+async function brZaehlen(){
+  const lauf=++brLauf, ziel=$('#brZahl');
+  try{
+    const v=await rpc('admin_broadcast_vorschau',{p_zielgruppe:brZielgruppe()});
+    if(lauf===brLauf){ ziel.style.color=''; ziel.textContent=brZahlText(v); }
+  }catch(err){ if(lauf===brLauf){ ziel.style.color='var(--warn)'; ziel.textContent=err.message; } }
+}
+function brZielBauen(){
+  const art=$('#brArt').value, box=$('#brZiel');
+  box.innerHTML = art==='standort' ? `<label class="lbl">Standort</label><select id="brOrt">${locations.map(l=>`<option value="${esc(l.id)}">${esc(l.city)}</option>`).join('')}</select>`
+    : art==='stadt' ? `<label class="lbl">Stadt, wie im Profil eingetragen</label><input id="brStadt" maxlength="60" placeholder="Hamburg">`
+    : art==='tarife' ? `<label class="lbl">Tarife</label><div class="bar" style="margin:6px 0 0">${plans.map(p=>`<label class="tiny"><input type="checkbox" data-brplan="${esc(p.code)}" style="width:auto;margin-right:6px">${esc(p.name)}</label>`).join('')}</div>`
+    : '';
+  box.querySelectorAll('select,input[type=checkbox]').forEach(x=>x.onchange=brZaehlen);
+  const stadt=$('#brStadt');
+  if(stadt) stadt.oninput=()=>{ clearTimeout(brWarte); brWarte=setTimeout(brZaehlen,350); };
+  brZaehlen();
+}
+$('#brArt').onchange=brZielBauen;
+
+const ZIEL_TEXT=z=>z?.art==='alle'?'Alle Mitglieder'
+  :z?.art==='standort'?'Standort '+(locations.find(l=>l.id===z.standort)?.city||'—')
+  :z?.art==='stadt'?'Stadt '+(z.stadt||'—')
+  :z?.art==='tarife'?'Tarife '+(Array.isArray(z.tarife)?z.tarife.join(', '):'—'):'—';
+
+async function loadBroadcast(){
+  /* Beim Aktualisieren die gewaehlte Zielgruppe stehen lassen, nur neu zaehlen. */
+  if($('#brZiel').children.length) brZaehlen(); else brZielBauen();
+  const {data,error}=await sb.rpc('admin_broadcasts',{p_limit:30});
+  if(error){ $('#brVerlauf').innerHTML=empty('Nicht geladen',error.message); return; }
+  $('#brVerlauf').innerHTML = !data?.length ? '<p class="tiny">Noch nichts gesendet.</p>'
+   : `<table><thead><tr><th>Wann</th><th>Nachricht</th><th>Zielgruppe</th><th>Empfänger</th><th>Von</th></tr></thead><tbody>`
+   + data.map(b=>`<tr><td class="tiny">${esc(dt(b.created_at))}</td>
+      <td><div class="name">${esc(b.titel)}</div><div class="tiny" style="white-space:pre-wrap">${esc(b.inhalt)}</div></td>
+      <td class="tiny">${esc(ZIEL_TEXT(b.zielgruppe))}${b.kanal_slug?'<br>#'+esc(b.kanal_slug):''}</td>
+      <td>${num(b.empfaenger)}</td><td class="tiny">${esc(b.absender||'—')}</td></tr>`).join('')+'</tbody></table>';
+}
+
+$('#brSenden').onclick=async()=>{
+  const titel=$('#brTitel').value.trim(), text=$('#brText').value.trim(), kanal=$('#brKanal').value||null, b=$('#brSenden');
+  if(!titel||!text) return toast('Bitte Titel und Text ausfüllen.',true);
+  b.disabled=true;
+  try{
+    /* Die Zahl frisch holen: sie steht im Bestaetigungsfenster und muss stimmen. */
+    const ziel=brZielgruppe();
+    const v=await rpc('admin_broadcast_vorschau',{p_zielgruppe:ziel});
+    if(!(Number(v.empfaenger)>0)){ toast('Diese Zielgruppe hat keine Empfänger.',true); return; }
+    const frage=[`Push an ${num(v.empfaenger)} Personen senden?`,`Zielgruppe: ${ZIEL_TEXT(ziel)}`,
+      `Davon ${num(v.mit_geraet)} mit registriertem Gerät. Die anderen sehen nichts.`];
+    if(kanal) frage.push(`Dazu ein Post im Kanal #${$('#brKanal').selectedOptions[0].textContent}.`);
+    frage.push('',titel,text,'','Das lässt sich nicht zurückholen.');
+    if(!confirm(frage.join('\n'))) return;
+    const r=await rpc('admin_broadcast',{p_title:titel,p_body:text,p_zielgruppe:ziel,p_kanal:kanal});
+    toast(`In der Warteschlange · ${num(r.empfaenger)} Empfänger`);
+    $('#brTitel').value=''; $('#brText').value=''; $('#brKanal').value='';
+    loadBroadcast();
+  }catch(err){ fail(err); }
+  finally{ b.disabled=false; }
+};
+
+/* ── Tarife ──────────────────────────────── */
+let tagespaesse=[];
+const STRIPE_DOT=x=>`<span class="dot ${x?'on':'off'}"></span>${x?'verknüpft':'<span style="color:var(--danger)">fehlt</span>'}`;
+
+async function loadTarife(){
+  const [{data:pl,error:e1},{data:dp,error:e2}]=await Promise.all([
+    sb.from('membership_plans').select('*').order('sort_order'),
+    sb.from('day_pass_types').select('*').order('kind')]);
+  if(e1||e2){ $('#planList').innerHTML=empty('Nicht geladen',(e1||e2).message); return; }
+  plans=pl||[]; tagespaesse=dp||[];
+  $('#planList').innerHTML=`<table><thead><tr><th>Tarif</th><th>Preis</th><th>Tage</th><th>Raum h</th><th>Gäste</th><th>Stripe</th><th></th></tr></thead><tbody>`
+   + plans.map(p=>`<tr><td><div class="name"><span class="dot ${p.active?'on':''}"></span>${esc(p.name)}</div>
+        <div class="tiny">${esc(p.active?(p.tagline||'—'):'nicht aktiv')}</div></td>
+      <td>${esc(eur(p.price_cents))}</td><td>${esc(p.unlimited?'unbegrenzt':num(p.office_days))}</td>
+      <td>${num(p.meeting_room_hours)}</td><td>${num(p.guest_passes)}</td><td class="tiny">${STRIPE_DOT(p.stripe_price_id)}</td>
+      <td><button class="btn quiet" data-pl="${esc(p.code)}">Bearbeiten</button></td></tr>`).join('')+'</tbody></table>';
+  $('#planList').querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>tarifDetail(b.dataset.pl));
+  $('#passList').innerHTML=`<table><thead><tr><th>Pass</th><th>Preis</th><th>Gültig</th><th>Stripe</th><th></th></tr></thead><tbody>`
+   + tagespaesse.map(d=>`<tr><td><div class="name"><span class="dot ${d.active?'on':''}"></span>${esc(d.name)}</div>
+        <div class="tiny">${esc(d.active?(d.description||'—'):'nicht aktiv')}</div></td>
+      <td>${esc(eur(d.price_cents))}</td><td class="tiny">${num(d.gueltig_tage)} Tage</td><td class="tiny">${STRIPE_DOT(d.stripe_price_id)}</td>
+      <td><button class="btn quiet" data-dp="${esc(d.kind)}">Bearbeiten</button></td></tr>`).join('')+'</tbody></table>';
+  $('#passList').querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>passDetail(b.dataset.dp));
+}
+
+/* Rueckfrage, wenn Preis und Preis-ID auseinanderlaufen koennten. false heisst abbrechen. */
+function preisFolgen(altCents,neuCents,altId,neuId,mitAbos){
+  const teile=[];
+  if(neuCents!==altCents&&neuId===altId&&altId)
+    teile.push(`Der Preis in der App ändert sich von ${altCents} auf ${neuCents} Cent, die Stripe-Preis-ID aber nicht. Abgebucht wird weiter der alte Betrag.`);
+  if(neuId!==altId&&altId&&neuId&&mitAbos)
+    teile.push('Die Stripe-Preis-ID ändert sich. Nur neue Abschlüsse nutzen den neuen Preis, bestehende Abos bleiben in Stripe auf dem alten.');
+  if(neuId!==altId&&!neuId)
+    teile.push(mitAbos?'Ohne Stripe-Preis-ID ist dieser Tarif nicht mehr buchbar.':'Ohne Stripe-Preis-ID geht der Preis aus price_cents direkt an Stripe.');
+  return !teile.length||confirm(teile.join('\n\n')+'\n\nTrotzdem speichern?');
+}
+
+function tarifDetail(code){
+  const p=plans.find(x=>x.code===code); if(!p) return;
+  openPanel(`
+    <h2 style="padding-right:90px">${esc(p.name)}</h2>
+    <p class="hint">Der Preis hier ändert Stripe nicht. Für eine Preisänderung zuerst in Stripe einen neuen Preis anlegen und dessen ID eintragen.</p>
+    <div class="card">
+      <div class="f"><label class="lbl">Kurzzeile</label><input id="plTag" maxlength="200" value="${esc(p.tagline||'')}"></div>
+      <div class="f"><label class="lbl">Leistungen, eine pro Zeile (englisch, so stehen sie in der App)</label>
+        <textarea id="plLeist" style="min-height:130px">${esc((p.features||[]).join('\n'))}</textarea></div>
+      <div class="cols3">
+        <div><label class="lbl">Bürotage im Monat</label><input type="number" id="plTage" min="0" value="${esc(p.office_days??0)}"></div>
+        <div><label class="lbl">Raumstunden im Monat</label><input type="number" id="plRaum" min="0" step="0.5" value="${esc(p.meeting_room_hours??0)}"></div>
+        <div><label class="lbl">Gästepässe im Monat</label><input type="number" id="plGast" min="0" value="${esc(p.guest_passes??0)}"></div>
+      </div>
+      <label class="lbl" style="margin-top:13px"><input type="checkbox" id="plUnb" style="width:auto;margin-right:7px" ${p.unlimited?'checked':''}>Bürotage unbegrenzt</label>
+      <label class="lbl"><input type="checkbox" id="plAktiv" style="width:auto;margin-right:7px" ${p.active?'checked':''}>Aktiv (nicht aktiv: nicht mehr wählbar, bestehende Abos laufen weiter)</label>
+      <div class="cols" style="margin-top:13px">
+        <div><label class="lbl">price_cents, nur Anzeige (0 zeigt „on request“)</label><input type="number" id="plPreis" min="0" value="${esc(p.price_cents)}"></div>
+        <div><label class="lbl">Reihenfolge</label><input type="number" id="plReihe" value="${esc(p.sort_order??0)}"></div>
+      </div>
+      <div class="f" style="margin-top:11px"><label class="lbl">Stripe-Preis-ID</label>
+        <input id="plStripe" maxlength="100" value="${esc(p.stripe_price_id||'')}" placeholder="price_..."></div>
+      <div class="bar" style="margin-top:14px"><button class="btn blue" id="plSpeichern">Speichern</button></div>
+    </div>`);
+  $('#plSpeichern').onclick=async()=>{
+    const neuCents=parseInt($('#plPreis').value,10), neuId=$('#plStripe').value.trim()||null;
+    if(!preisFolgen(p.price_cents,neuCents,p.stripe_price_id||null,neuId,true)) return;
+    try{
+      await rpc('admin_tarif_speichern',{p_code:code,p_tagline:$('#plTag').value,
+        p_features:$('#plLeist').value.split('\n').map(x=>x.trim()).filter(Boolean),
+        p_office_days:parseInt($('#plTage').value,10),p_meeting_room_hours:parseFloat($('#plRaum').value),
+        p_guest_passes:parseInt($('#plGast').value,10),p_unlimited:$('#plUnb').checked,p_active:$('#plAktiv').checked,
+        p_sort_order:parseInt($('#plReihe').value,10),p_price_cents:neuCents,p_stripe_price_id:neuId});
+      toast('Gespeichert'); closePanel(); loadTarife();
+    }catch(err){ fail(err); }
+  };
+}
+
+function passDetail(kind){
+  const d=tagespaesse.find(x=>x.kind===kind); if(!d) return;
+  openPanel(`
+    <h2 style="padding-right:90px">${esc(d.name)}</h2>
+    <p class="hint">Mit Stripe-Preis-ID bucht Stripe den dort hinterlegten Betrag ab. Ohne sie geht price_cents direkt an Stripe.</p>
+    <div class="card">
+      <div class="f"><label class="lbl">Name</label><input id="dpName" maxlength="60" value="${esc(d.name)}"></div>
+      <div class="f"><label class="lbl">Beschreibung</label><textarea id="dpText" maxlength="300">${esc(d.description||'')}</textarea></div>
+      <div class="cols">
+        <div><label class="lbl">price_cents</label><input type="number" id="dpPreis" min="1" value="${esc(d.price_cents)}"></div>
+        <div><label class="lbl">Gültig in Tagen</label><input type="number" id="dpTage" min="1" max="3650" value="${esc(d.gueltig_tage)}"></div>
+      </div>
+      <div class="f" style="margin-top:11px"><label class="lbl">Stripe-Preis-ID</label>
+        <input id="dpStripe" maxlength="100" value="${esc(d.stripe_price_id||'')}" placeholder="price_..."></div>
+      <label class="lbl"><input type="checkbox" id="dpAktiv" style="width:auto;margin-right:7px" ${d.active?'checked':''}>Aktiv</label>
+      <div class="bar" style="margin-top:14px"><button class="btn blue" id="dpSpeichern">Speichern</button></div>
+    </div>`);
+  $('#dpSpeichern').onclick=async()=>{
+    const neuCents=parseInt($('#dpPreis').value,10), neuId=$('#dpStripe').value.trim()||null;
+    if(!preisFolgen(d.price_cents,neuCents,d.stripe_price_id||null,neuId,false)) return;
+    try{
+      await rpc('admin_tagespass_speichern',{p_kind:kind,p_name:$('#dpName').value,p_description:$('#dpText').value,
+        p_price_cents:neuCents,p_stripe_price_id:neuId,p_gueltig_tage:parseInt($('#dpTage').value,10),p_active:$('#dpAktiv').checked});
+      toast('Gespeichert'); closePanel(); loadTarife();
+    }catch(err){ fail(err); }
+  };
+}
+
+/* ── Kanäle ──────────────────────────────── */
+const KANAL_ART={city:'Stadt',community:'Thema',announcement:'Ankündigung'};
+let kanaele=[];
+
+async function loadKanaele(){
+  const {data,error}=await sb.rpc('admin_kanaele');
+  if(error){ $('#kaList').innerHTML=empty('Nicht geladen',error.message); return; }
+  kanaele=data||[];
+  $('#brKanal').innerHTML='<option value="">Nein, nur Push</option>'+kanaele.filter(k=>k.kind==='announcement'&&!k.archived_at)
+    .map(k=>`<option value="${esc(k.id)}">${esc(k.slug)}</option>`).join('');
+  $('#kaList').innerHTML = !kanaele.length ? empty('Keine Kanäle','Leg oben einen an.')
+   : `<table><thead><tr><th>Kanal</th><th>Art</th><th>Beigetreten</th><th>Nachrichten</th><th>Zuletzt</th><th></th></tr></thead><tbody>`
+   + kanaele.map(k=>`<tr><td><div class="name"><span class="dot ${k.archived_at?'':'on'}"></span>#${esc(k.slug||'—')}</div>
+        <div class="tiny">${esc(k.title||'—')}${k.archived_at?' · archiviert':''}</div></td>
+      <td class="tiny">${esc(KANAL_ART[k.kind]||k.kind)}${k.stadt?' · '+esc(k.stadt):''}</td>
+      <td>${num(k.mitglieder)}</td><td>${num(k.nachrichten)}</td><td class="tiny">${esc(dt(k.letzte_nachricht))}</td>
+      <td><button class="btn quiet" data-ka="${esc(k.id)}">Bearbeiten</button></td></tr>`).join('')+'</tbody></table>';
+  $('#kaList').querySelectorAll('[data-ka]').forEach(b=>b.onclick=()=>kanalDetail(b.dataset.ka));
+}
+$('#kaNeu').onclick=()=>kanalDetail(null);
+
+/* Vorschlag fuer die Adresse aus dem Namen. */
+const zuSlug=s=>s.toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+  .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
+
+function kanalDetail(id){
+  const k=id?kanaele.find(x=>x.id===id):null;
+  openPanel(`
+    <h2 style="padding-right:90px">${k?'#'+esc(k.slug||'—'):'Neuer Kanal'}</h2>
+    ${k?.archived_at?`<p class="hint">Archiviert am ${esc(dd(k.archived_at))}. Mitglieder sehen den Kanal nicht mehr und können nichts mehr schreiben.</p>`:''}
+    <div class="card">
+      ${k?'':`<div class="f"><label class="lbl">Art</label><select id="kaArt">
+        ${Object.entries(KANAL_ART).map(([v,t])=>`<option value="${esc(v)}" ${v==='community'?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+      <div class="f" id="kaOrtBox" style="display:none"><label class="lbl">Standort</label><select id="kaOrt">
+        ${locations.map(l=>`<option value="${esc(l.id)}">${esc(l.city)}</option>`).join('')}</select></div>`}
+      <div class="f"><label class="lbl">Name</label><input id="kaName" maxlength="60" value="${esc(k?.title||'')}"></div>
+      <div class="f"><label class="lbl">Adresse, in der App als #adresse sichtbar</label><input id="kaSlug" maxlength="40" value="${esc(k?.slug||'')}" placeholder="video-production"></div>
+      <div class="f"><label class="lbl">Beschreibung (englisch, wie in der App)</label><textarea id="kaText" maxlength="200">${esc(k?.description||'')}</textarea></div>
+      <div class="bar" style="margin-top:14px">
+        <button class="btn blue" id="kaSpeichern">${k?'Speichern':'Anlegen'}</button>
+        ${k?(k.archived_at?'<button class="btn" id="kaZurueck">Wiederherstellen</button>':'<button class="btn red" id="kaArchiv">Archivieren</button>'):''}
+      </div>
+    </div>`);
+  if(!k){
+    const art=$('#kaArt'), name=$('#kaName'), slug=$('#kaSlug');
+    art.onchange=()=>{ $('#kaOrtBox').style.display=art.value==='city'?'':'none'; };
+    let vonHand=false;
+    slug.oninput=()=>{ vonHand=true; };
+    name.oninput=()=>{ if(!vonHand) slug.value=zuSlug(name.value); };
+  }
+  $('#kaSpeichern').onclick=async()=>{
+    try{
+      if(k) await rpc('admin_kanal_aendern',{p_id:id,p_slug:$('#kaSlug').value,p_title:$('#kaName').value,p_description:$('#kaText').value});
+      else await rpc('admin_kanal_anlegen',{p_kind:$('#kaArt').value,p_slug:$('#kaSlug').value,p_title:$('#kaName').value,
+        p_description:$('#kaText').value,p_location:$('#kaArt').value==='city'?$('#kaOrt').value:null});
+      toast(k?'Gespeichert':'Kanal angelegt'); closePanel(); loadKanaele();
+    }catch(err){ fail(err); }
+  };
+  const ar=$('#kaArchiv');
+  if(ar) ar.onclick=async()=>{
+    if(!confirm(`#${k.slug} archivieren? Der Kanal verschwindet für alle aus der App, auch für ${num(k.mitglieder)} Beigetretene. Niemand kann mehr schreiben.`)) return;
+    try{ await rpc('admin_kanal_archivieren',{p_id:id,p_archiviert:true}); toast('Archiviert'); closePanel(); loadKanaele(); }catch(err){ fail(err); }
+  };
+  const zu=$('#kaZurueck');
+  if(zu) zu.onclick=async()=>{
+    try{ await rpc('admin_kanal_archivieren',{p_id:id,p_archiviert:false}); toast('Wiederhergestellt'); closePanel(); loadKanaele(); }catch(err){ fail(err); }
+  };
+}
+
 /* ── Bestehende Sitzung ──────────────────── */
 sb.auth.getSession().then(async({data})=>{
   if(!data.session) return;
-  const {data:p}=await sb.from('profiles').select('display_name,is_admin').single();
+  const {data:p}=await sb.from('profiles').select('display_name,is_admin').eq('id',data.session.user.id).single();
   if(p?.is_admin){ $('#who').textContent=p.display_name; start(); }
 });
 </script>
