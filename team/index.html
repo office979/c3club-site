@@ -1050,7 +1050,7 @@ async function pruefungEinhaengen(host,cid,after){
     const kiZeile=!a?'Nicht für Projekte von Mitgliedern; hier prüft das Team allein.'
       :kiLaeuft?'läuft …':ki?esc(ki.zusammenfassung||''):esc(kiText||'Noch nicht gestartet.');
     host.innerHTML=`
-      ${a?`<div class="tiny" style="margin-top:9px"><strong>Anbieter:</strong> ${esc(a.name)} · ${esc(a.art==='personal_brand'?'Personal Brand':'Unternehmen')} · ${esc(a.status==='geprueft'?'geprüft':'noch nicht geprüft')}${a.website?' · '+esc(a.website):''}</div>`
+      ${a?`<div class="tiny" style="margin-top:9px"><strong>Anbieter:</strong> ${esc(a.name)} · ${esc(a.status==='geprueft'?'geprüft':'noch nicht geprüft')}${a.website?' · '+esc(a.website):''}</div>`
          :'<div class="tiny" style="margin-top:9px"><strong>Anbieter:</strong> Mitglied, kein Anbieter-Konto</div>'}
       ${stand.projekt?`<div class="tiny" style="margin-top:9px;white-space:pre-wrap"><strong>Ziel:</strong> ${esc(stand.projekt.ziel||'—')}
 <strong>Beschreibung:</strong> ${esc(stand.projekt.beschreibung||'keine')}
@@ -1114,7 +1114,7 @@ const ECHT=[['V1','Firma existiert','Firmenbuch, Handelsregister oder Gewerbereg
   ['V2','Website echt und aktiv','Impressum vorhanden und passend, das Geschäft ist erkennbar aktiv.'],
   ['V3','Kontakt gehört dazu','Firmen-E-Mail, oder Rückruf über die öffentliche Nummer der Firma.'],
   ['V4','Direkter Auftraggeber','Keine Agentur, kein Personal- oder Talentvermittler, keine Referenzen „für unsere Kunden“.'],
-  ['V5','Eigene Marke oder Produkt','Verkauft eigene Produkte oder Leistungen. Personal Brand: eigenes Gewerbe und belegbare eigene Reichweite.'],
+  ['V5','Eigene Marke oder Produkt','Verkauft eigene Produkte oder Leistungen.'],
   ['V6','Kein Doppelkonto','Signale unten geprüft, kein zweites Konto derselben Firma oder Person.'],
   ['V7','Passt zum Club','Auftreten und Vorhaben passen; im Zweifel nachfragen statt freigeben.']];
 const KI_ECHT={direkt:['on','direkter Auftraggeber'],unklar:['warn','unklar'],vermittler:['off','Hinweise auf Vermittler']};
@@ -1136,7 +1136,7 @@ function anbieterZeile(x){
   const [kk,kw]=ki?(KI_ECHT[ki.einschaetzung]||['warn','unklar']):['',''];
   return `<div style="padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)" data-an="${esc(x.id)}">
     <div class="name">${esc(x.name)} <span class="tiny"><span class="dot ${esc(k)}"></span>${esc(w)}${x.komplett?'':' · Angaben fehlen'}</span></div>
-    <div class="tiny">${esc(x.art==='personal_brand'?'Personal Brand':'Unternehmen')} · ${esc(x.email||'—')} · ${num(x.projekte)} Projekte · seit ${esc(dd(x.created_at))}</div>
+    <div class="tiny">${esc(x.email||'—')} · ${num(x.projekte)} Projekte · seit ${esc(dd(x.created_at))}</div>
     <div class="tiny">${esc(x.website||'keine Website')} · ${esc(x.anschrift||'keine Anschrift')}</div>
     <div class="tiny">UID: ${esc(x.uid_nummer||'—')} · Register: ${esc(x.firmenbuch||'—')} · Kontakt: ${esc(x.kontakt_name||'—')}${x.kontakt_telefon?' · '+esc(x.kontakt_telefon):''}</div>
     <div class="tiny"><strong>Tätigkeit laut Anbieter:</strong> ${esc(x.taetigkeit||'—')}</div>
@@ -1161,7 +1161,7 @@ async function loadAnbieter(){
   const liste=data||[];
   const offen=liste.filter(x=>x.status==='offen'&&x.komplett).length;
   const b=$('#anBadge'); b.textContent=num(offen); b.style.display=offen?'':'none';
-  $('#anList').innerHTML=!liste.length?empty('Noch keine Anbieter','Registrierung unter c3club.app/partner.'):liste.map(anbieterZeileSicher).join('');
+  $('#anList').innerHTML=!liste.length?empty('Noch keine Anbieter','Registrierung unter business.c3club.app.'):liste.map(anbieterZeileSicher).join('');
   $('#anList').querySelectorAll('[data-an]').forEach(row=>{
     const x=liste.find(y=>y.id===row.dataset.an);
     row.querySelectorAll('[data-v]').forEach(btn=>btn.onclick=async()=>{
