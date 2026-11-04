@@ -74,13 +74,19 @@ h1:focus-visible{outline:none}
 input:not(.punkt),select,textarea{font:var(--f-body);color:var(--txt);width:100%;
   background:var(--glas1);border:1px solid var(--edge);border-radius:var(--r-klammer);
   min-height:var(--hoehe);padding:6px var(--s-md)}
-select{padding-right:var(--s-sm)}
+/* Eigener Pfeil mit Innenabstand: Der Pfeil des Browsers klebt am Rand und laesst sich nicht verschieben. */
+select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:38px;text-overflow:ellipsis;white-space:nowrap;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23F8F8FA' stroke-opacity='.72' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:12px 12px}
+select:disabled{opacity:.5;cursor:default}
 select option{background:var(--bg)}
 textarea{min-height:78px;resize:vertical;padding:var(--s-sm) var(--s-md)}
 input::placeholder,textarea::placeholder{color:var(--txt3)}
 input.kurz{width:100px;flex:0 0 100px}
 input.mittel{max-width:200px}
 /* Punkt statt Haken: Auswahl sieht aus wie jeder andere Zustand in c3. */
+input[type=date],input[type=datetime-local],input[type=time],input[type=number]{color-scheme:dark}
+input:not(.punkt),select{padding-top:0;padding-bottom:0}
 input.punkt{appearance:none;-webkit-appearance:none;width:16px;height:16px;flex:0 0 16px;border-radius:var(--r-pill);
   border:1px solid var(--txt3);background:transparent;display:inline-grid;place-items:center;cursor:pointer;vertical-align:-3px}
 input.punkt::before{content:'';width:8px;height:8px;border-radius:var(--r-pill);background:transparent}
@@ -104,7 +110,7 @@ input.punkt:checked::before{background:var(--accent);box-shadow:0 0 9px var(--gl
 .btn.an{background:rgba(35,101,255,0.22);border-color:rgba(102,148,255,0.5);color:var(--txt)}
 .primary{background:var(--txt);color:var(--bg);border-color:var(--txt);width:100%;font-weight:600}
 .bar{display:flex;gap:var(--s-sm);flex-wrap:wrap;align-items:center;margin-bottom:var(--s-md)}
-.bar input:not(.punkt),.bar select{width:auto;flex:0 1 180px}
+.bar input:not(.punkt),.bar select{width:auto;flex:0 1 180px;min-width:0}
 .bar input.kurz{flex:0 0 100px}
 .bar input.grow,.bar .grow{flex:1 1 180px}
 .bar input.voll{flex:1 1 100%}
@@ -136,8 +142,28 @@ input.punkt:checked::before{background:var(--accent);box-shadow:0 0 9px var(--gl
   background:linear-gradient(149deg,#020306,#05060D);border-right:1px solid var(--edge)}
 .nav-kopf{display:flex;align-items:center;justify-content:space-between;gap:var(--s-sm);padding:var(--s-md) var(--s-lg) var(--s-sm);min-height:60px}
 .nav-liste{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 var(--s-md) var(--s-md)}
-.nav-gruppe{font:var(--f-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--txt3);
-  padding:var(--s-sm) var(--s-sm) var(--s-xxs);white-space:nowrap}
+/* Bloecke: Klick auf die Ueberschrift klappt auf. Geschlossen zaehlt die Summe, damit nichts untergeht. */
+.nav-block{margin-top:var(--s-xxs)}
+.nav-block.fest{margin:0 0 var(--s-xs)}
+.block-kopf{position:relative;width:100%;display:flex;align-items:center;gap:var(--s-sm);min-height:32px;padding:var(--s-xs) var(--s-sm);border-radius:var(--r-innen);
+  font:var(--f-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--txt3);text-align:left;white-space:nowrap}
+.block-kopf:hover{background:rgba(255,255,255,0.04);color:var(--txt)}
+.nav-block.auf>.block-kopf{color:var(--txt2)}
+.block-kopf .nav-t{letter-spacing:inherit}
+.block-kopf .block-zeichen{display:none}
+.block-kopf svg{flex:0 0 auto;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.block-kopf .pfeil{width:12px;height:12px;stroke-width:1.6;opacity:.8;transition:transform .18s ease}
+.nav-block.auf .pfeil{transform:rotate(180deg)}
+.nav-block.auf>.block-kopf .zahl{display:none}
+/* Die aktuelle Seite liegt in einem zugeklappten Block: Der leuchtende Punkt wandert an die Ueberschrift. */
+.nav-block:not(.auf):has(.nav-e.sel)>.block-kopf{color:var(--txt)}
+.nav-block:not(.auf):has(.nav-e.sel)>.block-kopf::before{content:'';position:absolute;left:-6px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:var(--r-pill);
+  background:var(--accent);box-shadow:0 0 9px var(--glow)}
+.block-inhalt{display:grid;grid-template-rows:0fr;visibility:hidden}
+.nav-block.auf>.block-inhalt{grid-template-rows:1fr;visibility:visible}
+.nav-liste.bereit .block-inhalt{transition:grid-template-rows .18s ease,visibility .18s}
+/* Der Rand gibt dem Punkt und den Zaehlern Platz, das Abschneiden braucht die Animation. */
+.block-innen{min-height:0;overflow:hidden;margin:0 calc(-1 * var(--s-sm));padding:var(--s-xxs) var(--s-sm)}
 .nav-e{position:relative;display:flex;align-items:center;gap:var(--s-sm);min-height:30px;padding:var(--s-xxs) var(--s-sm);border-radius:var(--r-innen);
   color:var(--txt2);text-decoration:none;font:var(--f-small);font-weight:500}
 .nav-e svg{flex:0 0 18px;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
@@ -157,8 +183,31 @@ input.punkt:checked::before{background:var(--accent);box-shadow:0 0 9px var(--gl
 .nav-knopf svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .nav-schleier{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:29;display:none}
 .kopfzeile{display:none}
-.inhalt{margin-left:var(--nav-breit);min-height:100vh;padding:var(--s-xxl) var(--s-xxl) 80px;container:inhalt / inline-size}
-.seiten{max-width:1240px;margin:0 auto}
+.inhalt{margin-left:var(--nav-breit);min-height:100vh}
+/* Volle Breite, auch am grossen Bildschirm. Die Kopfleiste steht ausserhalb, damit sie beim Scrollen bleibt. */
+.seiten{padding:var(--s-xl) var(--s-xxl) 80px;container:inhalt / inline-size}
+.kopfleiste{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:var(--s-md);min-height:60px;padding:var(--s-sm) var(--s-xxl);
+  background:rgba(3,4,10,0.78);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--edge)}
+.kopf-suche{flex:0 1 460px;min-width:0;display:flex;align-items:center;gap:var(--s-sm);min-height:var(--hoehe);padding:0 var(--s-md);border:1px solid var(--edge);border-radius:var(--r-pill);
+  background:var(--glas1);color:var(--txt3);font:var(--f-small);text-align:left}
+.kopf-suche:hover{border-color:rgba(255,255,255,0.32);color:var(--txt2)}
+.kopf-suche svg,.kopf-knopf svg{flex:0 0 18px;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.kopf-suche-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kopf-rechts{display:flex;align-items:center;gap:var(--s-sm);flex:0 0 auto}
+.kopf-knopf{position:relative;display:inline-flex;align-items:center;justify-content:center;width:var(--hoehe);height:var(--hoehe);border:1px solid var(--edge);border-radius:var(--r-pill);background:var(--glas1);color:var(--txt2)}
+.kopf-knopf:hover,.profil:hover{border-color:rgba(255,255,255,0.32);color:var(--txt)}
+.kopf-knopf .zahl,.nav-knopf .zahl{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;line-height:17px}
+.nav-knopf{position:relative}
+.profil{display:inline-flex;align-items:center;gap:var(--s-sm);min-height:var(--hoehe);max-width:240px;padding:2px var(--s-md) 2px 2px;border:1px solid var(--edge);border-radius:var(--r-pill);background:var(--glas1);color:var(--txt);text-align:left}
+.profil-zeichen{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border-radius:var(--r-pill);background:rgba(35,101,255,0.22);border:1px solid rgba(102,148,255,0.5);font:var(--f-micro)}
+.profil-text{min-width:0;display:flex;flex-direction:column}
+.profil-name{font:var(--f-small);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profil-rolle{font:var(--f-micro);color:var(--txt3);white-space:nowrap}
+.aufklapp{position:fixed;z-index:40;width:min(340px,calc(100vw - 32px));max-height:min(70vh,520px);overflow-y:auto;padding:var(--s-sm);background:var(--bg);border:1px solid var(--edge);border-radius:var(--r-klammer);box-shadow:0 16px 48px rgba(0,0,0,.6)}
+.aufklapp .suche-gruppe{padding-top:var(--s-xs)}
+.aufklapp .treffer{padding:var(--s-sm)}
+.aufklapp button.treffer{display:block}
+.treffer-rot{color:var(--danger);font:var(--f-micro)}
 .page{display:none}.page.on{display:block}
 
 /* Unter 1100 px: schmale Leiste mit Zeichen, Klick oeffnet sie als Ablage. */
@@ -166,7 +215,14 @@ input.punkt:checked::before{background:var(--accent);box-shadow:0 0 9px var(--gl
   .nav{width:var(--nav-schmal)}
   .nav-kopf{flex-direction:column;gap:0;padding:var(--s-sm) 0 var(--s-xs);min-height:0}
   .nav-kopf .wort img{height:28px}
-  .nav-kopf .wort span,.nav-gruppe,.nav-t,.nav-wer{display:none}
+  .nav-kopf .wort span,.nav-t,.nav-wer{display:none}
+  .block-kopf{justify-content:center;padding:var(--s-xxs);color:var(--txt2)}
+  .block-kopf .pfeil{display:none}
+  .block-kopf .block-zeichen{display:block;width:18px;height:18px;stroke-width:1.6;opacity:.8}
+  .block-kopf .zahl{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;font-size:11px;line-height:15px}
+  .nav-block.auf>.block-kopf{background:rgba(255,255,255,0.05)}
+  .nav-block:not(.auf):has(.nav-e.sel)>.block-kopf{background:rgba(35,101,255,0.14)}
+  .nav-block:not(.auf):has(.nav-e.sel)>.block-kopf::before{left:-5px}
   .nav-knopf{display:inline-flex}
   .nav-liste{padding:0 var(--s-sm) var(--s-sm)}
   .nav-liste>div{border-top:1px solid var(--edge);padding-top:var(--s-xs);margin-top:var(--s-xs)}
@@ -177,11 +233,19 @@ input.punkt:checked::before{background:var(--accent);box-shadow:0 0 9px var(--gl
   .nav-fuss{padding:var(--s-sm);flex-direction:column}
   body.nav-auf .nav-fuss{flex-direction:row;padding:var(--s-md)}
   body.nav-auf .nav-fuss .nav-e{justify-content:center;padding:0}
-  .inhalt{margin-left:var(--nav-schmal);padding:var(--s-xl) var(--s-lg) 80px}
+  .inhalt{margin-left:var(--nav-schmal)}
+  .kopfleiste{padding-left:var(--s-lg);padding-right:var(--s-lg)}
+  .seiten{padding:var(--s-xl) var(--s-lg) 80px}
   body.nav-auf .nav{width:var(--nav-breit);box-shadow:0 16px 48px rgba(0,0,0,.6)}
   body.nav-auf .nav-kopf{flex-direction:row;gap:var(--s-sm);padding:var(--s-md) var(--s-md) var(--s-sm) var(--s-lg)}
   body.nav-auf .nav-kopf .wort span,body.nav-auf .nav-liste .nav-t{display:block}
-  body.nav-auf .nav-gruppe,body.nav-auf .nav-wer{display:block}
+  body.nav-auf .nav-wer{display:block}
+  body.nav-auf .block-kopf{justify-content:flex-start;padding:var(--s-xs) var(--s-sm);color:var(--txt3)}
+  body.nav-auf .nav-block.auf>.block-kopf{background:none;color:var(--txt2)}
+  body.nav-auf .block-kopf .nav-t{display:block;flex:1}
+  body.nav-auf .block-kopf .pfeil{display:block}
+  body.nav-auf .block-kopf .block-zeichen{display:none}
+  body.nav-auf .block-kopf .zahl{position:static;min-width:20px;height:20px;padding:2px 6px;line-height:16px}
   body.nav-auf .nav-e{justify-content:flex-start;padding:var(--s-xs) var(--s-sm)}
   body.nav-auf .nav-e .zahl{position:static;min-width:20px;height:20px;padding:2px 6px;line-height:16px}
   body.nav-auf .nav-liste>div{border-top:0;margin-top:0;padding-top:0}
@@ -189,14 +253,18 @@ input.punkt:checked::before{background:var(--accent);box-shadow:0 0 9px var(--gl
 }
 /* Telefon: Leiste ganz weg, Kopfzeile mit Marke und Menue. */
 @media(max-width:640px){
+  .kopfleiste{display:none}
   .kopfzeile{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;
     padding:var(--s-xs) var(--s-md) var(--s-xs) var(--s-lg);background:var(--bg);border-bottom:1px solid var(--edge)}
   .kopfzeile .nav-knopf{display:inline-flex}
   .nav{transform:translateX(-100%);transition:transform .2s ease;width:min(var(--nav-breit),85vw)}
   body.nav-auf .nav{transform:none;width:min(var(--nav-breit),85vw)}
-  .inhalt{margin-left:0;padding:var(--s-lg) var(--s-lg) 80px}
+  .inhalt{margin-left:0}
+  .seiten{padding:var(--s-lg) var(--s-lg) 80px}
 }
-@media(prefers-reduced-motion:reduce){.nav{transition:none}}
+@media(min-width:641px){.nav-fuss{display:none}}
+@media(prefers-reduced-motion:reduce){.nav,.nav-liste.bereit .block-inhalt,.block-kopf .pfeil{transition:none}}
+@media(pointer:coarse){.block-kopf{min-height:44px}.nav-e{min-height:44px}}
 
 /* ── Typografie ── */
 h1{font:var(--f-h1);letter-spacing:var(--ls-h1);margin-bottom:var(--s-xs)}
@@ -229,6 +297,7 @@ table{width:100%;border-collapse:collapse;font:var(--f-small)}
 th{text-align:left;font:var(--f-label);letter-spacing:var(--ls-label);color:var(--txt3);padding:0 var(--s-md) var(--s-sm) 0;border-bottom:1px solid var(--edge)}
 td{padding:var(--s-sm) var(--s-md) var(--s-sm) 0;border-bottom:1px solid var(--edge);vertical-align:middle;overflow-wrap:break-word}
 .panel td{overflow-wrap:anywhere}
+.panel .card>table:not(:has(thead)) td:first-child{width:46%}
 th:last-child,td:last-child{padding-right:0}
 tr:last-child td{border-bottom:0}
 tr.click{cursor:pointer}
@@ -282,11 +351,11 @@ td .name{font:var(--f-body);font-weight:500}
 .clock .val.ueber{font:var(--f-micro);color:var(--danger)}
 .quote{margin-top:var(--s-sm);padding:var(--s-sm) var(--s-md);background:var(--dangerTint);border-radius:var(--r-innen);font:var(--f-small);white-space:pre-wrap;overflow-wrap:anywhere}
 .quote.blau{background:rgba(35,101,255,0.10)}
-.acts{display:flex;flex-direction:column;gap:var(--s-sm);min-width:140px}
-@container inhalt (max-width:640px){.rep{grid-template-columns:1fr}.acts{flex-direction:row;flex-wrap:wrap}}
+.acts{display:flex;flex-direction:column;gap:var(--s-sm);width:184px}
+@container inhalt (max-width:640px){.rep{grid-template-columns:1fr}.acts{flex-direction:row;flex-wrap:wrap;width:auto}}
 
 /* ── Kennzahlen ── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:var(--s-md);margin-bottom:var(--s-md)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(136px,1fr));gap:var(--s-md);margin-bottom:var(--s-md)}
 .kpi{background:var(--glass);border:1px solid var(--edge);border-radius:var(--r-klammer);padding:var(--s-lg)}
 .kpi .n{font:var(--f-zahl)}
 .kpi .l{font:var(--f-small);color:var(--txt2);margin-top:var(--s-xxs)}
@@ -361,8 +430,6 @@ td .name{font:var(--f-body);font-weight:500}
 .notiz .pre{overflow-wrap:anywhere}
 
 /* ── Suche ── */
-.nav-suchzeile{padding:0 var(--s-md) var(--s-sm)}
-.nav-suche{width:100%;border:1px solid var(--edge);background:var(--glas1);text-align:left;min-height:32px}
 .taste{font:var(--f-micro);color:var(--txt3)}
 .suche{width:min(600px,calc(100% - 32px));margin-top:12vh;margin-bottom:auto;padding:var(--s-lg)}
 .suche input{margin-bottom:var(--s-sm)}
@@ -372,15 +439,52 @@ td .name{font:var(--f-body);font-weight:500}
 .treffer .tiny{display:block}
 .suche-ergebnis{max-height:52vh;overflow-y:auto}
 .kopf-knoepfe{display:flex;align-items:center}
-@media(max-width:1099px){
-  .nav-suchzeile{padding:0 var(--s-sm) var(--s-xs)}
-  .nav-suche{justify-content:center;padding:0}
-  .nav-suche .taste{display:none}
-  body.nav-auf .nav-suchzeile{padding:0 var(--s-md) var(--s-sm)}
-  body.nav-auf .nav-suche{justify-content:flex-start;padding:var(--s-xs) var(--s-sm)}
-  body.nav-auf .nav-suche .nav-t{display:block}
-  body.nav-auf .nav-suche .taste{display:inline}
-}
+/* ── Startseite: Mitte fuer die Arbeit, rechts der Stand ── */
+.start-raster{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-lg);align-items:start}
+.start-mitte,.start-rechts{min-width:0}
+@media(min-width:1024px){.start-raster{grid-template-columns:minmax(0,1fr) minmax(280px,340px)}}
+#startKopf{font-size:34px;line-height:42px;margin-bottom:var(--s-xs)}
+.start-tag{font:var(--f-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--txt3);margin-bottom:var(--s-xs)}
+.naechstes{display:flex;align-items:center;justify-content:space-between;gap:var(--s-md);padding:var(--s-md) var(--s-lg);margin-bottom:var(--s-md);border-radius:var(--r-klammer);
+  background:rgba(35,101,255,0.10);border:1px solid rgba(102,148,255,0.32);color:var(--txt);text-decoration:none}
+.naechstes:hover{border-color:rgba(102,148,255,0.6)}
+.naechstes.rot{background:var(--dangerTint);border-color:var(--dangerRand)}
+.naechstes>div{min-width:0;overflow-wrap:anywhere}
+.naechstes .btn{flex:0 0 auto}
+.aktionen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-md);margin-bottom:var(--s-md)}
+@media(min-width:1280px){.aktionen{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.aktionskarte{display:flex;flex-direction:column;gap:var(--s-xs);min-width:0;padding:var(--s-lg);border-radius:var(--r-klammer);background:var(--glass);border:1px solid var(--edge);color:var(--txt);text-decoration:none}
+.aktionskarte:hover{border-color:rgba(255,255,255,0.32);background:var(--glassStrong)}
+.aktionskarte.rot{border-color:var(--dangerRand);background:var(--dangerTint)}
+.aktion-kopf{display:flex;align-items:center;justify-content:space-between;gap:var(--s-sm);min-height:30px}
+.aktion-kopf svg{width:22px;height:22px;fill:none;stroke:var(--glow);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.aktion-kopf b{font:var(--f-zahl)}
+.aktion-t{font:var(--f-body);font-weight:500}
+.card>h3.mit-zahl{display:flex;align-items:center;gap:var(--s-sm)}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-md) var(--s-sm)}
+.mini div b{display:block;font:var(--f-zahl)}
+.mini div span{font:var(--f-small);color:var(--txt2)}
+.mini div.alert b{color:var(--danger)}
+.balken{height:6px;border-radius:var(--r-pill);background:var(--punktAus);overflow:hidden;margin:var(--s-xs) 0 var(--s-md)}
+.balken i{display:block;height:100%;background:var(--accent);box-shadow:0 0 9px var(--glow);border-radius:var(--r-pill)}
+.stand-zeile{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-sm);padding:var(--s-sm) 0;border-top:1px solid var(--edge);font:var(--f-small);color:var(--txt2);text-decoration:none}
+.stand-zeile b{font-weight:500;color:var(--txt);overflow-wrap:anywhere;min-width:0}
+.stand-zeile span{flex:0 0 auto;white-space:nowrap}
+a.stand-zeile:hover b{color:var(--glow)}
+.stand-block{margin-top:var(--s-md)}
+.status-zeile{display:flex;align-items:baseline;padding:var(--s-xs) 0;font:var(--f-small);color:var(--txt2)}
+.status-zeile .dot{flex:0 0 7px;position:relative;top:-1px}
+.spark-zeile{display:flex;align-items:center;justify-content:space-between;gap:var(--s-sm);padding:var(--s-sm) 0;border-top:1px solid var(--edge);margin-top:var(--s-xs)}
+.spark-zeile:first-of-type{margin-top:var(--s-md)}
+.spark-zeile+.spark-zeile{margin-top:0}
+.spark-zeile>div{min-width:0}
+.spark-zeile b{display:block;font:var(--f-h3);font-weight:600}
+.spark-zeile span{display:block;font:var(--f-small);color:var(--txt2);white-space:nowrap}
+.spark{flex:0 0 112px;width:112px;height:32px;overflow:visible}
+.spark polyline{fill:none;stroke:var(--glow);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.spark circle{fill:var(--glow);stroke:var(--bg);stroke-width:2}
+.spark line{stroke:var(--edge);stroke-width:1}
+.hint{max-width:880px}
 /* ── Pakete 6 bis 9 ── */
 .qr{display:inline-block;background:#fff;padding:var(--s-sm);border-radius:var(--r-innen);margin-bottom:var(--s-md)}
 .qr img{display:block;width:176px;height:176px}
@@ -430,6 +534,7 @@ button.treffer{width:100%;text-align:left}
     <a class="wort" href="#/start"><img src="/wortmarke.png" alt="c3"><span>Team</span></a>
     <div class="kopf-knoepfe">
       <button class="nav-knopf" data-suche-auf aria-label="Suchen"><svg viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM21 21l-5-5"/></svg></button>
+      <button class="nav-knopf" data-glocke aria-label="Offene Aufgaben" aria-haspopup="true" aria-expanded="false" aria-controls="glockeListe"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2ZM10 21h4"/></svg><b class="zahl" hidden></b></button>
       <button class="nav-knopf" data-nav-umschalten aria-label="Menü öffnen"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
   </header>
@@ -438,7 +543,6 @@ button.treffer{width:100%;text-align:left}
       <a class="wort" href="#/start"><img src="/wortmarke.png" alt="c3"><span>Team</span></a>
       <button class="nav-knopf" data-nav-umschalten aria-label="Menü öffnen"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
-    <div class="nav-suchzeile"><button class="nav-e nav-suche" data-suche-auf title="Suchen" aria-label="Suchen, Tastenkürzel Befehl K"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM21 21l-5-5"/></svg><span class="nav-t">Suchen</span><span class="taste" id="sucheTaste">⌘K</span></button></div>
     <nav class="nav-liste" id="navListe" aria-label="Bereiche"></nav>
     <div class="nav-fuss">
       <div class="nav-wer" id="who"></div>
@@ -447,16 +551,39 @@ button.treffer{width:100%;text-align:left}
     </div>
   </aside>
   <div class="nav-schleier" id="navSchleier"></div>
+  <div class="aufklapp" id="glockeListe" hidden></div>
+  <div class="aufklapp" id="profilMenue" hidden>
+    <a class="treffer" id="profilZugang" href="#/zugang">Mein Zugang</a>
+    <button class="treffer" id="profilNeu">Aktualisieren</button>
+    <button class="treffer" id="profilAb">Abmelden</button>
+  </div>
 
-  <main class="inhalt" id="inhalt"><div class="seiten">
+  <main class="inhalt" id="inhalt">
+  <header class="kopfleiste">
+    <button class="kopf-suche" data-suche-auf aria-label="Suchen, Tastenkürzel Befehl K"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM21 21l-5-5"/></svg><span class="kopf-suche-t">Mitglieder, Unternehmen, Projekte suchen</span><span class="taste" id="sucheTaste">⌘K</span></button>
+    <div class="kopf-rechts">
+      <button class="kopf-knopf" data-glocke aria-label="Offene Aufgaben" aria-haspopup="true" aria-expanded="false" aria-controls="glockeListe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2ZM10 21h4"/></svg><b class="zahl" hidden></b></button>
+      <button class="profil" id="profilKnopf" aria-haspopup="true" aria-expanded="false" aria-controls="profilMenue"><span class="profil-zeichen" id="profilZeichen" aria-hidden="true"></span><span class="profil-text"><span class="profil-name" id="profilName"></span><span class="profil-rolle" id="profilRolle"></span></span></button>
+    </div>
+  </header>
+  <div class="seiten">
 
   <section class="page" id="p-start">
-    <h1 tabindex="-1" id="startKopf">Start</h1>
-    <p class="hint" id="startUnter"></p>
-    <div class="grid" id="startKpis"></div>
-    <div class="card"><h3>Offene Aufgaben</h3><div id="startAufgaben"></div></div>
-    <div class="card"><h3>Heute im Haus</h3><div id="startHeute"></div></div>
-    <p class="tiny" id="startSystem"></p>
+    <div class="start-raster">
+      <div class="start-mitte">
+        <p class="start-tag" id="startTag"></p>
+        <h1 tabindex="-1" id="startKopf" data-titel="Start">Start</h1>
+        <p class="hint" id="startUnter"></p>
+        <div id="startNaechstes"></div>
+        <div class="aktionen" id="startAktionen"></div>
+        <div class="card"><h3 class="mit-zahl">Offene Aufgaben <b class="zahl" id="startOffen" hidden></b></h3><div id="startAufgaben"></div></div>
+      </div>
+      <aside class="start-rechts" aria-label="Stand">
+        <div class="card"><h3>Heute im Haus</h3><div id="startHeute"></div></div>
+        <div class="card"><h3>Systemstatus</h3><div id="startSystem"></div></div>
+        <div class="card"><h3>Kurzzahlen</h3><div id="startKpis"></div></div>
+      </aside>
+    </div>
   </section>
 
   <section class="page" id="p-meldungen">
@@ -583,9 +710,10 @@ button.treffer{width:100%;text-align:left}
   <section class="page" id="p-unternehmen">
     <h1 tabindex="-1">Unternehmen</h1>
     <div id="anListe">
-      <p class="hint">Nur echte, direkte Auftraggeber: keine Agenturen, keine Vermittler mit Marge. Erst nach dieser Prüfung können Unternehmen Projekte einreichen.</p>
+      <p class="hint">Nur echte, direkte Auftraggeber: keine Agenturen, keine Vermittler mit Marge. Erst nach dieser Prüfung können Unternehmen Projekte einreichen. Die KI schätzt offene Unternehmen vor, ablehnen oder freigeben tut nur ihr.</p>
       <div class="bar" id="anTabs"></div>
-      <div class="bar"><input class="grow" id="anq" placeholder="Name, E-Mail oder Website suchen" aria-label="Name, E-Mail oder Website suchen"></div>
+      <div id="anKiHinweis"></div>
+      <div class="bar"><input class="grow" id="anq" placeholder="Name, E-Mail oder Website suchen" aria-label="Name, E-Mail oder Website suchen"><button class="btn quiet" id="anProblem" aria-pressed="false">Problem zuerst</button></div>
       <div class="card"><div id="anList"></div><div id="anSeiten"></div></div>
     </div>
     <div id="anDetail" hidden></div>
@@ -597,7 +725,7 @@ button.treffer{width:100%;text-align:left}
       <p class="hint">Unternehmen reichen Projekte ein, die KI prüft sie vor, ihr gebt sie frei. Erst danach erscheinen sie in der App. Ändert jemand den Inhalt, geht das Projekt zurück in die Prüfung.</p>
       <div id="kiHinweis"></div>
       <div class="bar" id="cpTabs"></div>
-      <div class="bar"><input class="grow" id="cpq" placeholder="Titel oder Unternehmen suchen" aria-label="Titel oder Unternehmen suchen"></div>
+      <div class="bar"><input class="grow" id="cpq" placeholder="Titel oder Unternehmen suchen" aria-label="Titel oder Unternehmen suchen"><button class="btn quiet" id="cpProblem" aria-pressed="false">Problem zuerst</button></div>
       <div class="card"><div id="cpList"></div><div id="cpSeiten"></div></div>
     </div>
     <div id="cpDetail" hidden></div>
@@ -697,7 +825,7 @@ button.treffer{width:100%;text-align:left}
   <section class="page" id="p-nachrichten">
     <h1 tabindex="-1">Nachrichten</h1>
     <p class="hint">Push an Mitglieder, optional auch im Ankündigungskanal. Höchstens eine Nachricht in 10 Minuten und 5 in 24 Stunden.</p>
-    <div class="card"><h3>Neue Nachricht</h3>
+    <div class="zwei"><div class="card"><h3>Neue Nachricht</h3>
       <div class="f"><label class="lbl" for="brTitel">Titel, höchstens 80 Zeichen</label><input id="brTitel" maxlength="80"></div>
       <div class="f"><label class="lbl" for="brText">Text, höchstens 500 Zeichen</label><textarea id="brText" maxlength="500"></textarea></div>
       <p class="tiny mb-md">Die App ist englisch. Der Text kommt genau so an, wie er hier steht.</p>
@@ -709,12 +837,12 @@ button.treffer{width:100%;text-align:left}
           <option value="tarife">Bestimmte Tarife</option></select></div>
         <div id="brZiel"></div>
       </div>
-      <div class="f mt-md"><label class="lbl" for="brKanal">Auch im Ankündigungskanal posten</label>
-        <select id="brKanal"><option value="">Nein, nur Push</option></select></div>
+      <div class="cols mt-md mb-md"><div><label class="lbl" for="brKanal">Auch im Ankündigungskanal posten</label>
+        <select id="brKanal"><option value="">Nein, nur Push</option></select></div></div>
       <p class="tiny mb-md" id="brZahl"></p>
       <div class="bar ende"><button class="btn blue" id="brSenden">Senden</button></div>
     </div>
-    <div class="card"><h3>Gesendet</h3><div id="brVerlauf"></div></div>
+    <div class="card"><h3>Gesendet</h3><div id="brVerlauf"></div></div></div>
   </section>
 
   <section class="page" id="p-wissen">
@@ -987,6 +1115,7 @@ $('#panelBody').addEventListener('input',()=>{ blattGeaendert=true; });
 $('#panelBody').addEventListener('click',e=>{ const a=e.target.closest('a[href^="#/"]'); if(a&&a.getAttribute('href')===location.hash) closePanel(); });
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape'||$('#dlg').open||$('#sucheDlg').open) return;
+  if(aufklappZu(true)) return;
   if($('#panel').classList.contains('on')) blattSchliessen();
   else navZu();
 });
@@ -1055,6 +1184,8 @@ const NAV=[
   ['KI',[['wissen','Concierge-Wissen'],['wochenlauf','Wochenlauf und Vorschläge'],['verbrauch','Verbrauch und Limits'],['stufen','Projektstufen']]],
   ['System',[['zahlen','Zahlen'],['betrieb','Betrieb'],['appfehler','App-Fehler'],['protokoll','Protokoll'],['datenschutz','Datenschutz'],['team','Team und Rollen'],['zugang','Mein Zugang']]],
 ];
+/* Zeichen der Bloecke, nur in der schmalen Leiste zu sehen. */
+const BLOCK_ICON={'Mitglieder':ICON.mitglieder,'c3 for Business':ICON.projekte,'Spaces':ICON.standorte,'Community':'M4 5h16v11H9l-5 4V5Z','KI':'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 16v4M17 18h4','System':'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4'};
 const START='start';
 const SEITEN={
   start:()=>[loadStart()], meldungen:()=>[loadReports()], sperren:()=>[loadSperren()], abos:()=>[loadAbos()],
@@ -1071,11 +1202,53 @@ const SEITEN={
 };
 /* Nur, was die Rolle sehen darf. Die Liste kommt vom Server (admin_zugang), der entscheidet auch bei jedem Aufruf. */
 function navBauen(){
-  $('#navListe').innerHTML=navFuer(NAV,zugang?.seiten).map(([gruppe,eintraege])=>`<div><div class="nav-gruppe">${esc(gruppe)}</div>${eintraege.map(([s,t])=>
-    `<a class="nav-e" href="#/${esc(s)}" data-seite="${esc(s)}" title="${esc(t)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${esc(ICON[s])}"/></svg><span class="nav-t">${esc(t)}</span><b class="zahl" hidden></b></a>`).join('')}</div>`).join('');
+  navOffen=new Set(offeneBloecke(merkeLies(NAV_MERK)));
+  const dazu=blockVon(NAV,seiteAusAdresse());
+  navVonSelbst=dazu&&dazu!=='Start'&&!navOffen.has(dazu)?dazu:null;
+  const eintrag=([s,t])=>`<a class="nav-e" href="#/${esc(s)}" data-seite="${esc(s)}" title="${esc(t)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${esc(ICON[s])}"/></svg><span class="nav-t">${esc(t)}</span><b class="zahl" hidden></b></a>`;
+  $('#navListe').classList.remove('bereit');
+  $('#navListe').innerHTML=navFuer(NAV,zugang?.seiten).map(([gruppe,eintraege],i)=>gruppe==='Start'?`<div class="nav-block fest">${eintraege.map(eintrag).join('')}</div>`
+    :`<div class="nav-block ${navOffen.has(gruppe)||navVonSelbst===gruppe?'auf':''}" data-block="${esc(gruppe)}"><button class="block-kopf" type="button" aria-expanded="${navOffen.has(gruppe)||navVonSelbst===gruppe}" aria-controls="navBlock${i}" title="${esc(gruppe)}">
+        <svg class="block-zeichen" viewBox="0 0 24 24" aria-hidden="true"><path d="${esc(BLOCK_ICON[gruppe]||'')}"/></svg><span class="nav-t">${esc(gruppe)}</span><b class="zahl" hidden></b><svg class="pfeil" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg></button>
+      <div class="block-inhalt" id="navBlock${i}"><div class="block-innen">${eintraege.map(eintrag).join('')}</div></div></div>`).join('');
+  /* Beim Aufbau ohne Bewegung, danach mit. */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>$('#navListe').classList.add('bereit')));
   document.querySelectorAll('[data-bereich]').forEach(x=>{ x.hidden=!darf(x.dataset.bereich); });
+  $('#profilZugang').hidden=!seiteErlaubt(zugang?.seiten,'zugang');
 }
-
+/* Offen bleibt je Browser, was das Team aufgeklappt hat. Was ein Seitenwechsel aufklappt, klappt beim naechsten wieder zu,
+   sonst steht nach einer Weile wieder alles offen. */
+const NAV_MERK='c3-team-nav-offen';
+const merkeLies=k=>{ try{ return localStorage.getItem(k); }catch(_){ return null; } };
+const merkeSetz=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(_){} };
+let navOffen=new Set(), navVonSelbst=null;
+function blockZeigen(gruppe,auf){
+  document.querySelectorAll('.nav-block[data-block]').forEach(b=>{ if(b.dataset.block!==gruppe) return;
+    b.classList.toggle('auf',auf); b.querySelector('.block-kopf').setAttribute('aria-expanded',String(auf)); });
+}
+/* Der Klick auf die Ueberschrift. */
+function blockSetzen(gruppe,auf){
+  auf?navOffen.add(gruppe):navOffen.delete(gruppe);
+  if(navVonSelbst===gruppe) navVonSelbst=null;
+  merkeSetz(NAV_MERK,JSON.stringify([...navOffen]));
+  blockZeigen(gruppe,auf);
+}
+/* Seitenwechsel, auch ueber Suche oder Link: Der passende Block ist offen. */
+function blockFuerSeite(s){
+  const g=blockVon(NAV,s), neu=g&&g!=='Start'&&!navOffen.has(g)?g:null;
+  if(navVonSelbst&&navVonSelbst!==neu) blockZeigen(navVonSelbst,false);
+  navVonSelbst=neu;
+  if(neu) blockZeigen(neu,true);
+}
+/* Die Summe steht immer am Kopf, sichtbar nur im geschlossenen Block. Der Screenreader liest sie mit. */
+function blockSummen(){
+  document.querySelectorAll('.nav-block[data-block]').forEach(b=>{
+    const {n,rot}=blockSumme([...b.querySelectorAll('.nav-e .zahl')].map(z=>({n:z.hidden?0:Number(z.textContent)||0,rot:z.classList.contains('rot')&&!z.hidden})));
+    const kopf=b.querySelector('.block-kopf'), z=kopf.querySelector('.zahl');
+    z.textContent=num(n); z.hidden=!n; z.classList.toggle('rot',rot);
+    kopf.setAttribute('aria-label',b.dataset.block+(n?`, ${n} offen${rot?', dringend':''}`:''));
+  });
+}
 function abzeichen(seite,n,rot){
   const b=document.querySelector(`[data-seite="${seite}"] .zahl`); if(!b) return;
   b.textContent=num(n); b.hidden=!n; b.classList.toggle('rot',!!rot);
@@ -1085,7 +1258,11 @@ function navZu(){ document.body.classList.remove('nav-auf'); document.querySelec
 document.querySelectorAll('[data-nav-umschalten]').forEach(b=>b.onclick=()=>document.body.classList.contains('nav-auf')?navZu():navAuf());
 $('#navSchleier').onclick=navZu;
 /* Klick auf die offene Seite aendert die Adresse nicht: Die Ablage schliesst trotzdem. */
-$('#navListe').addEventListener('click',e=>{ if(e.target.closest('a')) navZu(); });
+$('#navListe').addEventListener('click',e=>{
+  const kopf=e.target.closest('.block-kopf');
+  if(kopf){ const b=kopf.closest('.nav-block'); blockSetzen(b.dataset.block,!b.classList.contains('auf')); return; }
+  if(e.target.closest('a')) navZu();
+});
 
 const seiteAusAdresse=()=>{ const s=seiteOderStart(location.hash,SEITEN,START); return seiteErlaubt(zugang?.seiten,s)?s:START; };
 let aktuell=START, unter='', adresse='', hashStill=false;
@@ -1094,9 +1271,11 @@ function adresseStill(hash){ history.replaceState(null,'',hash); adresse=hash; u
 function zeigeSeite(){
   aktuell=seiteAusAdresse(); unter=unterAusAdresse(location.hash); adresse=location.hash;
   document.querySelectorAll('.nav-e[data-seite]').forEach(a=>{ const an=a.dataset.seite===aktuell; a.classList.toggle('sel',an); if(an) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  blockFuerSeite(aktuell);
+  document.querySelector('.nav-e.sel')?.scrollIntoView({block:'nearest'});
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('on',x.id==='p-'+aktuell));
   const titel=$('#p-'+aktuell+' h1');
-  document.title=titel.textContent+' · c3 Team';
+  document.title=(titel.dataset.titel||titel.textContent)+' · c3 Team';
   blattSchliesst=null;
   if($('#panel').classList.contains('on')) closePanel();
   navZu(); window.scrollTo(0,0); titel.focus({preventScroll:true});
@@ -1127,10 +1306,49 @@ $('#loginForm').onsubmit = async e => {
   /* Vom Server, nicht aus profiles: Ohne Code hat ein Konto mit Faktor dort keine Team-Sicht. */
   const p=await zugangLesen().catch(()=>null);
   if(!p?.is_admin||p.suspended_at){ $('#loginMsg').textContent=p?.suspended_at?'Dieses Konto ist gesperrt.':'Dieses Konto hat keine Team-Rechte.'; await sb.auth.signOut(); b.disabled=false; return; }
-  $('#who').textContent=p.display_name; await zugangWeiter(); b.disabled=false;
+  werSetzen(p.display_name); await zugangWeiter(); b.disabled=false;
 };
-$('#logout').onclick = async()=>{ clearInterval(timer); KI.anhalten(); await sb.auth.signOut(); location.reload(); };
-$('#reload').onclick = ()=>{ abzeichenLaden(); seiteLaden(); };
+$('#logout').onclick = $('#profilAb').onclick = async()=>{ clearInterval(timer); KI.anhalten(); KI_AN.anhalten(); await sb.auth.signOut(); location.reload(); };
+$('#reload').onclick = $('#profilNeu').onclick = ()=>{ aufklappZu(); abzeichenLaden(); seiteLaden(); };
+
+/* ── Kopfleiste: Glocke und Profil ───────── */
+function werSetzen(name){
+  $('#who').textContent=name; $('#profilName').textContent=name;
+  $('#profilZeichen').textContent=kuerzel(name);
+}
+let aufklappOffen=null;
+function aufklappZu(fokus){
+  if(!aufklappOffen) return false;
+  const {liste,knopf}=aufklappOffen; aufklappOffen=null;
+  liste.hidden=true; knopf.setAttribute('aria-expanded','false');
+  if(fokus) knopf.focus({preventScroll:true});
+  return true;
+}
+function aufklappen(liste,knopf){
+  const war=aufklappOffen?.liste===liste; aufklappZu();
+  if(war) return;
+  const r=knopf.getBoundingClientRect();
+  liste.style.top=(r.bottom+8)+'px'; liste.style.right=Math.max(16,innerWidth-r.right)+'px';
+  liste.hidden=false; knopf.setAttribute('aria-expanded','true'); aufklappOffen={liste,knopf};
+  liste.querySelector('a:not([hidden]),button:not([hidden])')?.focus({preventScroll:true});
+}
+document.querySelectorAll('[data-glocke]').forEach(b=>b.onclick=()=>aufklappen($('#glockeListe'),b));
+$('#profilKnopf').onclick=()=>aufklappen($('#profilMenue'),$('#profilKnopf'));
+document.addEventListener('click',e=>{
+  if(!aufklappOffen) return;
+  if(e.target.closest('.aufklapp a')||!e.target.closest('.aufklapp,[data-glocke],#profilKnopf')) aufklappZu();
+});
+/* Die Glocke nennt, was wartet: dieselbe Liste wie auf der Startseite, gekuerzt. */
+function glockeZeichnen(){
+  const z=reihe(aufgaben?.aufgaben?.zeilen), gesamt=aufgaben?.aufgaben?.gesamt??z.length, rot=z.some(a=>a.rot);
+  document.querySelectorAll('[data-glocke]').forEach(b=>{ const n=b.querySelector('.zahl'); n.textContent=num(gesamt); n.hidden=!gesamt; n.classList.toggle('rot',rot);
+    b.setAttribute('aria-label',gesamt?`Offene Aufgaben, ${gesamt}${rot?', davon welche überfällig':''}`:'Offene Aufgaben, keine'); });
+  const html=!z.length?'<p class="tiny treffer">Nichts offen.</p>'
+    :`<div class="suche-gruppe">Offene Aufgaben</div>`+z.slice(0,6).map(a=>`<a class="treffer" href="${esc(sprungZiel(a.ziel))}">${esc(a.titel)}<span class="tiny">${esc(a.detail)}</span>${a.rot?`<span class="treffer-rot">${esc(fristWort(a.frist,Date.now(),dt)||'überfällig')}</span>`:''}</a>`).join('')
+      +(gesamt>6?`<a class="treffer tiny" href="#/start">Alle ${num(gesamt)} ansehen</a>`:'');
+  /* Offene Liste nicht unter dem Fokus austauschen. */
+  if(aufklappOffen?.liste!==$('#glockeListe')) $('#glockeListe').innerHTML=html;
+}
 
 /* ── Globale Suche ───────────────────────── */
 let sucheLauf=0;
@@ -1138,7 +1356,7 @@ const sucheFeld=$('#sucheFeld'), sucheBox=$('#sucheTreffer');
 function sucheOeffnen(){
   if(!angemeldet||$('#dlg').open||$('#sucheDlg').open) return;
   sucheFeld.value=''; sucheBox.innerHTML='<p class="tiny">Mindestens zwei Zeichen.</p>';
-  navZu(); $('#sucheDlg').showModal(); sucheFeld.focus();
+  navZu(); aufklappZu(); $('#sucheDlg').showModal(); sucheFeld.focus();
 }
 const trefferZeile=(ziel,titel,unterzeile)=>`<a class="treffer" href="${esc(ziel)}">${esc(titel)}${unterzeile?`<span class="tiny">${esc(unterzeile)}</span>`:''}</a>`;
 const sucheLaden=verzoegert(async()=>{
@@ -1179,7 +1397,8 @@ async function start(){
   angemeldet=true;
   $('#gate').hidden=true; $('#shell').classList.add('on');
   navBauen();
-  $('#who').title=ROLLEN_WORT[zugang?.rolle]||'';
+  $('#who').title=$('#profilRolle').textContent=ROLLEN_WORT[zugang?.rolle]||'';
+  if(zugang?.name) werSetzen(zugang.name);
   const [{data:l},{data:pl}] = await Promise.all([
     sb.from('locations').select('id,city,area,floor_plan').order('sort_order'),
     sb.from('membership_plans').select('*').order('sort_order')]);
@@ -1205,6 +1424,7 @@ async function abzeichenLaden(){
   /* Neue Meldung, waehrend die Seite offen ist: nur ein Hinweis. Neu geladen wird, wenn das Team es will. */
   if(aktuell==='meldungen'&&(data.abzeichen?.meldungen?.n||0)>repBekannt) $('#repNeu').hidden=false;
   document.querySelectorAll('.nav-e[data-seite]').forEach(a=>{ const z=data.abzeichen?.[a.dataset.seite]; abzeichen(a.dataset.seite,z?.n||0,z?.rot); });
+  blockSummen(); glockeZeichnen();
   if(aktuell==='start') aufgabenZeichnen();
   return null;
 }
@@ -1225,29 +1445,54 @@ function aufgabenZeichnen(){
   /* Gleicher Inhalt: nichts anfassen, sonst springt der Fokus jede Minute weg. */
   const host=$('#startAufgaben');
   if(html!==aufgabenHtml||!host.firstChild){ aufgabenHtml=html; host.innerHTML=html; zeilenKlick(host,r=>{ location.hash=r.dataset.ziel; }); }
-  const k=$('#startKpis').querySelector('[data-offen]');
-  if(k) k.textContent=num(gesamt);
+  const o=$('#startOffen'); o.textContent=num(gesamt); o.hidden=!gesamt;
+  /* Die wichtigste Aufgabe steht oben, darunter die Aktionen mit echten Zahlen. */
+  const erste=z[0], f1=erste?fristWort(erste.frist,Date.now(),dt):'';
+  $('#startNaechstes').innerHTML=!erste?'':`<a class="naechstes ${erste.rot?'rot':''}" href="${esc(sprungZiel(erste.ziel))}"><div><div class="tiny">${esc(erste.rot&&f1?'Als Nächstes, '+f1:'Als Nächstes')}</div><div class="name">${esc(erste.titel)}</div><div class="tiny">${esc(erste.detail)}</div></div><span class="btn ${erste.rot?'red':'blue'}">Öffnen</span></a>`;
+  $('#startAktionen').innerHTML=aktionKarten(aufgaben?.abzeichen,zugang?.seiten).map(a=>`<a class="aktionskarte ${a.rot?'rot':''}" href="#/${esc(a.seite)}"><span class="aktion-kopf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${esc(ICON[a.seite]||'')}"/></svg>${a.n?`<b>${num(a.n)}</b>`:''}</span><span class="aktion-t">${esc(a.titel)}</span><span class="tiny">${esc(a.text)}</span></a>`).join('');
 }
+const miniZahl=(n,l,alert)=>`<div class="${alert?'alert':''}"><b>${num(n??0)}</b><span>${esc(l)}</span></div>`;
+const tagKurz=t=>new Date(t+'T12:00:00Z').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'numeric',timeZone:'UTC'});
+/* Kleine Verlaufslinie, ohne Bibliothek. Die Zahlen liest der Screenreader, die Maus sieht sie Tag fuer Tag. */
+function sparkZeile(titel,werte,tage){
+  const P=sparkPunkte(werte,112,32,5), summe=werte.reduce((a,b)=>a+(Number(b)||0),0), letzt=P[P.length-1];
+  return `<div class="spark-zeile" data-spark="${esc(JSON.stringify(werte))}" data-tage="${esc(JSON.stringify(tage))}" data-sum="${num(summe)}" data-titel="${esc(titel)}">
+    <div><b>${num(summe)}</b><span>${esc(titel)}, 14 Tage</span></div>
+    <svg class="spark" viewBox="0 0 112 32" role="img" aria-label="${esc(titel)} je Tag, älteste zuerst: ${esc(werte.join(', '))}"><line x1="0" y1="31" x2="112" y2="31"/><polyline points="${esc(P.map(([x,y])=>x+','+y).join(' '))}"/>${letzt?`<circle r="4" cx="${num(letzt[0])}" cy="${num(letzt[1])}"/>`:''}</svg></div>`;
+}
+$('#startKpis').addEventListener('pointermove',e=>{
+  const z=e.target.closest('.spark-zeile'); if(!z) return;
+  const svg=z.querySelector('svg'), r=svg.getBoundingClientRect(), werte=JSON.parse(z.dataset.spark), tage=JSON.parse(z.dataset.tage);
+  const i=Math.max(0,Math.min(werte.length-1,Math.round((e.clientX-r.left)/r.width*(werte.length-1))));
+  const [x,y]=sparkPunkte(werte,112,32,5)[i]||[], c=svg.querySelector('circle');
+  if(c&&x!=null){ c.setAttribute('cx',x); c.setAttribute('cy',y); }
+  z.querySelector('b').textContent=num(werte[i]); z.querySelector('span').textContent=`${z.dataset.titel}, ${tagKurz(tage[i])}`;
+});
+$('#startKpis').addEventListener('pointerout',e=>{
+  const z=e.target.closest('.spark-zeile'); if(!z||z.contains(e.relatedTarget)) return;
+  const werte=JSON.parse(z.dataset.spark), P=sparkPunkte(werte,112,32,5), l=P[P.length-1], c=z.querySelector('circle');
+  if(c&&l){ c.setAttribute('cx',l[0]); c.setAttribute('cy',l[1]); }
+  z.querySelector('b').textContent=z.dataset.sum; z.querySelector('span').textContent=`${z.dataset.titel}, 14 Tage`;
+});
 async function loadStart(){
   const [{data:s,error},fehlerAufgaben]=await Promise.all([sb.rpc('admin_start'),abzeichenLaden()]);
   if(fehlerAufgaben) $('#startAufgaben').innerHTML=fehlerBox(fehlerAufgaben.message);
-  if(error){ $('#startKpis').innerHTML=fehlerBox(error.message); return; }
+  const jetzt=new Date();
+  $('#startTag').textContent=jetzt.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',timeZone:ZONE});
+  $('#startKopf').textContent=begruessung(Number(jetzt.toLocaleTimeString('de-DE',{hour:'2-digit',hour12:false,timeZone:ZONE}).slice(0,2)),zugang?.name);
+  if(error){ $('#startHeute').innerHTML=fehlerBox(error.message); $('#startKpis').innerHTML=''; $('#startSystem').innerHTML=''; return; }
   const kopf=startKopf(s.eroeffnung,s.belegung,dd);
-  $('#startKopf').textContent=kopf.titel; $('#startUnter').textContent=kopf.unter;
-  const k=s.kennzahlen||{}, h=s.heute||{};
-  const kacheln=[['Mitglieder aktiv',k.mitglieder_aktiv],['In Probezeit',k.in_probe],['Davon Karte hinterlegt',k.mit_karte],
-    ['Zahlung offen',k.zahlung_offen,k.zahlung_offen>0],['Heute gebucht',h.gebucht]];
-  $('#startKpis').innerHTML=kacheln.map(([l,n,a])=>`<div class="kpi ${a?'alert':''}"><div class="n">${num(n??0)}</div><div class="l">${esc(l)}</div></div>`).join('')
-    +`<div class="kpi"><div class="n" data-offen>${num(aufgaben?.aufgaben?.gesamt??0)}</div><div class="l">Offene Aufgaben</div></div>`;
+  $('#startUnter').textContent=[kopf.titel==='Start'?'':kopf.titel,kopf.unter].filter(Boolean).join(' · ');
+  const k=s.kennzahlen||{}, h=s.heute||{}, v=s.verlauf||{}, b=s.belegung;
   const orte=reihe(h.je_standort), events=reihe(h.events);
-  $('#startHeute').innerHTML=`<p class="tiny mb-md">${num(h.gebucht??0)} Buchungen · ${num(h.checkins??0)} Check-ins, ${num(h.noch_da??0)} noch da · ${num(h.sperren??0)} Sperren · ${num(events.length)} Events</p>`
-    +(orte.length?`<table><thead><tr><th>Standort</th><th>Gebucht</th><th>Check-ins</th><th>Noch da</th><th>Sperren</th></tr></thead><tbody>`
-      +orte.map(o=>`<tr><td class="name">${esc(o.stadt)}</td><td>${num(o.gebucht)}</td><td>${num(o.checkins)}</td><td>${num(o.noch_da)}</td><td>${num(o.sperren)}</td></tr>`).join('')+'</tbody></table>':'')
-    +(events.length?`<table class="mt-md"><thead><tr><th>Event</th><th>Beginn</th><th>Zusagen</th></tr></thead><tbody>`
-      +events.map(e=>`<tr class="click" data-ziel="#/events"><td class="name">${esc(e.titel)}<div class="tiny">${esc(e.stadt||'—')}</div></td><td class="tiny">${esc(dt(e.beginn))}</td><td>${num(e.zusagen)}${e.plaetze?' / '+num(e.plaetze):''}</td></tr>`).join('')+'</tbody></table>':'');
-  zeilenKlick($('#startHeute'),r=>{ location.hash=r.dataset.ziel; });
-  $('#startSystem').innerHTML=systemTeile(s.system,dt).map(([w,k])=>`<span class="nowrap"><span class="dot ${esc(k)}"></span>${esc(w)}</span>`).join(' · ');
-  if(!$('#startSystem').innerHTML) $('#startSystem').textContent='';
+  $('#startHeute').innerHTML=(b?.plaetze>0?`<p class="tiny">${num(b.belegt)} von ${num(b.plaetze)} Plätzen belegt</p><div class="balken"><i style="width:${Math.min(100,Math.round(b.belegt/b.plaetze*100))}%"></i></div>`:'')
+    +`<div class="mini">${miniZahl(h.gebucht,'Buchungen')}${miniZahl(h.checkins,'Check-ins')}${miniZahl(h.noch_da,'noch da')}${miniZahl(h.sperren,'Sperren')}</div>`
+    +(orte.length?`<div class="stand-block">`+orte.map(o=>`<div class="stand-zeile"><b>${esc(o.stadt)}</b><span>${num(o.gebucht)} gebucht · ${num(o.noch_da)} da</span></div>`).join('')+'</div>':'')
+    +(events.length?`<div class="stand-block">`+events.map(e=>`<a class="stand-zeile" href="#/events"><b>${esc(e.titel)}</b><span>${esc(zeit(e.beginn))} · ${num(e.zusagen)}${e.plaetze?' / '+num(e.plaetze):''}</span></a>`).join('')+'</div>':'<p class="tiny mt-md">Heute kein Event.</p>');
+  const teile=systemTeile(s.system,dt);
+  $('#startSystem').innerHTML=teile.length?teile.map(([w,kl])=>`<div class="status-zeile"><span class="dot ${esc(kl)}"></span>${esc(w)}</div>`).join(''):'<p class="tiny">Noch keine Daten.</p>';
+  $('#startKpis').innerHTML=`<div class="mini">${miniZahl(k.mitglieder_aktiv,'Mitglieder aktiv')}${miniZahl(k.in_probe,'in Probezeit')}${miniZahl(k.mit_karte,'davon mit Karte')}${miniZahl(k.zahlung_offen,'Zahlung offen',k.zahlung_offen>0)}</div>`
+    +(reihe(v.tage).length?sparkZeile('Neue Konten',reihe(v.konten),reihe(v.tage))+sparkZeile('Check-ins',reihe(v.checkins),reihe(v.tage))+sparkZeile('Buchungen',reihe(v.buchungen),reihe(v.tage)):'');
 }
 
 /* ── Concierge-Wissen (Migration 81) ─────── */
@@ -1926,6 +2171,54 @@ function pruefWort(st,l){
   if(st&&!st.unternehmen) return ['Ohne KI',''];
   return ['Nicht geprüft',''];
 }
+/* ── Vorsortierung Unternehmen: dieselben Woerter wie bei Projekten, entschieden wird nur im Klick. ── */
+const AN_URTEIL={direkt:'passt',unklar:'ansehen',vermittler:'problem'};
+/* Was es nicht gibt, ist kein „Passt“. */
+const anUrteil=ki=>!ki?null:Object.hasOwn(AN_URTEIL,ki.einschaetzung)?AN_URTEIL[ki.einschaetzung]:'ansehen';
+function anPruefWort(st,l){
+  if(l?.zustand==='wartet'||l?.zustand==='laeuft'||st?.kiLaeuft) return ['Prüft …','laeuft'];
+  const u=anUrteil(st?.ki);
+  return u?[KI_WORT[u],KI_FARBE[u]]:['Nicht geprüft',''];
+}
+/* Wen die Warteschlange von selbst nimmt: offen, vollstaendig, noch ohne Ergebnis und ohne Fehlschlag von heute. */
+const anDran=(x,st)=>x.status==='offen'&&!!x.komplett&&!!st&&!st.ki&&!st.kiFehler&&!st.kiLaeuft;
+/* Problem zuerst, dann Ansehen, dann Ungepruefte, dann Passt. Was nicht zur Pruefung steht, kommt danach. Sonst bleibt die Reihenfolge. */
+function problemZuerst(zeilen,urteil){
+  const rang=x=>{ const u=urteil(x); return u===undefined?4:u==='problem'?0:u==='ansehen'?1:u==='passt'?3:2; };
+  return reihe(zeilen).map((x,i)=>[rang(x),i,x]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]).map(z=>z[2]);
+}
+/* ── Seitenleiste ── */
+const blockVon=(nav,s)=>nav.find(([,e])=>e.some(([x])=>x===s))?.[0]||null;
+/* Noch nichts gemerkt oder Unsinn im Speicher: keiner. Den Block der aktuellen Seite oeffnet die Seite selbst. */
+function offeneBloecke(roh){
+  try{ const j=JSON.parse(roh); return Array.isArray(j)?[...new Set(j.filter(x=>typeof x==='string'))]:[]; }catch(_){ return []; }
+}
+const blockSumme=z=>({n:z.reduce((a,x)=>a+(Number(x.n)||0),0),rot:z.some(x=>x.rot&&Number(x.n)>0)});
+/* ── Startseite ── */
+const kuerzel=name=>String(name||'').trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'c3';
+function begruessung(stunde,name){
+  const g=stunde>=5&&stunde<11?'Guten Morgen':stunde>=11&&stunde<18?'Guten Tag':'Guten Abend';
+  const v=String(name||'').trim().split(/\s+/)[0];
+  return v?`${g}, ${v}`:g;
+}
+/* Aktionen: was wirklich wartet, rot zuerst. Ist wenig los, fuellen ruhige Wege auf, ohne erfundene Zahl. */
+const AKTIONEN=[['meldungen','Meldungen bearbeiten','offen','offen'],['projekte','Projekte freigeben','wartet','warten'],['unternehmen','Unternehmen prüfen','wartet','warten'],['bewerbungen','Bewerbungen entscheiden','überfällig','überfällig'],['datenschutz','Datenschutz-Anfragen','offen','offen'],['betrieb','Betrieb ansehen','Alarm in 24 Std','Alarme in 24 Std'],['abos','Abos klären','offen','offen'],['wochenlauf','Concierge-Vorschläge','wartet','warten'],['warteliste','Warteliste einladen','bestätigt','bestätigt'],['events','Event-Wartelisten','wartet','warten']];
+const AKTIONEN_RUHIG=[['heute','Heute im Haus','Wer da ist, Check-in von Hand'],['buchungen','Buchungen','Alle Buchungen und Sperren'],['mitglieder','Mitglieder','Suchen, öffnen, helfen'],['zahlen','Zahlen','Mitglieder, Check-ins, Abos'],['events','Events','Anlegen und Einlass'],['meldungen','Meldungen','Nichts offen']];
+function aktionKarten(abz,seiten,anzahl=4){
+  const voll=AKTIONEN.filter(([s])=>seiteErlaubt(seiten,s)&&Number(abz?.[s]?.n)>0)
+    .map(([seite,titel,ein,viele])=>({seite,titel,text:anz(abz[seite].n,ein,viele),n:Number(abz[seite].n),rot:!!abz[seite].rot}))
+    .sort((a,b)=>Number(b.rot)-Number(a.rot)).slice(0,anzahl);
+  for(const [seite,titel,text] of AKTIONEN_RUHIG){
+    if(voll.length>=anzahl) break;
+    if(seiteErlaubt(seiten,seite)&&!voll.some(a=>a.seite===seite)) voll.push({seite,titel,text,n:0,rot:false});
+  }
+  return voll;
+}
+/* Punkte der Verlaufslinie im Rahmen breit mal hoch. Hoechster Wert oben, 0 unten, Zahlen statt NaN. */
+function sparkPunkte(werte,breit,hoch,rand){
+  const w=reihe(werte).map(x=>Number(x)||0), max=Math.max(1,...w), n=w.length;
+  return w.map((x,i)=>[+(n>1?rand+i*(breit-2*rand)/(n-1):breit/2).toFixed(1),+(hoch-1-(hoch-1-rand)*x/max).toFixed(1)]);
+}
 /* 1 Meldung, 2 Meldungen. */
 const anz=(n,ein,viele)=>`${Number(n)||0} ${Number(n)===1?ein:viele}`;
 const seiteOderStart=(hash,seiten,start)=>{ const s=String(hash).replace(/^#\/?/,'').split('/')[0]; return Object.hasOwn(seiten,s)?s:start; };
@@ -2017,7 +2310,8 @@ const csvZelle=s=>{ let t=String(s??''); if(/^[=+\-@\t\r]/.test(t)) t="'"+t; ret
 /* Die KI-Warteschlange. Alles zur Fassung: Aendert ein Unternehmen das Projekt, loescht der Trigger das
    Ergebnis und stand aendert sich, die neue Fassung wird einmal neu geprueft. Jede Fassung einmal je Sitzung,
    und was der Server heute schon als Fehlschlag kennt, faengt sie gar nicht erst an. */
-function kiSteuerung({laden,gezeichnet,frist=130000}){
+const projektDran=(c,st)=>c.review_state==='pending'&&!c.completed_at&&!!st&&!!st.unternehmen&&!st.ki&&!st.kiFehler&&!st.kiLaeuft&&st.unternehmen!=='abgelehnt'&&st.unternehmen!=='gesperrt';
+function kiSteuerung({laden,gezeichnet,frist=130000,dran=projektDran}){
   const stand=new Map();   /* cid → {stand,ki,ki_am,unternehmen,team,kiFehler,kiLaeuft} */
   const lauf=new Map();    /* cid → {zustand:'wartet'|'laeuft'|'fertig'|'fehler',stand,text} */
   const schlange=[];
@@ -2060,9 +2354,8 @@ function kiSteuerung({laden,gezeichnet,frist=130000}){
     anstossen(projekte){
       if(stopp) return Promise.resolve();
       for(const c of projekte){
-        if(c.review_state!=='pending'||c.completed_at) continue;
         const st=stand.get(c.id);
-        if(!st||!st.unternehmen||st.ki||st.kiFehler||st.kiLaeuft||st.unternehmen==='abgelehnt'||st.unternehmen==='gesperrt') continue;
+        if(!dran(c,st)) continue;
         if(lauf.get(c.id)?.stand===st.stand) continue;
         lauf.set(c.id,{zustand:'wartet',stand:st.stand});
         schlange.push(c.id);
@@ -2125,6 +2418,8 @@ async function kiLaden(cid,{neu,vonHand}){
   return data;
 }
 const KI=kiSteuerung({laden:kiLaden,gezeichnet:kiZeichnen});
+/* Unternehmen: gleiche Warteschlange, eigene Function. Die Websuche dauert laenger, und sie schreibt nur ki und ki_am. */
+const KI_AN=kiSteuerung({laden:anKiLaden,gezeichnet:anKiZeichnen,frist:420000,dran:anDran});
 
 const pruefMarke=c=>{ const [w,k]=pruefWort(KI.stand.get(c.id),KI.lauf.get(c.id)); return marke(w,k); };
 /* Erster Grund direkt in der Zeile, damit man nicht fuer jedes Projekt das Blatt oeffnen muss. */
@@ -2314,31 +2609,81 @@ const AKTION_WORT={team_rolle_geaendert:'Rolle geändert',flags_changed:'Rechte 
 const verlaufTabelle=v=>!reihe(v).length?'<p class="tiny">Noch nichts protokolliert.</p>'
   :'<table><tbody>'+reihe(v).map(x=>`<tr><td class="tiny nowrap">${esc(dt(x.am))}</td><td><div>${esc(AKTION_WORT[x.aktion]||x.aktion)}</div>${x.detail?.note||x.detail?.grund?`<div class="tiny">${esc(x.detail.note||x.detail.grund)}</div>`:''}</td><td class="tiny">${esc(x.wer||'System')}</td></tr>`).join('')+'</tbody></table>';
 
-let anFilter='alle', anOffset=0;
-async function loadUnternehmen(){
-  $('#anListe').hidden=!!unter; $('#anDetail').hidden=!unter;
-  if(unter) return unternehmenDetail(unter);
-  const {data,error}=await sb.rpc('admin_unternehmen',{p_filter:anFilter,p_suche:$('#anq').value.trim()||null,p_limit:SEITE,p_offset:anOffset});
-  if(error){ $('#anList').innerHTML=fehlerBox(error.message); $('#anSeiten').innerHTML=''; return; }
-  const z=data.zaehler||{};
-  filterKnoepfe($('#anTabs'),[['alle','Alle',z.alle],['zu-pruefen','Zu prüfen',z.zu_pruefen],['unvollstaendig','Angaben fehlen',z.unvollstaendig],['geprueft','Geprüft',z.geprueft],['abgelehnt','Abgelehnt',z.abgelehnt],['gesperrt','Gesperrt',z.gesperrt]],anFilter,f=>{ anFilter=f; anOffset=0; loadUnternehmen(); });
-  const rows=reihe(data.zeilen);
-  const anKorr=seiteKorrigieren(rows.length,data.gesamt,anOffset,SEITE);
-  if(anKorr!==null){ anOffset=anKorr; return loadUnternehmen(); }
-  $('#anList').innerHTML=!rows.length?(z.alle?empty('Nichts gefunden','Andere Suche oder anderen Filter versuchen.'):empty('Noch keine Unternehmen','Registrierung unter business.c3club.app.'))
-    :`<table><thead><tr><th>Unternehmen</th><th>Status</th><th>Prüfung</th><th>Projekte</th><th>Seit</th></tr></thead><tbody>`+rows.map(x=>{
-      const [k,w]=AN_STATUS[x.status]||['','—'], [kk,kw]=x.ki_einschaetzung?(KI_ECHT[x.ki_einschaetzung]||['warn','unklar']):['',''];
+/* Die Vorsortierung, wie bei Projekten: Function im Hintergrund, nur Status und Einschaetzung aendern sich hier. */
+async function anKiLaden(id,{neu,vonHand}){
+  const {data,error}=await sb.functions.invoke('anbieter-pruefung',{body:{anbieter_id:id,aktion:'ki',neu:!!neu,von_hand:!!vonHand}});
+  if(error){
+    const f=new Error('KI-Einschätzung nicht erreichbar. Bitte selbst prüfen.');
+    f.status=error.context?.status;
+    try{ const j=await error.context.json(); if(j?.error) f.message=klartext(j.error); }catch(_){}
+    throw f;
+  }
+  return data;
+}
+const anMarke=id=>{ const [w,k]=anPruefWort(KI_AN.stand.get(id),KI_AN.lauf.get(id)); return marke(w,k); };
+/* Der Grund gleich in der Zeile, damit man nicht jedes Unternehmen oeffnen muss. Bei Passt reicht das Wort. */
+function anKurz(id){
+  const l=KI_AN.lauf.get(id), st=KI_AN.stand.get(id), u=anUrteil(st?.ki);
+  if(!st?.ki&&(l?.zustand==='fehler'||st?.kiFehler)) return `<div class="tiny mt-xs">${esc((l?.zustand==='fehler'&&l.text)||st.kiFehler||'')}</div>`;
+  if(u==='problem'||u==='ansehen'){ const t=reihe(st.ki.hinweise)[0]||st.ki.zusammenfassung||''; return t?`<div class="tiny mt-xs">${esc(t)}</div>`:''; }
+  return '';
+}
+function anKiHinweisZeichnen(){
+  $('#anKiHinweis').innerHTML=KI_AN.stopp?`<div class="card warnkarte"><span class="dot warn"></span><strong>KI-Einschätzung angehalten.</strong> <span class="tiny">${esc(KI_AN.stopp)} Bis dahin steht „Nicht geprüft“ an den Unternehmen. Der Knopf im Unternehmen prüft einzeln.</span></div>`:'';
+}
+function anKiZeichnen(id){
+  anKiHinweisZeichnen();
+  const zelle=document.querySelector(`[data-akz="${CSS.escape(id)}"]`);
+  if(zelle) zelle.innerHTML=anMarke(id)+anKurz(id);
+  if(anKiAbo?.id===id) anKiAbo.zeichnen();
+  /* Fertig: Mit „Problem zuerst“ rutscht jetzt nach oben, was die Warteschlange gefunden hat. */
+  if(anProblem&&!KI_AN.aktiv&&aktuell==='unternehmen'&&!unter&&!$('#anList').contains(document.activeElement)) anZeilenZeichnen();
+}
+let anFilter='alle', anOffset=0, anSeite=[], anProblem=merkeLies('c3-team-unternehmen-problem')==='1', anKiAbo=null;
+function anStandSetzen(ps){ for(const p of reihe(ps)) KI_AN.stand.set(p.anbieter_id,{stand:p.stand,ki:p.ki,ki_am:p.ki_am,kiFehler:p.ki_fehler_heute,kiLaeuft:p.ki_laeuft}); }
+function anZeilenZeichnen(){
+  const rows=anProblem?problemZuerst(anSeite,x=>x.status==='offen'?anUrteil(KI_AN.stand.get(x.id)?.ki):undefined):anSeite;
+  $('#anList').innerHTML=!rows.length?(anLeer?empty('Noch keine Unternehmen','Registrierung unter business.c3club.app.'):empty('Nichts gefunden','Andere Suche oder anderen Filter versuchen.'))
+    :`<table><thead><tr><th>Unternehmen</th><th>Status</th><th>KI-Vorsortierung</th><th>Prüfung</th><th>Projekte</th><th>Seit</th></tr></thead><tbody>`+rows.map(x=>{
+      const [k,w]=AN_STATUS[x.status]||['','—'];
       return `<tr class="click" data-an="${esc(x.id)}">
       <td><div class="name">${esc(x.name)}</div><div class="tiny">${esc(x.email||'—')}</div></td>
       <td>${marke(w,k)}${x.komplett?'':'<div class="tiny mt-xs">Angaben fehlen</div>'}</td>
+      <td data-akz="${esc(x.id)}">${anMarke(x.id)}${anKurz(x.id)}</td>
       <td class="tiny">${num(x.checkliste_ok)} von 7 auf ok${x.checkliste_problem?` · ${num(x.checkliste_problem)} Problem`:''}
-        <br>${num(x.signale)} Hinweise${x.ki_einschaetzung?` · <span class="dot ${esc(kk)}"></span>KI: ${esc(kw)}`:''}</td>
+        <br>${esc(anz(x.signale,'Hinweis','Hinweise'))}</td>
       <td>${num(x.projekte)}</td>
       <td class="tiny nowrap">${esc(dd(x.created_at))}</td></tr>`; }).join('')+'</tbody></table>';
-  blaettern($('#anSeiten'),data.gesamt,anOffset,o=>{ anOffset=o; loadUnternehmen(); });
   zeilenKlick($('#anList'),r=>{ location.hash='#/unternehmen/'+r.dataset.an; });
 }
+let anLeer=false;
+async function loadUnternehmen(){
+  $('#anListe').hidden=!!unter; $('#anDetail').hidden=!unter;
+  if(!unter) anKiAbo=null;
+  if(unter) return unternehmenDetail(unter);
+  problemKnopf($('#anProblem'),anProblem);
+  const {data,error}=await sb.rpc('admin_unternehmen',{p_filter:anFilter,p_suche:$('#anq').value.trim()||null,p_limit:anProblem?200:SEITE,p_offset:anProblem?0:anOffset});
+  if(error){ $('#anList').innerHTML=fehlerBox(error.message); $('#anSeiten').innerHTML=''; return; }
+  const z=data.zaehler||{};
+  filterKnoepfe($('#anTabs'),[['alle','Alle',z.alle],['zu-pruefen','Zu prüfen',z.zu_pruefen],['unvollstaendig','Angaben fehlen',z.unvollstaendig],['geprueft','Geprüft',z.geprueft],['abgelehnt','Abgelehnt',z.abgelehnt],['gesperrt','Gesperrt',z.gesperrt]],anFilter,f=>{ anFilter=f; anOffset=0; loadUnternehmen(); });
+  anSeite=reihe(data.zeilen); anLeer=!z.alle;
+  const anKorr=seiteKorrigieren(anSeite.length,data.gesamt,anOffset,SEITE);
+  if(!anProblem&&anKorr!==null){ anOffset=anKorr; return loadUnternehmen(); }
+  const wartend=reihe(data.wartend), ids=[...new Set([...wartend,...anSeite].map(x=>x.id))];
+  if(ids.length){
+    const {data:ps,error:e2}=await sb.rpc('admin_anbieter_pruefstatus',{p_anbieter:ids});
+    if(e2) toast('Prüfstatus nicht geladen: '+e2.message,true);
+    anStandSetzen(ps);
+  }
+  anKiHinweisZeichnen();
+  anZeilenZeichnen();
+  if(anProblem) $('#anSeiten').innerHTML=data.gesamt>anSeite.length?`<p class="tiny mt-md">Die ersten ${num(anSeite.length)} von ${num(data.gesamt)}. Filter oder Suche grenzen weiter ein.</p>`:'';
+  else blaettern($('#anSeiten'),data.gesamt,anOffset,o=>{ anOffset=o; loadUnternehmen(); });
+  /* Oeffnet das Team die Unternehmen, schaetzt die KI ein, was offen ist. Auf anderen Seiten kostet nichts. */
+  if(aktuell==='unternehmen') KI_AN.anstossen(wartend);
+}
 $('#anq').oninput=verzoegert(()=>{ anOffset=0; loadUnternehmen(); });
+$('#anProblem').onclick=()=>{ anProblem=!anProblem; anOffset=0; merkeSetz('c3-team-unternehmen-problem',anProblem?'1':'0'); loadUnternehmen(); };
 
 let anLauf=0;
 async function unternehmenDetail(id){
@@ -2351,14 +2696,17 @@ async function unternehmenDetail(id){
   catch(err){ if(lauf===anLauf) host.innerHTML=zurueck+fehlerBox(err.message); return; }
   if(lauf!==anLauf||aktuell!=='unternehmen'||unter!==id) return;
   if(!x){ host.innerHTML=zurueck+fehlerBox('Dieses Unternehmen gibt es nicht.'); return; }
-  const v=x.vies, ki=x.ki, signale=reihe(x.signale), projekte=reihe(x.projekte);
-  const [kk,kw]=ki?(KI_ECHT[ki.einschaetzung]||['warn','unklar']):['',''];
+  const v=x.vies, signale=reihe(x.signale), projekte=reihe(x.projekte);
+  const {data:ps}=await sb.rpc('admin_anbieter_pruefstatus',{p_anbieter:[x.id]});
+  if(lauf!==anLauf||aktuell!=='unternehmen'||unter!==id) return;
+  anStandSetzen(ps);
   const tel=String(x.kontakt_telefon||'').replace(/[^+0-9]/g,'');
   /* KI-Antworten und alte Zeilen koennen eine falsche Form haben: reihe() und esc() halten das aus. */
   host.innerHTML=`${zurueck}
     <div class="detail-kopf"><div><h2>${esc(x.name)}</h2><p class="hint">Seit ${esc(dd(x.created_at))}${x.geprueft_am?` · zuletzt entschieden ${esc(dd(x.geprueft_am))}${x.geprueft_von?` von ${esc(x.geprueft_von)}`:''}`:''}</p></div>
       <div class="bar ende"><button class="btn quiet" id="anKonto">Konto ansehen</button></div></div>
     ${x.pruef_notiz?`<div class="quote mb-md">${esc(x.pruef_notiz)}</div>`:''}
+    <div id="anKiKarte"></div>
     <div class="zwei">
       <div>
         <div class="card"><h3>Angaben</h3><dl class="fakten">
@@ -2376,8 +2724,7 @@ async function unternehmenDetail(id){
         <div class="card"><h3>Automatische Hinweise</h3>
           ${signale.length?signale.map(t=>`<div class="tiny mb-md"><span class="dot warn"></span>${esc(t)}</div>`).join(''):'<p class="tiny mb-md">Keine.</p>'}
           <div class="tiny mb-md"><strong>UID beim EU-Dienst:</strong> ${v?`<span class="dot ${v.gueltig?'on':'off'}"></span>${v.gueltig?'gültig':'ungültig'}${v.name?' · '+esc(v.name):''}${v.adresse?' · '+esc(v.adresse):''} · ${esc(dt(v.am))}`:'noch nicht geprüft'}</div>
-          <div class="tiny"><strong>KI-Recherche</strong> (nur Hinweis, Website-Inhalte sind ungeprüft): ${ki?`<span class="dot ${esc(kk)}"></span>${esc(kw)}. ${esc(ki.zusammenfassung||'')}${ki.geschaeft?'<br>Geschäft: '+esc(ki.geschaeft):''}${reihe(ki.hinweise).length?'<br>Hinweise: '+reihe(ki.hinweise).map(esc).join(' · '):''}${reihe(ki.quellen).length?'<br>Quellen: '+reihe(ki.quellen).map(esc).join(' · '):''}`:'noch nicht gestartet'}</div>
-          <div class="bar ende mt-md"><button class="btn quiet" id="anUid" ${x.uid_nummer?'':'disabled'}>UID prüfen</button> <button class="btn quiet" id="anKi">${ki?'KI neu recherchieren':'KI recherchieren'}</button></div>
+          <div class="bar ende mt-md"><button class="btn quiet" id="anUid" ${x.uid_nummer?'':'disabled'}>UID prüfen</button></div>
         </div>
         <div class="card"><h3>Projekte · ${num(projekte.length)}</h3>
           ${projekte.length?`<table><thead><tr><th>Projekt</th><th>Stand</th><th>Bewerbungen</th></tr></thead><tbody>`+projekte.map(p=>`<tr class="click" data-p="${esc(p.id)}"><td class="name">${esc(p.titel)}<div class="tiny">${esc(dd(p.created_at))}</div></td><td class="tiny">${esc(projektWort(p))}</td><td>${num(p.bewerbungen)}</td></tr>`).join('')+'</tbody></table>':'<p class="tiny">Noch keine eingereicht.</p>'}</div>
@@ -2389,8 +2736,27 @@ async function unternehmenDetail(id){
   $('#anKonto').onclick=()=>memberDetail(x.profile_id);
   $('#anUid').onclick=async e=>{ e.target.disabled=true; e.target.textContent='Fragt den EU-Dienst …';
     try{ await unternehmenFn({anbieter_id:x.id,aktion:'uid'}); }catch(err){ toast(err.message,true); } unternehmenDetail(id); };
-  $('#anKi').onclick=async e=>{ e.target.disabled=true; e.target.textContent='Recherchiert, bis zu 2 Minuten …';
-    try{ await unternehmenFn({anbieter_id:x.id,aktion:'ki'}); }catch(err){ toast(err.message,true); } unternehmenDetail(id); };
+  /* Oben steht die Einschaetzung und der Satz, dass ihr entscheidet. Sie sperrt nichts: Die Knoepfe unten fragen sie nicht. */
+  const kiKarte=()=>{
+    const host2=$('#anKiKarte'); if(!host2) return;
+    const st=KI_AN.stand.get(x.id), l=KI_AN.lauf.get(x.id), ki=st?.ki||null, [w,k]=anPruefWort(st,l), laeuft=k==='laeuft', u=anUrteil(ki);
+    const text=laeuft?'<p class="tiny">Die KI liest gerade Website und öffentliche Quellen. Das dauert bis zu zwei Minuten, du kannst schon alles ansehen.</p>'
+      :ki?`<p class="tiny">${esc(ki.zusammenfassung||KI_ECHT[ki.einschaetzung]?.[1]||'')}</p>
+        ${ki.geschaeft?`<p class="tiny mt-xs"><strong>Geschäft:</strong> ${esc(ki.geschaeft)}</p>`:''}
+        ${reihe(ki.hinweise).length?`<ul class="ki-punkte mt-sm">${reihe(ki.hinweise).map(t=>`<li><span class="dot ${esc(KI_FARBE[u]||'warn')}"></span>${esc(t)}</li>`).join('')}</ul>`:''}
+        ${reihe(ki.quellen).length?`<p class="tiny mt-xs"><strong>Quellen:</strong> ${reihe(ki.quellen).map(q=>linkOderText(q)).join(' · ')}</p>`:''}`
+      :(l?.zustand==='fehler'&&l.text)||st?.kiFehler?`<p class="tiny">${esc((l?.zustand==='fehler'&&l.text)||st.kiFehler)}</p>`
+      :x.komplett?'<p class="tiny">Noch keine Einschätzung zu diesen Angaben.</p>':'<p class="tiny">Es fehlen noch Pflichtangaben. Darum prüft die KI nicht von selbst, der Knopf startet sie trotzdem.</p>';
+    host2.innerHTML=`<div class="card ${u==='problem'?'gefahrkarte':u==='ansehen'?'warnkarte':''}">
+      <div class="ki-kopf"><span class="tiny"><strong>KI-Einschätzung</strong>, nur ein Hinweis, ihr entscheidet</span>${marke(w,k)}</div>
+      ${text}
+      <div class="bar ende mt-md"><button class="btn quiet" data-an-ki ${laeuft?'disabled':''}>${ki?'Neu prüfen':'Jetzt prüfen'}</button><span class="tiny">Die KI lehnt nie ab und gibt nie frei, auch bei „Problem“ liegt die Entscheidung bei euch. Website-Inhalte sind ungeprüft.</span></div>
+    </div>`;
+    host2.querySelector('[data-an-ki]').onclick=async()=>{ const r=await KI_AN.vonHand(x.id,!!ki); if(r.zustand==='fehler') toast(r.text,true); };
+  };
+  anKiAbo={id:x.id,zeichnen:kiKarte};
+  kiKarte();
+  KI_AN.anstossen([x]);
   const rechts=$('#anRechts');
   const zeichnen=fokus=>{
     const c=x.checkliste||{}, alle=ECHT.every(([k])=>c[k]==='ok'), ok=ECHT.filter(([k])=>c[k]==='ok').length, [sk,sw]=AN_STATUS[x.status]||['','—'];
@@ -2444,11 +2810,14 @@ function budgetText(c){
   return c?.budget_text||'';
 }
 /* cpDaten: alles, was die KI-Warteschlange und die Zeilen brauchen. cpSeite: was gerade in der Tabelle steht. */
-let cpDaten=[], cpSeite=[], cpFilter='alle', cpOffset=0;
+let cpDaten=[], cpSeite=[], cpFilter='alle', cpOffset=0, cpProblem=merkeLies('c3-team-projekte-problem')==='1';
+/* Sortiert wird im Panel, das Urteil entsteht hier. Darum holt der Modus so viel, wie die Liste hergibt, auf einmal. */
+function problemKnopf(knopf,an){ knopf.classList.toggle('an',an); knopf.classList.toggle('quiet',!an); knopf.setAttribute('aria-pressed',String(an)); }
 async function loadCampaigns(){
   $('#cpListe').hidden=!!unter; $('#cpDetail').hidden=!unter;
   if(!unter) kiAbo=null;
-  const {data,error}=await sb.rpc('admin_projekte',{p_filter:cpFilter,p_suche:$('#cpq').value.trim()||null,p_limit:SEITE,p_offset:cpOffset});
+  problemKnopf($('#cpProblem'),cpProblem);
+  const {data,error}=await sb.rpc('admin_projekte',{p_filter:cpFilter,p_suche:$('#cpq').value.trim()||null,p_limit:cpProblem?200:SEITE,p_offset:cpProblem?0:cpOffset});
   if(error){ $('#cpList').innerHTML=fehlerBox(error.message); $('#cpSeiten').innerHTML=''; if(unter) campaignDetail(unter); return; }
   cpSeite=reihe(data.zeilen);
   const cpKorr=seiteKorrigieren(cpSeite.length,data.gesamt,cpOffset,SEITE);
@@ -2459,12 +2828,14 @@ async function loadCampaigns(){
     if(e2) toast('Prüfstatus nicht geladen: '+e2.message,true);
     for(const p of reihe(ps)) KI.stand.set(p.campaign_id,{stand:p.stand,ki:p.ki,ki_am:p.ki_am,unternehmen:p.unternehmen,team:p.team,kiFehler:p.ki_fehler_heute,kiLaeuft:p.ki_laeuft});
   }
+  if(cpProblem) cpSeite=problemZuerst(cpSeite,c=>c.review_state==='pending'?kiUrteil(KI.stand.get(c.id)?.ki):undefined);
   renderProjekte(data);
   /* Oeffnet das Team die Projekte, prueft die KI, was wartet. Auf anderen Seiten kostet nichts. */
   if(aktuell==='projekte') KI.anstossen(cpDaten);
   if(unter) campaignDetail(unter);
 }
 $('#cpq').oninput=verzoegert(()=>{ cpOffset=0; loadCampaigns(); });
+$('#cpProblem').onclick=()=>{ cpProblem=!cpProblem; cpOffset=0; merkeSetz('c3-team-projekte-problem',cpProblem?'1':'0'); loadCampaigns(); };
 function renderProjekte(data){
   const z=data.zaehler||{};
   filterKnoepfe($('#cpTabs'),[['alle','Alle',z.alle||0],['pending','Zur Freigabe',z.pending||0],['rueckfrage','Rückfrage',z.rueckfrage||0],['online','Online',z.online||0],['geschlossen','Geschlossen',z.geschlossen||0],['abgelehnt','Abgelehnt',z.abgelehnt||0],['abgeschlossen','Abgeschlossen',z.abgeschlossen||0],['blockiert','Unternehmen nicht geprüft',z.blockiert||0],['ueberfaellig','Entscheidung überfällig',z.ueberfaellig||0]],cpFilter,f=>{ cpFilter=f; cpOffset=0; loadCampaigns(); });
@@ -2479,11 +2850,12 @@ function renderProjekte(data){
       <td>${status(c)}</td>
       <td data-pz="${esc(c.id)}">${pruefZelle(c)}</td>
       <td class="tiny">${esc(budgetText(c)||'—')}</td>
-      <td><strong>${num(c.applications)}</strong><span class="tiny"> / ${num(c.slots)} Plätze</span>${c.offene_bewerbungen?`<div class="tiny">${num(c.offene_bewerbungen)} offen</div>`:''}</td>
+      <td><strong>${num(c.applications)}</strong><span class="tiny"> / ${esc(anz(c.slots,'Platz','Plätze'))}</span>${c.offene_bewerbungen?`<div class="tiny">${num(c.offene_bewerbungen)} offen</div>`:''}</td>
       <td class="tiny nowrap">Bewerbung ${esc(c.deadline?dd(c.deadline):'laufend')}<br>${c.ueberfaellig?marke('Entscheidung '+dd(c.decide_by),'off'):'Entscheidung '+esc(c.decide_by?dd(c.decide_by):'—')}</td>
       <td class="aktion"><a class="btn ${c.art==='pending'?'blue':'quiet'}" href="#/projekte/${esc(c.id)}">${c.art==='pending'?'Prüfen':'Öffnen'}</a></td>
      </tr>`,7)).join('')+'</tbody></table>';
-  blaettern($('#cpSeiten'),data.gesamt,cpOffset,o=>{ cpOffset=o; loadCampaigns(); window.scrollTo(0,0); });
+  if(cpProblem) $('#cpSeiten').innerHTML=data.gesamt>cpSeite.length?`<p class="tiny mt-md">Die ersten ${num(cpSeite.length)} von ${num(data.gesamt)}. Filter oder Suche grenzen weiter ein.</p>`:'';
+  else blaettern($('#cpSeiten'),data.gesamt,cpOffset,o=>{ cpOffset=o; loadCampaigns(); window.scrollTo(0,0); });
   zeilenKlick($('#cpList'),r=>{ if(r.dataset.cp) location.hash='#/projekte/'+r.dataset.cp; });
 }
 
@@ -4245,7 +4617,7 @@ sb.auth.onAuthStateChange(ereignis=>{ if(ereignis==='SIGNED_OUT'&&angemeldet) lo
 sb.auth.getSession().then(async({data})=>{
   if(!data.session) return;
   const p=await zugangLesen().catch(()=>null);
-  if(p?.is_admin&&!p.suspended_at){ $('#who').textContent=p.display_name; zugangWeiter(); }
+  if(p?.is_admin&&!p.suspended_at){ werSetzen(p.display_name); zugangWeiter(); }
 });
 </script>
 </body>
