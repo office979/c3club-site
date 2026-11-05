@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'">
 <!-- Ohne frame-ancestors: Im meta-Element ignoriert der Browser das und meldet einen Fehler. Das gehoert in einen HTTP-Header. -->
 <title>c3 Team</title>
 <link rel="icon" type="image/png" href="/favicon.png">
@@ -85,7 +85,7 @@ input::placeholder,textarea::placeholder{color:var(--txt3)}
 input.kurz{width:100px;flex:0 0 100px}
 input.mittel{max-width:200px}
 /* Punkt statt Haken: Auswahl sieht aus wie jeder andere Zustand in c3. */
-input[type=date],input[type=datetime-local],input[type=time],input[type=number]{color-scheme:dark}
+input[type=date],input[type=month],input[type=datetime-local],input[type=time],input[type=number]{color-scheme:dark}
 input:not(.punkt),select{padding-top:0;padding-bottom:0}
 input.punkt{appearance:none;-webkit-appearance:none;width:16px;height:16px;flex:0 0 16px;border-radius:var(--r-pill);
   border:1px solid var(--txt3);background:transparent;display:inline-grid;place-items:center;cursor:pointer;vertical-align:-3px}
@@ -295,7 +295,7 @@ details.card[open]>summary::after{content:'–'}
 /* ── Tabelle ── */
 table{width:100%;border-collapse:collapse;font:var(--f-small)}
 th{text-align:left;font:var(--f-label);letter-spacing:var(--ls-label);color:var(--txt3);padding:0 var(--s-md) var(--s-sm) 0;border-bottom:1px solid var(--edge)}
-td{padding:var(--s-sm) var(--s-md) var(--s-sm) 0;border-bottom:1px solid var(--edge);vertical-align:middle;overflow-wrap:break-word}
+td{padding:var(--s-sm) var(--s-md) var(--s-sm) 0;border-bottom:1px solid var(--edge);vertical-align:middle;overflow-wrap:anywhere}
 .panel td{overflow-wrap:anywhere}
 .panel .card>table:not(:has(thead)) td:first-child{width:46%}
 th:last-child,td:last-child{padding-right:0}
@@ -439,6 +439,7 @@ td .name{font:var(--f-body);font-weight:500}
 .treffer .tiny{display:block}
 .suche-ergebnis{max-height:52vh;overflow-y:auto}
 .kopf-knoepfe{display:flex;align-items:center}
+.kopf-knoepfe.abstand{gap:var(--s-sm)}
 /* ── Startseite: Mitte fuer die Arbeit, rechts der Stand ── */
 .start-raster{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-lg);align-items:start}
 .start-mitte,.start-rechts{min-width:0}
@@ -579,6 +580,7 @@ button.treffer{width:100%;text-align:left}
         <div class="card"><h3 class="mit-zahl">Offene Aufgaben <b class="zahl" id="startOffen" hidden></b></h3><div id="startAufgaben"></div></div>
       </div>
       <aside class="start-rechts" aria-label="Stand">
+        <div class="card" data-bereich="community"><h3>Service-Versprechen</h3><div id="startDienst"></div></div>
         <div class="card"><h3>Heute im Haus</h3><div id="startHeute"></div></div>
         <div class="card"><h3>Systemstatus</h3><div id="startSystem"></div></div>
         <div class="card"><h3>Kurzzahlen</h3><div id="startKpis"></div></div>
@@ -637,6 +639,17 @@ button.treffer{width:100%;text-align:left}
       </select>
     </div>
     <div class="card"><div id="memList"></div><div id="memSeiten"></div></div>
+  </section>
+
+  <section class="page" id="p-verifizierung">
+    <h1 tabindex="-1">Verified</h1>
+    <div id="vfListe">
+      <p class="hint">Verified ist die Eintrittskarte zu Projekten: Profil vollständig und von euch geprüft. Öffne Portfolio, Website und Profile im Netz, bevor du entscheidest. Der Grund einer Ablehnung geht als Push an die Person.</p>
+      <div class="bar" id="vfTabs"></div>
+      <div class="bar"><input class="grow" id="vfq" placeholder="Name suchen" aria-label="Name suchen"></div>
+      <div class="card"><div id="vfList"></div><div id="vfSeiten"></div></div>
+    </div>
+    <div id="vfDetail" hidden></div>
   </section>
 
   <section class="page" id="p-abos">
@@ -700,6 +713,7 @@ button.treffer{width:100%;text-align:left}
     <div class="card"><h3>Rangliste, rollende 12 Monate</h3><div id="lbList"></div></div>
     <div class="card"><h3>Punktwerte</h3><div id="pcList"></div></div>
     <div class="card"><h3>Stufen</h3><div id="tierList"></div></div>
+    <div class="card"><h3>Status-Seite für Creator</h3><div id="stpBox"></div></div>
     <div class="card"><h3>Alle Punktebuchungen</h3>
       <div class="bar"><input class="grow" id="plq" placeholder="Person oder Notiz suchen" aria-label="Person oder Notiz suchen">
         <select id="plQuelle" aria-label="Quelle"><option value="">Jede Quelle</option></select>
@@ -723,6 +737,7 @@ button.treffer{width:100%;text-align:left}
     <h1 tabindex="-1">Projekte</h1>
     <div id="cpListe">
       <p class="hint">Unternehmen reichen Projekte ein, die KI prüft sie vor, ihr gebt sie frei. Erst danach erscheinen sie in der App. Ändert jemand den Inhalt, geht das Projekt zurück in die Prüfung.</p>
+      <div class="card"><h3>Service-Versprechen</h3><p class="tiny mb-md">Zugesagt sind 12 Stunden für die Prüfung und 48 Stunden bis zur ersten Bewerbung nach der Freigabe.</p><div id="cpDienst"></div></div>
       <div id="kiHinweis"></div>
       <div class="bar" id="cpTabs"></div>
       <div class="bar"><input class="grow" id="cpq" placeholder="Titel oder Unternehmen suchen" aria-label="Titel oder Unternehmen suchen"><button class="btn quiet" id="cpProblem" aria-pressed="false">Problem zuerst</button></div>
@@ -737,6 +752,29 @@ button.treffer{width:100%;text-align:left}
     <div class="bar" id="bwTabs"></div>
     <div class="bar"><input class="grow" id="bwq" placeholder="Person, Projekt oder Unternehmen suchen" aria-label="Person, Projekt oder Unternehmen suchen"></div>
     <div class="card"><div id="bwList"></div><div id="bwSeiten"></div></div>
+  </section>
+
+  <section class="page" id="p-abbrueche">
+    <h1 tabindex="-1">Abbrüche</h1>
+    <div id="abrListe">
+      <p class="hint">Meldungen „14 Tage keine Antwort“ warten hier auf eure Prüfung. Eine Absage in der App gilt sofort und steht nur im Verlauf. Bestätigen erstattet dem Unternehmen die Gebühr, zieht dieselbe Summe beim Creator ein und löst die Sanktion aus. Entscheiden darf nur die Leitung.</p>
+      <div class="card"><h3>Beschwerden und Abbruch-Anliegen</h3><p class="tiny mb-md">Firma oder Creator, in den ersten 7 Tagen nach dem Match. Der Text bleibt bei uns, die andere Seite weiß nur, dass wir prüfen.</p><div class="bar" id="anlTabs"></div><div id="anlList"></div><div id="anlSeiten"></div></div>
+      <div class="bar" id="abrTabs"></div>
+      <div class="card"><div id="abrList"></div><div id="abrSeiten"></div></div>
+    </div>
+    <div id="abrDetail" hidden></div>
+  </section>
+
+  <section class="page" id="p-umgehung">
+    <h1 tabindex="-1">Report Umgehung</h1>
+    <p class="hint">Unternehmen mit auffällig vielen Abbrüchen, auch bei denselben Creators. Abgebrochene Projekte bringen weder Punkte noch Partner-Fortschritt, wer hier wiederholt auftaucht, gehört geprüft und im Wiederholungsfall gesperrt. Nur eine Ansicht, es passiert nichts von selbst.</p>
+    <div class="bar">
+      <select id="umMonate" aria-label="Zeitraum"><option value="6">Letzte 6 Monate</option><option value="12" selected>Letzte 12 Monate</option><option value="24">Letzte 24 Monate</option></select>
+      <select id="umMindestens" aria-label="Ab wie vielen Abbrüchen"><option value="1">Ab 1 Abbruch</option><option value="2" selected>Ab 2 Abbrüchen</option><option value="3">Ab 3 Abbrüchen</option></select>
+    </div>
+    <div class="card"><h3>Dieselbe Firma, derselbe Creator</h3><div id="umPaare"></div></div>
+    <div class="card"><h3>Firmen mit vielen Abbrüchen</h3><div id="umFirmen"></div></div>
+    <div class="card"><h3>Schlechte Werte beim Zahlungsverhalten</h3><p class="tiny mb-md">Nur fürs Team, aus den Fragebögen der Creator. Note 1 oder 2 von 5. Nach außen stehen nur Quote und Projektanzahl.</p><div id="umZahlung"></div></div>
   </section>
 
   <section class="page" id="p-heute">
@@ -815,6 +853,13 @@ button.treffer{width:100%;text-align:left}
     <div class="card"><h3>Tagespässe</h3><div id="passList"></div></div>
   </section>
 
+  <section class="page" id="p-leaderboard">
+    <h1 tabindex="-1">Leaderboard intern</h1>
+    <p class="hint">Mit Abo-Stufe, VIP und Tier, nur fürs Team. Creator sehen später nur Punkte, Rang und Verlauf, Unternehmen nichts davon. Zeile anklicken öffnet das Mitglied.</p>
+    <div class="bar"><div class="kopf-knoepfe abstand" id="liTabs"></div><input class="mittel" id="liMonat" type="month" aria-label="Monat"></div>
+    <div class="card"><div id="liList"></div><div id="liSeiten"></div></div>
+  </section>
+
   <section class="page" id="p-kanaele">
     <h1 tabindex="-1">Kanäle</h1>
     <p class="hint">Stadt-, Themen- und Ankündigungskanäle. Neue erscheinen sofort in der App, archivierte verschwinden dort.</p>
@@ -860,7 +905,7 @@ button.treffer{width:100%;text-align:left}
     <p class="hint">Claude wird dabei nicht neu trainiert: Jeden Montag fasst ein Lauf die Fragen der letzten 7 Tage zusammen.
       Es zählen nur Muster von mindestens 3 Personen. Hinweise ohne neue Fakten erscheinen automatisch, alles andere wartet hier auf euch.</p>
     <div class="card"><h3>Offene Vorschläge</h3><div id="lnVorschlaege"></div></div>
-    <div class="card"><h3>Aktive Hinweise</h3><div id="lnGelernt"></div></div>
+    <div class="card"><h3>Aktive Hinweise</h3><p class="hint">Der Concierge liest einen Hinweis erst nach der Freigabe. Ändert der Wochenlauf den Text, wartet er wieder.</p><div id="lnGelernt"></div></div>
     <div class="card"><h3>Letzte Läufe</h3><div id="lnLaeufe"></div></div>
   </section>
 
@@ -1013,11 +1058,14 @@ const PLATZ_ART={desk:'Schreibtisch',meeting_room:'Meetingraum',studio:'Studio',
 const BUCHUNG_STATUS={confirmed:'bestätigt',cancelled:'storniert',canceled:'storniert',completed:'abgeschlossen',no_show:'nicht erschienen'};
 const ZUSAGE_STATUS={going:'zugesagt',waitlist:'Warteliste',cancelled:'abgesagt',canceled:'abgesagt',invited:'eingeladen',checked_in:'eingecheckt'};
 const CHECKIN_WEG={door_code:'Türcode',team:'vom Team',lock:'Schloss'};
-const PUNKT_QUELLE={check_in:'Check-in',event_attendance:'Event',campaign_accepted:'Zusage im Projekt',campaign_completed:'Projekt abgeschlossen',referral:'Empfehlung',hosting:'Gastgeber',admin_correction:'Vom Team',signup_bonus:'Anmeldung',booking_completed:'Buchung',group_created:'Gruppe',match:'Partner Up',collab_step_done:'Projektschritt',profile_complete:'Profil',daily_open:'App geöffnet'};
+const PUNKT_QUELLE={check_in:'Check-in',event_attendance:'Event',campaign_accepted:'Zusage im Projekt',campaign_completed:'Projekt abgeschlossen',referral:'Empfehlung',hosting:'Gastgeber',admin_correction:'Vom Team',signup_bonus:'Anmeldung',booking_completed:'Buchung',group_created:'Gruppe',match:'Partner Up',collab_step_done:'Projektschritt',profile_complete:'Profil',daily_open:'App geöffnet',abbruch:'Abbruch',review_submitted:'Fragebogen'};
 const wort = (map,w) => map[w]||w||'—';
 const heuteWien=()=>new Date().toLocaleDateString('sv-SE',{timeZone:ZONE});
 /* Server-Texte teilen sich Panel und App. Hier heissen sie, wie das Team sie nennt. */
 const SERVERTEXTE=[
+  [/^something went wrong.*/i,'Das ist nicht durchgegangen. Bitte den Stand prüfen und noch einmal versuchen.'],
+  [/^please confirm this applicant with a match.*/i,'Zusagen geht nur über den Match durch das Unternehmen, dann wird die Gebühr fällig.'],
+  [/^please enter one fixed budget.*/i,'Bitte einen festen Betrag angeben.'],
   [/^this member has a paid stripe plan.*/i,'Dieses Konto hat ein bezahltes Stripe-Abo. Erst in Stripe kündigen, dann VIP vergeben, innerhalb einer Stunde.'],
   [/^vip runs for 1 to 36 months.*/i,'VIP läuft 1 bis 36 Monate.'],
   [/^only the team can change a space.*/i,'Standorte ändern nur Owner und Admin.'],
@@ -1174,13 +1222,17 @@ const ICON={
   betrieb:'M3 12h4l3-7 4 14 3-7h4',
   datenschutz:'M6 10V8a6 6 0 0 1 12 0v2M5 10h14v11H5zM12 14v3',
   zugang:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5 21c0-3.9 3.1-7 7-7s7 3.1 7 7',
+  verifizierung:'M12 3l2.4 2 3.1-.3.7 3 2.6 1.7-1.2 2.9 1.2 2.9-2.6 1.7-.7 3-3.1-.3L12 21l-2.4-2-3.1.3-.7-3-2.6-1.7 1.2-2.9-1.2-2.9 2.6-1.7.7-3 3.1.3L12 3ZM12 12v.01',
+  abbrueche:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM9 9l6 6M15 9l-6 6',
+  umgehung:'M4 5h16l-6 7v6l-4 2v-8L4 5Z',
+  leaderboard:'M4 21v-7h5v7M9 21V9h6v12M15 21v-5h5v5',
 };
 const NAV=[
   ['Start',[['start','Start']]],
-  ['Mitglieder',[['mitglieder','Mitglieder'],['abos','Abos und Probezeit'],['warteliste','Warteliste'],['einladungen','Einladungen und Referrals'],['punkte','Punkte und Stufen']]],
-  ['c3 for Business',[['unternehmen','Unternehmen'],['projekte','Projekte'],['bewerbungen','Bewerbungen']]],
+  ['Mitglieder',[['mitglieder','Mitglieder'],['verifizierung','Verified'],['abos','Abos und Probezeit'],['warteliste','Warteliste'],['einladungen','Einladungen und Referrals'],['punkte','Punkte und Stufen']]],
+  ['c3 for Business',[['unternehmen','Unternehmen'],['projekte','Projekte'],['bewerbungen','Bewerbungen'],['abbrueche','Abbrüche'],['umgehung','Report Umgehung']]],
   ['Spaces',[['heute','Heute im Haus'],['buchungen','Buchungen und Sperren'],['standorte','Standorte und Raumplan'],['tuercodes','Türcodes'],['tagespaesse','Tagespässe'],['events','Events'],['tarife','Tarife und Tagespässe']]],
-  ['Community',[['meldungen','Meldungen'],['sperren','Sperren'],['kanaele','Kanäle'],['nachrichten','Nachrichten']]],
+  ['Community',[['meldungen','Meldungen'],['sperren','Sperren'],['kanaele','Kanäle'],['nachrichten','Nachrichten'],['leaderboard','Leaderboard intern']]],
   ['KI',[['wissen','Concierge-Wissen'],['wochenlauf','Wochenlauf und Vorschläge'],['verbrauch','Verbrauch und Limits'],['stufen','Projektstufen']]],
   ['System',[['zahlen','Zahlen'],['betrieb','Betrieb'],['appfehler','App-Fehler'],['protokoll','Protokoll'],['datenschutz','Datenschutz'],['team','Team und Rollen'],['zugang','Mein Zugang']]],
 ];
@@ -1199,6 +1251,7 @@ const SEITEN={
   tarife:()=>[loadTarife()], kanaele:()=>[loadKanaele()], nachrichten:()=>[loadKanaele(),loadBroadcast()],
   wissen:()=>[loadWissen()], wochenlauf:()=>[loadLernen()], zahlen:()=>[loadNumbers()],
   appfehler:()=>[loadAppFehler()], protokoll:()=>[loadAudit()],
+  verifizierung:()=>[loadVerified()], abbrueche:()=>[loadAbbrueche()], umgehung:()=>[loadUmgehung()], leaderboard:()=>[loadLeaderboard()],
 };
 /* Nur, was die Rolle sehen darf. Die Liste kommt vom Server (admin_zugang), der entscheidet auch bei jedem Aufruf. */
 function navBauen(){
@@ -1282,7 +1335,11 @@ function zeigeSeite(){
   seiteLaden();
 }
 /* Geladen wird nur, was gerade offen ist. Ein Bereich darf die anderen nicht mitnehmen. */
-const seiteLaden=()=>Promise.allSettled(SEITEN[aktuell]());
+/* Ein Fehler beim Zeichnen bleibt sonst unsichtbar: Die Seite steht halb leer da, ohne Hinweis. */
+const seiteLaden=()=>Promise.allSettled(SEITEN[aktuell]()).then(ergebnisse=>{
+  const fehler=ergebnisse.find(e=>e.status==='rejected');
+  if(fehler){ console.error(fehler.reason); toast('Diese Seite ließ sich nicht ganz aufbauen. Bitte neu laden.',true); }
+});
 /* Zurueck oder ein neuer Hash, waehrend im Blatt ungespeicherte Eingaben stehen: erst fragen. */
 window.addEventListener('hashchange',async()=>{
   if(!angemeldet) return;
@@ -1306,7 +1363,11 @@ $('#loginForm').onsubmit = async e => {
   /* Vom Server, nicht aus profiles: Ohne Code hat ein Konto mit Faktor dort keine Team-Sicht. */
   const p=await zugangLesen().catch(()=>null);
   if(!p?.is_admin||p.suspended_at){ $('#loginMsg').textContent=p?.suspended_at?'Dieses Konto ist gesperrt.':'Dieses Konto hat keine Team-Rechte.'; await sb.auth.signOut(); b.disabled=false; return; }
-  werSetzen(p.display_name); await zugangWeiter(); b.disabled=false;
+  werSetzen(p.display_name);
+  /* Wirft die Pruefung des zweiten Faktors, bliebe der Knopf grau und ohne Text. */
+  try{ await zugangWeiter(); }
+  catch(err){ gateZeigen('#loginForm'); $('#loginMsg').textContent='Die Anmeldung ließ sich nicht prüfen. Bitte noch einmal versuchen.'; console.error(err); await sb.auth.signOut().catch(()=>{}); }
+  b.disabled=false;
 };
 $('#logout').onclick = $('#profilAb').onclick = async()=>{ clearInterval(timer); KI.anhalten(); KI_AN.anhalten(); await sb.auth.signOut(); location.reload(); };
 $('#reload').onclick = $('#profilNeu').onclick = ()=>{ aufklappZu(); abzeichenLaden(); seiteLaden(); };
@@ -1344,7 +1405,7 @@ function glockeZeichnen(){
   document.querySelectorAll('[data-glocke]').forEach(b=>{ const n=b.querySelector('.zahl'); n.textContent=num(gesamt); n.hidden=!gesamt; n.classList.toggle('rot',rot);
     b.setAttribute('aria-label',gesamt?`Offene Aufgaben, ${gesamt}${rot?', davon welche überfällig':''}`:'Offene Aufgaben, keine'); });
   const html=!z.length?'<p class="tiny treffer">Nichts offen.</p>'
-    :`<div class="suche-gruppe">Offene Aufgaben</div>`+z.slice(0,6).map(a=>`<a class="treffer" href="${esc(sprungZiel(a.ziel))}">${esc(a.titel)}<span class="tiny">${esc(a.detail)}</span>${a.rot?`<span class="treffer-rot">${esc(fristWort(a.frist,Date.now(),dt)||'überfällig')}</span>`:''}</a>`).join('')
+    :`<div class="suche-gruppe">Offene Aufgaben</div>`+z.slice(0,6).map(a=>`<a class="treffer" href="${esc(sprungZiel(a.ziel))}">${esc(a.titel)}<span class="tiny">${esc(a.detail)}</span>${a.rot?`<span class="treffer-rot">${esc(fristWort(a.frist,Date.now(),dt)||'dringend')}</span>`:''}</a>`).join('')
       +(gesamt>6?`<a class="treffer tiny" href="#/start">Alle ${num(gesamt)} ansehen</a>`:'');
   /* Offene Liste nicht unter dem Fokus austauschen. */
   if(aufklappOffen?.liste!==$('#glockeListe')) $('#glockeListe').innerHTML=html;
@@ -1367,8 +1428,9 @@ const sucheLaden=verzoegert(async()=>{
   if(error){ sucheBox.innerHTML=fehlerBox(error.message); return; }
   const gruppen=[
     ['Mitglieder',reihe(data.mitglieder).map(m=>trefferZeile('#/mitglieder/'+m.id,m.name,[m.email,m.job_title,m.gesperrt?'gesperrt':''].filter(Boolean).join(' · ')))],
-    ['Unternehmen',reihe(data.unternehmen).map(u=>trefferZeile('#/unternehmen/'+u.id,u.name,[u.email,AN_STATUS[u.status]?.[1]||u.status].filter(Boolean).join(' · ')))],
-    ['Projekte',reihe(data.projekte).map(p=>trefferZeile('#/projekte/'+p.id,p.titel,[p.unternehmen,projektWort(p)].filter(Boolean).join(' · ')))]];
+    /* Der Server liefert Front Desk beides nicht mehr. Der Klick fuehrte ohnehin nur auf Start. */
+    ['Unternehmen',!seiteErlaubt(zugang?.seiten,'unternehmen')?[]:reihe(data.unternehmen).map(u=>trefferZeile('#/unternehmen/'+u.id,u.name,[u.email,AN_STATUS[u.status]?.[1]||u.status].filter(Boolean).join(' · ')))],
+    ['Projekte',!seiteErlaubt(zugang?.seiten,'projekte')?[]:reihe(data.projekte).map(p=>trefferZeile('#/projekte/'+p.id,p.titel,[p.unternehmen,projektWort(p)].filter(Boolean).join(' · ')))]];
   const html=gruppen.filter(([,z])=>z.length).map(([t,z])=>`<div class="suche-gruppe">${esc(t)}</div>${z.join('')}`).join('');
   sucheBox.innerHTML=html||empty('Nichts gefunden','Anderes Wort versuchen.');
 });
@@ -1399,6 +1461,8 @@ async function start(){
   navBauen();
   $('#who').title=$('#profilRolle').textContent=ROLLEN_WORT[zugang?.rolle]||'';
   if(zugang?.name) werSetzen(zugang.name);
+  /* Front Desk sucht nur Mitglieder: Das Feld verspricht nichts anderes. */
+  if(!seiteErlaubt(zugang?.seiten,'projekte')){ document.querySelector('.kopf-suche-t').textContent='Mitglieder suchen'; sucheFeld.placeholder='Mitglieder'; sucheFeld.setAttribute('aria-label','Mitglieder suchen'); }
   const [{data:l},{data:pl}] = await Promise.all([
     sb.from('locations').select('id,city,area,floor_plan').order('sort_order'),
     sb.from('membership_plans').select('*').order('sort_order')]);
@@ -1413,6 +1477,7 @@ async function start(){
     /* Nur Abzeichen und Uhren: Listen neu zu zeichnen nahm Fokus, Scrollstand und aufgeklappte Umfelder. */
     abzeichenLaden();
     if(aktuell==='meldungen') uhrenZeichnen();
+    if(aktuell==='start'||aktuell==='projekte') dienstLaden().then(fristenAuffrischen);
   }, 60000);
 }
 /* Abzeichen in der Seitenleiste, unabhaengig davon, welche Seite gerade offen ist. Eine Funktion statt jeder Liste einzeln. */
@@ -1438,7 +1503,7 @@ function aufgabenZeichnen(){
     :`<table><thead><tr><th>Frist</th><th>Aufgabe</th><th></th></tr></thead><tbody>`+z.map(a=>{
       const f=fristWort(a.frist,Date.now(),dt), ziel=sprungZiel(a.ziel);
       return `<tr class="click" data-ziel="${esc(ziel)}">
-        <td class="nowrap">${a.rot?marke(f||'überfällig','off'):f?`<span class="tiny">${esc(f)}</span>`:'<span class="tiny">keine</span>'}</td>
+        <td class="nowrap">${a.rot?marke(f||'dringend','off'):f?`<span class="tiny">${esc(f)}</span>`:'<span class="tiny">keine</span>'}</td>
         <td><div class="name">${esc(a.titel)}</div><div class="tiny">${esc(a.detail)}</div></td>
         <td class="aktion"><a class="btn quiet" href="${esc(ziel)}">Öffnen</a></td></tr>`; }).join('')+'</tbody></table>'
       +(gesamt>z.length?`<p class="tiny mt-sm">Dazu ${num(gesamt-z.length)} weitere.</p>`:'');
@@ -1447,9 +1512,10 @@ function aufgabenZeichnen(){
   if(html!==aufgabenHtml||!host.firstChild){ aufgabenHtml=html; host.innerHTML=html; zeilenKlick(host,r=>{ location.hash=r.dataset.ziel; }); }
   const o=$('#startOffen'); o.textContent=num(gesamt); o.hidden=!gesamt;
   /* Die wichtigste Aufgabe steht oben, darunter die Aktionen mit echten Zahlen. */
-  const erste=z[0], f1=erste?fristWort(erste.frist,Date.now(),dt):'';
+  /* Abbrueche entscheidet nur die Leitung: Fuer alle anderen sind sie keine Hauptaufgabe. */
+  const leitung=darf('leitung'), erste=leitung?z[0]:z.find(a=>!String(a.ziel).startsWith('#/abbrueche')), f1=erste?fristWort(erste.frist,Date.now(),dt):'';
   $('#startNaechstes').innerHTML=!erste?'':`<a class="naechstes ${erste.rot?'rot':''}" href="${esc(sprungZiel(erste.ziel))}"><div><div class="tiny">${esc(erste.rot&&f1?'Als Nächstes, '+f1:'Als Nächstes')}</div><div class="name">${esc(erste.titel)}</div><div class="tiny">${esc(erste.detail)}</div></div><span class="btn ${erste.rot?'red':'blue'}">Öffnen</span></a>`;
-  $('#startAktionen').innerHTML=aktionKarten(aufgaben?.abzeichen,zugang?.seiten).map(a=>`<a class="aktionskarte ${a.rot?'rot':''}" href="#/${esc(a.seite)}"><span class="aktion-kopf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${esc(ICON[a.seite]||'')}"/></svg>${a.n?`<b>${num(a.n)}</b>`:''}</span><span class="aktion-t">${esc(a.titel)}</span><span class="tiny">${esc(a.text)}</span></a>`).join('');
+  $('#startAktionen').innerHTML=aktionKarten(leitung?aufgaben?.abzeichen:{...aufgaben?.abzeichen,abbrueche:null},zugang?.seiten).map(a=>`<a class="aktionskarte ${a.rot?'rot':''}" href="#/${esc(a.seite)}"><span class="aktion-kopf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${esc(ICON[a.seite]||'')}"/></svg>${a.n?`<b>${num(a.n)}</b>`:''}</span><span class="aktion-t">${esc(a.titel)}</span><span class="tiny">${esc(a.text)}</span></a>`).join('');
 }
 const miniZahl=(n,l,alert)=>`<div class="${alert?'alert':''}"><b>${num(n??0)}</b><span>${esc(l)}</span></div>`;
 const tagKurz=t=>new Date(t+'T12:00:00Z').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'numeric',timeZone:'UTC'});
@@ -1475,7 +1541,7 @@ $('#startKpis').addEventListener('pointerout',e=>{
   z.querySelector('b').textContent=z.dataset.sum; z.querySelector('span').textContent=`${z.dataset.titel}, 14 Tage`;
 });
 async function loadStart(){
-  const [{data:s,error},fehlerAufgaben]=await Promise.all([sb.rpc('admin_start'),abzeichenLaden()]);
+  const [{data:s,error},fehlerAufgaben]=await Promise.all([sb.rpc('admin_start'),abzeichenLaden(),dienstLaden()]);
   if(fehlerAufgaben) $('#startAufgaben').innerHTML=fehlerBox(fehlerAufgaben.message);
   const jetzt=new Date();
   $('#startTag').textContent=jetzt.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',timeZone:ZONE});
@@ -1516,15 +1582,19 @@ document.addEventListener('click', async e=>{
   try{
     if(b.dataset.kwa==='loeschen'){
       if(!await frage({titel:'Thema löschen?',text:'Der Concierge kennt es danach nicht mehr.',ja:'Löschen',gefahr:true})) return;
-      const {error}=await sb.from('concierge_wissen').delete().eq('id',id); if(error) throw error;
+      const {data,error}=await sb.from('concierge_wissen').delete().eq('id',id).select('id'); if(error) throw error;
+      /* Ohne Recht oder schon weg: kein Fehler, aber null Zeilen. */
+      if(!data?.length) throw new Error('Nicht gelöscht: Das Thema gibt es nicht mehr oder dir fehlt das Recht.');
       toast('Gelöscht');
     } else {
       const thema=f('thema').value.trim(), inhalt=f('inhalt').value.trim();
       if(!thema||!inhalt) return toast('Thema und Inhalt ausfüllen', true);
-      const {error}=await sb.from('concierge_wissen').update({thema, inhalt,
+      const {data,error}=await sb.from('concierge_wissen').update({thema, inhalt,
         reihenfolge:Number(f('reihenfolge').value)||100, aktiv:f('aktiv').checked,
-        aktualisiert:new Date().toISOString()}).eq('id',id);
-      if(error) throw error; toast('Gespeichert');
+        aktualisiert:new Date().toISOString()}).eq('id',id).select('id');
+      if(error) throw error;
+      if(!data?.length) throw new Error('Nicht gespeichert: Das Thema gibt es nicht mehr oder dir fehlt das Recht.');
+      toast('Gespeichert');
     }
     loadWissen();
   }catch(err){ fail(err); }
@@ -1557,8 +1627,8 @@ async function loadLernen(){
         <button class="btn quiet" data-lna="verwerfen">Verwerfen</button></div></div>`).join('')
     || empty('Nichts offen','Der nächste Lauf ist am Montag.');
   $('#lnGelernt').innerHTML = (data.gelernt||[]).length ? '<table><tbody>'+data.gelernt.map(g=>`<tr data-lng="${esc(g.id)}">
-      <td>${esc(g.frage)}<div class="tiny">${esc(g.hinweis)}</div><div class="tiny">${esc(g.thema)} · ${num(g.personen)} Personen · ${esc(dt(g.aktualisiert))}</div></td>
-      <td class="aktion"><button class="btn quiet" data-lna="deaktivieren">Deaktivieren</button></td></tr>`).join('')+'</tbody></table>'
+      <td>${esc(g.frage)}<div class="tiny">${esc(g.hinweis)}</div><div class="tiny">${esc(g.thema)} · ${num(g.personen)} Personen · ${esc(dt(g.aktualisiert))} · ${g.freigegeben_am?'freigegeben':'wartet auf Freigabe'}</div></td>
+      <td class="aktion">${g.freigegeben_am?'':'<button class="btn blue" data-lna="freigeben">Freigeben</button> '}<button class="btn quiet" data-lna="deaktivieren">Deaktivieren</button></td></tr>`).join('')+'</tbody></table>'
     : '<div class="tiny">Noch keine.</div>';
   $('#lnLaeufe').innerHTML = (data.laeufe||[]).length ? '<table><tbody>'+data.laeufe.map(l=>`<tr>
       <td class="tiny">${esc(dt(l.gestartet_am))}</td>
@@ -1576,6 +1646,9 @@ document.addEventListener('click', async e=>{
       if(!await frage({titel:'Hinweis abschalten?',text:'Der Concierge nutzt ihn sofort nicht mehr, und der Wochenlauf bringt ihn nicht zurück.',ja:'Abschalten',gefahr:true})){ b.disabled=false; return; }
       const {error}=await sb.rpc('admin_concierge_gelernt_deaktivieren',{p_id:b.closest('[data-lng]').dataset.lng});
       if(error) throw error; toast('Abgeschaltet');
+    } else if(a==='freigeben'){
+      const {error}=await sb.rpc('admin_concierge_gelernt_freigeben',{p_id:b.closest('[data-lng]').dataset.lng});
+      if(error) throw error; toast('Freigegeben, gilt nach spätestens einer Minute');
     } else {
       const k=b.closest('[data-lnv]'), id=k.dataset.lnv;
       if(a==='verwerfen'){
@@ -1661,7 +1734,7 @@ function meldungKarte(r){
     n&&!n.entfernt?knopf('entfernen','Nachricht entfernen'):'',
     p&&p.is_open&&!p.completed_at?knopf('vomnetz','Projekt vom Netz'):'',
     k?knopf('verwarnen','Verwarnen'):'',
-    k&&!k.gesperrt?knopf('suspend',firma?'Unternehmen sperren':'Konto sperren','red'):'',
+    k&&!k.gesperrt&&teamZielErlaubt(k.team_rolle)?knopf('suspend',firma?'Unternehmen sperren':'Konto sperren','red'):'',
     n?.datei_offen?knopf('datei','Anhang entfernen'):'',
     knopf('resolve','Erledigt'),
     knopf('dismiss','Kein Verstoß','quiet')].join(''):(n?.datei_offen?knopf('datei','Anhang entfernen'):'')+knopf('oeffnen','Wieder öffnen','quiet');
@@ -1688,7 +1761,7 @@ async function meldungAktion(btn){
       const grund=await frage({
         titel:(firma?'Unternehmen sperren: ':'Konto sperren: ')+k.name,
         text:firma?'Das Unternehmen wird gesperrt, seine Projekte gehen vom Netz, offene Bewerbungen werden abgesagt. Chat und Zugriff enden sofort.'
-                  :'Die Person verliert sofort den Zugang zur App und zu allen Spaces.',
+                  :'Die Person verliert sofort den Zugang zur App und zu allen Spaces. Laufende Projekte, die noch nicht geliefert sind, enden innerhalb von 15 Minuten: Die Unternehmen bekommen die Gebühr zurück, es gibt keine weitere Strafe. Projekte mit offenem Fall bleiben stehen, bis die Leitung entschieden hat. Das lässt sich danach nicht zurückdrehen.',
         feld:{label:'Begründung, geht als Nachricht an das Konto (die App ist englisch)',wert:'Violation of the terms of use.',pflicht:true,fehlt:'Eine Sperre braucht eine Begründung.'},
         ja:'Sperren',gefahr:true});
       if(grund===null){ btn.disabled=false; return; }
@@ -1851,13 +1924,16 @@ async function memberDetail(id){
       <tr><td class="tiny">Crews</td><td>${esc((Array.isArray(d.crews)?d.crews:[]).join(', ')||'—')}</td></tr>
       <tr><td class="tiny">Fotos · Radar</td><td>${num(p.photo_count??0)} · ${p.radar_visible?'an':'aus'}</td></tr>
       <tr><td class="tiny">Kam über</td><td>${esc(d.referred_by||d.invite_code||'—')}</td></tr>`}
+      ${firma?'':`<tr><td class="tiny">Verified</td><td><span class="dot ${p.verified?'on':''}"></span>${p.verified?`seit ${esc(dd(p.verified_at))}`:'nein'}</td></tr>
+      ${p.application_ban_until&&new Date(p.application_ban_until)>new Date()?`<tr><td class="tiny">Bewerbungssperre</td><td><span class="dot warn"></span>bis ${esc(dd(p.application_ban_until))}</td></tr>`:''}
+      ${p.account_locked_at?`<tr><td class="tiny">Offene Strafgebühr</td><td><span class="dot off"></span>Konto gesperrt seit ${esc(dd(p.account_locked_at))}</td></tr>`:''}`}
       <tr><td class="tiny">Zuletzt aktiv</td><td>${esc(dt(p.last_active_at))}</td></tr>
       <tr><td class="tiny">Meldungen gegen die Person</td><td>${num(d.reports_against??0)}</td></tr>
       </tbody></table></div>
 
     ${firma?'':`<div class="card"><h3>Abo und Stripe</h3>
       <table><tbody>
-      <tr><td class="tiny">Tarif</td><td>${esc(m?planName(m.plan_code):'kein Tarif')} · ${esc(m?wort(MITGLIED_STATUS,m.status):'—')}</td></tr>
+      <tr><td class="tiny">Tarif</td><td>${esc(m?planName(m.plan_code):'kein Tarif')} · ${esc(m?wort(MITGLIED_STATUS,m.status):'—')}${m?.plan_code==='vip'&&!m.current_period_end?' · lifetime':''}</td></tr>
       ${m?.status==='trialing'?`<tr><td class="tiny">Probe endet</td><td>${esc(dd(m.trial_end))}</td></tr>
       <tr><td class="tiny">Karte</td><td><span class="dot ${m.has_payment_method?'on':'warn'}"></span>${m.has_payment_method?'hinterlegt, wird zur Eröffnung abgebucht':'keine, Raumzugang endet mit der Probe'}</td></tr>`:''}
       ${m?.current_period_end?`<tr><td class="tiny">Läuft bis</td><td>${esc(dd(m.current_period_end))}${m.cancel_at_period_end?' · Kündigung vorgemerkt':''}</td></tr>`:''}
@@ -1878,7 +1954,7 @@ async function memberDetail(id){
 
     ${darf('community')||darf('leitung')?`<div class="card"><h3>Zugang</h3>
       <div class="bar${firma?' ende':''}">
-        ${darf('community')?(gesperrt
+        ${darf('community')&&teamZielErlaubt(p.team_rolle)?(gesperrt
           ? `<button class="btn blue" data-x="unpause">Wieder freigeben</button>`
           : `<button class="btn red" data-x="pause">${firma?'Unternehmen sperren':'Konto sperren'}</button>`):''}
         ${firma||!darf('leitung')?'':`<select id="pplan" aria-label="Tarif" ${laeuft&&!stripe?'':'disabled'}>${planOpts}</select>
@@ -1886,10 +1962,12 @@ async function memberDetail(id){
       </div>
       ${firma||!darf('leitung')?'':`<p class="tiny">${esc(tarifHinweis)}</p>
       <div class="bar ende mt-md">
-        <input class="kurz" id="pvip" type="number" min="1" max="36" value="12" aria-label="VIP für wie viele Monate" ${stripe?'disabled':''}>
-        <span class="tiny">Monate</span>
+        <select id="pvipArt" class="mittel" aria-label="VIP-Laufzeit" ${stripe?'disabled':''}><option value="">Lifetime</option><option value="monate">Befristet</option></select>
+        <input class="kurz" id="pvip" type="number" min="1" max="36" value="12" aria-label="VIP für wie viele Monate" hidden>
+        <span class="tiny" id="pvipWort" hidden>Monate</span>
         <button class="btn" data-x="vip" ${stripe?'disabled':''}>VIP vergeben</button>
-      </div>`}</div>`:''}
+      </div>
+      <p class="tiny mt-sm">VIP ist kostenlos, ohne Abo und privat: Nur die Person selbst und das Team sehen es.</p>`}</div>`:''}
 
     ${firma||!(darf('community')||darf('leitung'))?'':`<div class="card"><h3>Rechte</h3>
       ${p.is_admin?`<p class="tiny mb-md">Rolle: ${esc(ROLLEN_WORT[p.team_rolle]||'—')}</p>`:''}
@@ -1945,6 +2023,8 @@ async function memberDetail(id){
       <p class="tiny mb-md">Eine Auskunft braucht eine offene Anfrage im <a href="#/datenschutz">Register</a>. Löschen geht hier oder dort, beides steht im Protokoll, ohne Inhalte.</p>
       <div class="bar ende"><button class="btn red" data-x="loeschen">Konto löschen</button></div></div>`:''}
   `);
+  const vipArt=$('#pvipArt');
+  if(vipArt) vipArt.onchange=()=>{ const befristet=vipArt.value==='monate'; $('#pvip').hidden=!befristet; $('#pvipWort').hidden=!befristet; };
   if(aktuell==='mitglieder'){ adresseStill('#/mitglieder/'+id); blattSchliesst=()=>{ if(aktuell==='mitglieder') adresseStill('#/mitglieder'); }; }
 
   if(!firma) sb.rpc('admin_points_history',{p_profile:id}).then(({data:h,error:e})=>{
@@ -2012,7 +2092,7 @@ async function memberDetail(id){
         /* Abbrechen bricht ab (L-59). Bei Unternehmen ist die Begruendung Pflicht, wie auf der Seite Unternehmen. */
         const g=await frage({titel:firma?`Unternehmen sperren: ${firma.name}`:`Konto sperren: ${p.display_name}`,
           text:firma?'Das Unternehmen wird gesperrt, seine Projekte gehen vom Netz, offene Bewerbungen werden abgesagt. Chat und Zugriff enden sofort.'
-                    :'Zugang zur App und zu allen Spaces endet sofort.',
+                    :'Zugang zur App und zu allen Spaces endet sofort. Laufende Projekte, die noch nicht geliefert sind, enden innerhalb von 15 Minuten: Die Unternehmen bekommen die Gebühr zurück, es gibt keine weitere Strafe. Projekte mit offenem Fall bleiben stehen, bis die Leitung entschieden hat. Das lässt sich danach nicht zurückdrehen.',
           feld:{label:'Grund, die Person bekommt ihn als Nachricht (die App ist englisch)',pflicht:!!firma,fehlt:'Eine Sperre braucht hier eine Begründung.'},
           ja:'Sperren',gefahr:true});
         if(g===null){ b.disabled=false; return; }
@@ -2020,15 +2100,15 @@ async function memberDetail(id){
       }
       if(x==='unpause'){
         if(!await frage({titel:'Sperre aufheben?',text:firma?'Das Konto kommt wieder rein. Das Unternehmen muss neu geprüft werden, die Checkliste beginnt von vorn. War es vor der Sperre abgelehnt, bleibt die Ablehnung. Geschlossene Projekte bleiben zu, nur ein noch nie freigegebenes öffnet seine Freigabe.'
-              :'Die Person bekommt Zugang zur App und zu den Spaces zurück.',ja:'Sperre aufheben'})){ b.disabled=false; return; }
+              :'Die Person bekommt Zugang zur App und zu den Spaces zurück. Wegen der Sperre beendete Projekte bleiben beendet.',ja:'Sperre aufheben'})){ b.disabled=false; return; }
         await rpc('admin_unsuspend',{p_profile:id}); meldung='Sperre aufgehoben';
       }
       if(x==='plan'){ await rpc('admin_set_plan',{p_profile:id,p_plan:$('#pplan').value}); meldung='Tarif geändert auf '+planName($('#pplan').value); }
       if(x==='vip'){
-        const monate=parseInt($('#pvip').value,10);
-        if(!(monate>=1&&monate<=36)){ toast('VIP läuft 1 bis 36 Monate.',true); b.disabled=false; return; }
-        if(!await frage({titel:`VIP für ${monate} Monate: ${p.display_name}`,text:'Die Person bekommt VIP ohne Stripe, bis zum Ablauf. Ein laufendes Stripe-Abo muss vorher gekündigt sein.',ja:'VIP vergeben'})){ b.disabled=false; return; }
-        await rpc('admin_grant_vip',{p_profile:id,p_months:monate}); meldung=`VIP für ${monate} Monate vergeben`;
+        const befristet=$('#pvipArt').value==='monate', monate=befristet?parseInt($('#pvip').value,10):null;
+        if(befristet&&!(monate>=1&&monate<=36)){ toast('VIP läuft 1 bis 36 Monate.',true); b.disabled=false; return; }
+        if(!await frage({titel:befristet?`VIP für ${monate} Monate: ${p.display_name}`:`VIP lifetime: ${p.display_name}`,text:(befristet?'Die Person bekommt VIP ohne Stripe, bis zum Ablauf.':'Die Person bekommt VIP ohne Stripe und ohne Ablauf.')+' Ein laufendes Stripe-Abo muss vorher gekündigt sein.',ja:'VIP vergeben'})){ b.disabled=false; return; }
+        await rpc('admin_grant_vip',{p_profile:id,p_months:monate}); meldung=befristet?`VIP für ${monate} Monate vergeben`:'VIP lifetime vergeben';
       }
       if(x==='admin'){
         /* Ein Klick durfte das nicht sein (L-05). */
@@ -2102,7 +2182,6 @@ $('#abq').oninput=verzoegert(()=>{ abOffset=0; loadAbos(); });
 $('#abFilter').onchange=()=>{ abOffset=0; adresseStill('#/abos'); loadAbos(); };
 
 /* ── Projekte ────────────────────────────── */
-const REVIEW={pending:['warn','wartet'],approved:['on','frei'],refused:['off','abgelehnt'],changes_requested:['warn','Rückfrage']};
 
 /* ▼ REINE LOGIK ohne Seite und ohne Netz. team-panel-logik.test.ts fuehrt genau diesen Abschnitt aus. */
 /* Muss-Kriterien, gleich wie supabase/functions/projekt-vorpruefung/kriterien.ts (Test haelt beide gleich). */
@@ -2174,7 +2253,19 @@ function pruefWort(st,l){
 /* ── Vorsortierung Unternehmen: dieselben Woerter wie bei Projekten, entschieden wird nur im Klick. ── */
 const AN_URTEIL={direkt:'passt',unklar:'ansehen',vermittler:'problem'};
 /* Was es nicht gibt, ist kein „Passt“. */
-const anUrteil=ki=>!ki?null:Object.hasOwn(AN_URTEIL,ki.einschaetzung)?AN_URTEIL[ki.einschaetzung]:'ansehen';
+const anUrteil=ki=>!ki?null:ki.steuer?.urteil==='passt_nicht'?'problem':Object.hasOwn(AN_URTEIL,ki.einschaetzung)?AN_URTEIL[ki.einschaetzung]:'ansehen';
+/* Owner D5: Was hier steht, macht den Fall rot. Die Leitung entscheidet, nichts davon lehnt von selbst ab. */
+const steuerNorm=x=>String(x||'').toUpperCase().replace(/[\s.\-\/]/g,'').replace(/^(CHE\d{9})(MWST|TVA|IVA)$/,'$1');
+function steuerGruende(x,ki){
+  const g=[], st=x.stripe_steuer;
+  if(!x.uid_nummer) g.push('Keine Steuernummer angegeben.');
+  if(x.vies?.gueltig===false) g.push('Der EU-Dienst kennt diese Nummer nicht.');
+  if(st?.wert&&x.uid_nummer&&steuerNorm(st.wert)!==steuerNorm(x.uid_nummer)) g.push('Bei Stripe steht eine andere Nummer: '+st.wert+'.');
+  if(st?.pruefung==='unverified') g.push('Stripe konnte die Nummer nicht bestätigen.');
+  if(st?.pruefung==='abgelehnt') g.push('Stripe nimmt diese Nummer nicht an.');
+  if(ki?.steuer?.urteil==='passt_nicht') g.push(ki.steuer.grund||'Die KI sieht einen Widerspruch zwischen Nummer und Firma.');
+  return g;
+}
 function anPruefWort(st,l){
   if(l?.zustand==='wartet'||l?.zustand==='laeuft'||st?.kiLaeuft) return ['Prüft …','laeuft'];
   const u=anUrteil(st?.ki);
@@ -2202,7 +2293,7 @@ function begruessung(stunde,name){
   return v?`${g}, ${v}`:g;
 }
 /* Aktionen: was wirklich wartet, rot zuerst. Ist wenig los, fuellen ruhige Wege auf, ohne erfundene Zahl. */
-const AKTIONEN=[['meldungen','Meldungen bearbeiten','offen','offen'],['projekte','Projekte freigeben','wartet','warten'],['unternehmen','Unternehmen prüfen','wartet','warten'],['bewerbungen','Bewerbungen entscheiden','überfällig','überfällig'],['datenschutz','Datenschutz-Anfragen','offen','offen'],['betrieb','Betrieb ansehen','Alarm in 24 Std','Alarme in 24 Std'],['abos','Abos klären','offen','offen'],['wochenlauf','Concierge-Vorschläge','wartet','warten'],['warteliste','Warteliste einladen','bestätigt','bestätigt'],['events','Event-Wartelisten','wartet','warten']];
+const AKTIONEN=[['meldungen','Meldungen bearbeiten','offen','offen'],['abbrueche','Abbrüche entscheiden','offen','offen'],['projekte','Projekte freigeben','wartet','warten'],['unternehmen','Unternehmen prüfen','wartet','warten'],['verifizierung','Verified prüfen','wartet','warten'],['bewerbungen','Bewerbungen entscheiden','überfällig','überfällig'],['datenschutz','Datenschutz-Anfragen','offen','offen'],['betrieb','Betrieb ansehen','Alarm in 24 Std','Alarme in 24 Std'],['abos','Abos klären','offen','offen'],['wochenlauf','Concierge-Vorschläge','wartet','warten'],['warteliste','Warteliste einladen','bestätigt','bestätigt'],['events','Event-Wartelisten','wartet','warten']];
 const AKTIONEN_RUHIG=[['heute','Heute im Haus','Wer da ist, Check-in von Hand'],['buchungen','Buchungen','Alle Buchungen und Sperren'],['mitglieder','Mitglieder','Suchen, öffnen, helfen'],['zahlen','Zahlen','Mitglieder, Check-ins, Abos'],['events','Events','Anlegen und Einlass'],['meldungen','Meldungen','Nichts offen']];
 function aktionKarten(abz,seiten,anzahl=4){
   const voll=AKTIONEN.filter(([s])=>seiteErlaubt(seiten,s)&&Number(abz?.[s]?.n)>0)
@@ -2299,6 +2390,11 @@ function speicherWort(c){
 /* Ein Wort fuer den Stand eines Projekts, ueberall gleich. */
 function projektWort(c){
   if(c.completed_at) return 'abgeschlossen';
+  if(c.status==='cancelled') return c.matched_at?'abgebrochen':'zurückgezogen';
+  if(c.status==='delivered') return 'geliefert, Abnahme offen';
+  if(c.status==='matched') return 'läuft, Creator bestätigt';
+  /* Eine Rueckfrage fuehrt der Server auch als draft, offen ist sie beim Unternehmen. */
+  if(c.status==='draft'&&c.review_state!=='changes_requested') return 'Entwurf';
   if(c.art==='blockiert') return 'wartet, Unternehmen nicht geprüft';
   if(c.review_state==='pending') return 'wartet auf Freigabe';
   if(c.review_state==='changes_requested') return 'Rückfrage offen';
@@ -2375,7 +2471,7 @@ function kiSteuerung({laden,gezeichnet,frist=130000,dran=projektDran}){
 const ROLLEN_WORT={owner:'Owner',admin:'Admin',front_desk:'Front Desk',community:'Community'};
 const ROLLEN_TEXT={owner:'alles, dazu Owner-Rolle und Pflicht zum zweiten Faktor',admin:'alles außer Owner-Rolle und Pflicht',
   front_desk:'Heute im Haus, Buchungen, Raumplan, Türcodes, Tagespässe, Events',
-  community:'Meldungen, Sperren, Kanäle, Nachrichten, Warteliste, Unternehmen, Projekte, Concierge, Events'};
+  community:'Meldungen, Sperren, Kanäle, Nachrichten, Warteliste, Unternehmen, Projekte, Verified, Abbrüche ansehen, Leaderboard, Concierge, Events'};
 const BEREICHE={owner:['owner'],leitung:['owner','admin'],spaces:['owner','admin','front_desk'],community:['owner','admin','community'],alle:['owner','admin','front_desk','community']};
 const rolleDarf=(rolle,bereich)=>!!BEREICHE[bereich]?.includes(rolle);
 /* null vom Server heisst: alle Seiten (Owner, Admin). */
@@ -2395,6 +2491,8 @@ function pushZeit(iso){
   return `${t.day} ${MONATE[+t.month-1]}, ${t.hour}:${t.minute}`;
 }
 const aktionWort=(a,worte)=>worte?.[a]||String(a??'').replace(/_/g,' ');
+/* Details als Zeilen statt als JSON. */
+const detailZeilen=d=>Object.entries(d&&typeof d==='object'?d:{wert:d}).map(([k,v])=>[k.replace(/_/g,' '),v==null?'—':typeof v==='object'?JSON.stringify(v):String(v)]);
 /* Eine Zeile aus den Details, ohne dass jemand JSON lesen muss. */
 function detailKurz(d){
   if(!d||typeof d!=='object') return '';
@@ -2403,6 +2501,88 @@ function detailKurz(d){
   if(d.neu!==undefined&&typeof d.neu!=='object') return `neu: ${d.neu}`;
   if(d.anzahl!==undefined) return `Anzahl: ${d.anzahl}`;
   return '';
+}
+/* ── Modell v7 ── */
+/* Betraege aufs Cent genau: 100,02 ist nicht 100. */
+const euroGenau=c=>{ const n=Number(c); return c==null||!Number.isFinite(n)?'—':'€ '+(n/100).toLocaleString('de-DE',{minimumFractionDigits:n%100?2:0,maximumFractionDigits:2}); };
+/* Budget deutsch formatiert: Der Server-Text ist englisch („€ 2,000 to 3,000“). Ein Betrag, nur Alt-Projekte haben eine Spanne. */
+const hatSpanne=c=>c?.budget_min_cents!=null&&c?.budget_max_cents!=null&&c.budget_min_cents!==c.budget_max_cents;
+function budgetText(c){
+  if(hatSpanne(c)) return `${euroGenau(c.budget_min_cents)} bis ${euroGenau(c.budget_max_cents).slice(2)}`;
+  const b=c?.budget_cents??c?.budget_max_cents;
+  return b!=null?euroGenau(b):c?.budget_text||'';
+}
+const RHYTHMUS={woechentlich:'wöchentlich',monatlich:'monatlich'};
+/* Spalten aus der Liste oder das Objekt aus der Pruefung. Jede Wiederholung ist ein eigenes Projekt. */
+function retainerWort(r){
+  const rh=r?.retainer_rhythmus??r?.rhythmus; if(!rh) return '';
+  const nr=r.retainer_nr??r.nr, n=r.retainer_anzahl??r.anzahl;
+  return `Retainer ${RHYTHMUS[rh]||rh}${nr&&n?`, ${nr} von ${n}`:n?`, ${n} Projekte`:''}`;
+}
+/* Service-Versprechen: Was rot ist, sagt der Server. */
+const dienstWort=(z,jetzt,datum)=>fristWort(z?.frist,jetzt,datum)||(z?.rot?'überfällig':'');
+function dienstSumme(s){
+  const a=reihe(s?.pruefung_12h), b=reihe(s?.bewerbung_48h);
+  return {pruefung:a.length,pruefungRot:a.filter(x=>x.rot).length,bewerbung:b.length,bewerbungRot:b.filter(x=>x.rot).length};
+}
+/* Die dringendsten zuerst, ueber beide Versprechen. */
+const dienstDringend=(s,n)=>[...reihe(s?.pruefung_12h).map(z=>({...z,was:'Prüfung'})),...reihe(s?.bewerbung_48h).map(z=>({...z,was:'Erste Bewerbung'}))]
+  .sort((a,b)=>new Date(a.frist)-new Date(b.frist)).slice(0,n);
+const GEBUEHR_WORT={pending:['warn','Einzug läuft'],failed:['off','abgelehnt'],charged:['on','eingezogen'],refund_pending:['warn','Erstattung läuft'],refunded:['','erstattet'],waived_partner:['','erlassen, Partner'],waived_credit:['','erlassen, Credit']};
+const STRAFE_WORT={offen:['warn','Einzug offen'],fehlgeschlagen:['off','gescheitert, Konto gesperrt'],bezahlt:['on','bezahlt'],erstattet:['','erstattet'],entfaellt:['','keine, Gebühr war erlassen'],erlassen:['','vom Team erlassen'],erstattung_offen:['warn','erlassen, Erstattung läuft'],ohne_zustimmung:['warn','keine, AGB-Fassung kennt die Regel nicht']};
+const STUFE_TEXT={1:'Stufe 1: minus 100 Punkte, 30 Tage Bewerbungssperre.',
+  2:'Stufe 2: minus 100 Punkte, 30 Tage Bewerbungssperre, Verified wird entzogen, Tier zurück auf 1.',
+  3:'Stufe 3, dritter Abbruch in 24 Monaten: Ausschluss. Das Konto wird gesperrt, offene Bewerbungen fallen weg, andere laufende Projekte enden mit Erstattung an die Firma, das Abo endet zum Periodenende.'};
+/* Was eine Bestaetigung ausloest. Gerechnet hat der Server (intern.abbruch_folge), hier stehen nur die Worte. */
+function abbruchFolgeText(f){
+  if(!f) return 'Die Folge ließ sich nicht lesen. Bitte neu laden.';
+  const z=[];
+  if(f.refund_cents>0) z.push(`Das Unternehmen bekommt ${euroGenau(f.refund_cents)} Gebühr zurück.`);
+  else if(f.credit_zurueck) z.push('Kein Refund, die Gebühr war erlassen. Der verbrauchte Credit kommt zurück.');
+  else z.push(f.gebuehr_status?'Kein Refund, die Gebühr war erlassen.':'Kein Refund, zu diesem Projekt gibt es keine Gebühr.');
+  if(f.strafe_cents>0) z.push(`Der Creator zahlt ${euroGenau(f.strafe_cents)} Strafgebühr. `+(f.kunde?'Scheitert der Einzug, ist das Konto bis zur Zahlung gesperrt.':'Es ist keine Zahlungsmethode bekannt: Der Einzug scheitert, das Konto ist bis zur Zahlung gesperrt.'));
+  else if(f.strafe_stand==='ohne_zustimmung') z.push(`Keine Strafgebühr: Bestätigt ist nur AGB-Fassung ${f.agb_fassung||'ohne Nummer'}, die Regel steht erst ab 1.3.`);
+  else z.push('Keine Strafgebühr.');
+  z.push(STUFE_TEXT[f.stufe]||`Stufe ${f.stufe}.`);
+  z.push('Das Projekt endet sofort, das lässt sich nicht zurücknehmen.');
+  return z.join('\n');
+}
+/* Antwort der Function: Die Statuswirkung gilt immer, das Geld kann noch laufen. */
+function abbruchErgebnis(r){
+  if(!r?.bestaetigt) return {text:'Meldung abgelehnt. Das Unternehmen bekommt den Grund als Nachricht.',schlecht:false};
+  const geld={bezahlt:'Strafgebühr eingezogen.',gesperrt:'Der Einzug ist gescheitert, das Konto ist bis zur Zahlung gesperrt.',
+    offen:'Das Geld läuft noch, der Nachlauf holt es innerhalb von 10 Minuten nach.',keine:'Keine Strafgebühr.'}[r.strafe]||'';
+  const refundOffen=r.offen&&!r.erstattet?'Die Erstattung läuft noch, der Nachlauf holt sie nach und warnt, wenn sie hängt.':'';
+  return {text:[`Bestätigt, Stufe ${r.stufe}.`,r.erstattet?'Gebühr erstattet.':'',refundOffen,geld].filter(Boolean).join(' '),schlecht:r.strafe==='gesperrt'};
+}
+/* Link aus dem Profil: nur http(s) oder eine blanke Domain. Alles andere bleibt Text. */
+function webLink(w,sicher){
+  const s=typeof w==='string'?w.trim():typeof w?.url==='string'?w.url.trim():typeof w?.handle==='string'?w.handle.trim():'';
+  if(!s) return null;
+  const url=sicher(s)||(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(\/\S*)?$/i.test(s)?sicher('https://'+s):null);
+  return {url,text:s.replace(/^https?:\/\//i,'')};
+}
+const NETZWERKE=/(^|\.)(instagram|tiktok|youtube|youtu|linkedin|x|twitter|facebook|vimeo|behance|dribbble|threads|pinterest|twitch|soundcloud|spotify|github|snapchat)\.[a-z.]+$/i;
+/* Das Profil hat kein eigenes Website-Feld: Website ist der erste Link, der auf kein Netzwerk zeigt. */
+function profilLinks(p,sicher){
+  const alle=reihe(p?.socials).map(w=>webLink(w,sicher)).filter(Boolean);
+  const host=l=>{ try{ return new URL(l.url).hostname; }catch(_){ return ''; } };
+  const website=alle.find(l=>l.url&&!NETZWERKE.test(host(l)))||null;
+  return {portfolio:webLink(p?.portfolio_url,sicher),website,social:alle.filter(l=>l!==website)};
+}
+/* Verlauf je Monat: Der Server nennt nur Monate mit Punkten, die Linie braucht auch die leeren. heute: JJJJ-MM. */
+function monatsReihe(verlauf,heute,n=6){
+  const [j,m]=String(heute).split('-').map(Number), je={};
+  for(const v of reihe(verlauf)) je[String(v?.monat).slice(0,7)]=Number(v?.punkte)||0;
+  return Array.from({length:n},(_,i)=>{ const k=new Date(Date.UTC(j,m-1-(n-1-i),1)).toISOString().slice(0,7); return {monat:k,punkte:je[k]||0}; });
+}
+/* Eine Zeile aus einer Liste, die kein Lesen nach ID kennt: Seite fuer Seite, bis sie da ist. */
+async function zeileSuchen(laden,id,groesse=200){
+  for(let offset=0;;offset+=groesse){
+    const d=await laden(groesse,offset), z=reihe(d?.zeilen), t=z.find(x=>x.id===id);
+    if(t) return t;
+    if(!z.length||offset+groesse>=(Number(d?.gesamt)||0)) return null;
+  }
 }
 /* ▲ ENDE REINE LOGIK */
 
@@ -2456,8 +2636,9 @@ function projektFakten(c,stand){
     <dt>Nutzungsrechte</dt><dd>${esc(p.nutzungsrechte||'nicht genannt')}</dd>
     <dt>Eigener Auftrag</dt><dd>${p.eigener_auftrag?'bestätigt':'nicht bestätigt'}</dd>
     <dt>Zeitraum</dt><dd>${esc(dd(p.von))} bis ${esc(dd(p.bis))}</dd>
-    <dt>Budget</dt><dd>${esc(budgetText(c)||p.budget||'—')}</dd>
-    <dt>Plätze</dt><dd>${esc(String(p.plaetze??'—'))}</dd>
+    <dt>Betrag</dt><dd>${esc(budgetText(c)||p.budget||'—')}${hatSpanne(c)?' <span class="tiny">Alt-Projekt mit Spanne</span>':''}</dd>
+    ${p.retainer?`<dt>Retainer</dt><dd>${esc(retainerWort(p.retainer))}${p.retainer.reihe?` · <a href="#/projekte/${esc(p.retainer.reihe)}">Zum ersten Projekt der Reihe</a>`:` · Die Prüfung gilt für die ganze Reihe, jede Wiederholung ist ein eigenes Projekt`}${c.retainer_beendet_am?`<div class="tiny">Reihe beendet am ${esc(dd(c.retainer_beendet_am))}</div>`:''}${c.retainer_reserviert_bis?`<div class="tiny">Reserviert für den bisherigen Creator bis ${esc(dt(c.retainer_reserviert_bis))}</div>`:''}</dd>`:''}
+    ${a&&Number(p.plaetze)===1?'':`<dt>Plätze</dt><dd>${esc(String(p.plaetze??'—'))}</dd>`}
     <dt>Bewerbung bis</dt><dd>${esc(dd(p.frist))}</dd>
     <dt>Entscheidung bis</dt><dd>${esc(dd(p.entscheidung))}</dd>
     ${reihe(p.gewerke).length?`<dt>Gewerke</dt><dd>${esc(p.gewerke.join(', '))}</dd>`:''}
@@ -2467,13 +2648,15 @@ function projektFakten(c,stand){
 }
 /* Pruefung eines Projekts, rechte Spalte: oben der KI-Befund, dann Checkliste und Entscheidung. */
 function pruefungEinhaengen(host,c,stand,after){
-  const cid=c.id, nurLesen=c.review_state==='approved'||!!c.completed_at;
+  const cid=c.id, nurLesen=c.review_state==='approved'||c.review_state==='draft'||!!c.completed_at||c.status==='cancelled';
   const a=stand.anbieter;
   /* Frisch vom Server. Bei gleicher Fassung bleibt, was die Liste zum heutigen Lauf weiss. */
   const alt=KI.stand.get(cid), gleich=alt?.stand===stand.stand;
   KI.stand.set(cid,{stand:stand.stand,ki:stand.ki,ki_am:stand.ki_am,unternehmen:a?.status||null,team:stand.team,kiFehler:gleich?alt.kiFehler:null,kiLaeuft:gleich&&!stand.ki&&!!alt.kiLaeuft});
   const team=Object.assign({},stand.team||{});
   let notizWert='', alleOffen=false;
+  /* Das Sammel-Bestaetigen gilt fuer genau eine Fassung: Aendert das Unternehmen etwas, ist es wieder offen. */
+  let gelesenStand=null; const gelesenFuer=(f)=>gelesenStand!==null&&gelesenStand===f;
 
   const zeichnen=()=>{
     const feld=host.querySelector('[data-rv-note]');
@@ -2499,7 +2682,7 @@ function pruefungEinhaengen(host,c,stand,after){
       <div class="card ${urteil==='problem'?'gefahrkarte':urteil==='ansehen'?'warnkarte':''}">
         <div class="ki-kopf"><span class="tiny"><strong>KI-Vorprüfung</strong>, nur ein Hinweis, ihr entscheidet</span>${marke(w,k)}</div>
         ${befund}
-        ${a?`<div class="bar ende mt-md"><button class="btn quiet" data-ki-start ${laeuft?'disabled':''}>${ki?'Neu prüfen':'Jetzt prüfen'}</button></div>`:''}
+        ${a&&c.review_state!=='draft'?`<div class="bar ende mt-md"><button class="btn quiet" data-ki-start ${laeuft?'disabled':''}>${ki?'Neu prüfen':'Jetzt prüfen'}</button></div>`:''}
       </div>
       ${nurLesen?`<div class="card"><h3>Checkliste</h3>
         <p class="tiny mb-md">${stand.freigabe_von?`Freigegeben von ${esc(stand.freigabe_von)}${c.approved_at?` am ${esc(dt(c.approved_at))}`:''}.`:''}${stand.team_von?` Zuletzt gesetzt von ${esc(stand.team_von)} am ${esc(dt(stand.team_am))}.`:''}${Object.keys(team).length?'':' Für diese Fassung liegt keine Checkliste vor.'}</p>
@@ -2513,6 +2696,7 @@ function pruefungEinhaengen(host,c,stand,after){
         ${ki||!offen.length?'':`<div class="bar ende mt-md"><button class="btn" data-alle-ok>${Object.keys(team).length?'Alle übrigen auf ok':'Alle 13 auf ok'}</button></div>`}
         ${ki?.rueckmeldung?`<div class="tiny mt-md"><strong>Textvorschlag der KI:</strong> ${esc(ki.rueckmeldung)} <button class="btn quiet" data-ki-text>Übernehmen</button></div>`:''}
         <input data-rv-note class="mt-md" maxlength="300" aria-label="Nachricht an das Unternehmen" placeholder="Nachricht, nötig bei Rückfrage und Ablehnung">
+        <label class="punktwahl mt-md"><input type="checkbox" class="punkt" data-rv-gelesen> Ich habe Budget, Briefing und Rechte dieser Fassung gelesen.</label>
         <div class="bar ende mt-md">
           <button class="btn blue" data-rv-ok>Freigeben</button>
           <button class="btn quiet" data-rv-frage>Rückfrage senden</button>
@@ -2524,9 +2708,13 @@ function pruefungEinhaengen(host,c,stand,after){
     host.querySelector('[data-rv-note]').value=notizWert;
     const al=host.querySelector('[data-alle]'); al.ontoggle=()=>{ alleOffen=al.open; };
     const ok=host.querySelector('[data-rv-ok]');
-    ok.disabled=offen.length>0||blockiert;
+    const gelesen=host.querySelector('[data-rv-gelesen]');
+    gelesen.checked=gelesenFuer(stand.stand);
+    gelesen.onchange=()=>{ gelesenStand=gelesen.checked?stand.stand:null; zeichnen(); };
+    ok.disabled=offen.length>0||blockiert||!gelesenFuer(stand.stand);
     host.querySelector('[data-rv-hinweis]').innerHTML=blockiert?`Erst das Unternehmen prüfen, dann lässt sich das Projekt freigeben. <a href="#/unternehmen/${esc(a.id)}">Zum Unternehmen</a>`
       :offen.length?`Für die Freigabe fehlt noch: ${esc(offen.join(', '))}.`
+      :!gelesenFuer(stand.stand)?'Für die Freigabe fehlt noch deine Bestätigung, dass du Budget, Briefing und Rechte gelesen hast.'
       :freigabeOeffnet(c)&&fristVorbei(c,heuteWien())?'Mit „Freigeben“ bestätigst du alle 13 Kriterien für genau diese Fassung. Die Bewerbungsfrist ist abgelaufen: Im Projekt-Feed fehlt es danach, wer schon dabei ist, sieht es weiter.'
       :freigabeOeffnet(c)?'Mit „Freigeben“ bestätigst du alle 13 Kriterien für genau diese Fassung. Dann erscheint das Projekt in der App.'
       :'Mit „Freigeben“ bestätigst du alle 13 Kriterien für genau diese Fassung. Das Projekt wurde geschlossen und bleibt es auch danach.';
@@ -2564,6 +2752,7 @@ function pruefungEinhaengen(host,c,stand,after){
       try{ await rpc('admin_rueckfrage_campaign',{p_campaign:cid,p_note:notiz(),p_stand:stand.stand}); toast('Rückfrage gesendet'); after(); }catch(err){ fail(err); loadCampaigns(); } };
     host.querySelector('[data-rv-no]').onclick=async()=>{
       if(!notiz()){ toast('Eine Ablehnung braucht eine Begründung',true); return; }
+      if(!await frage({titel:'Projekt ablehnen: '+c.title,text:'Das Unternehmen bekommt die Begründung als Nachricht. In die Prüfung kommt das Projekt nur zurück, wenn das Unternehmen es neu einreicht.',ja:'Ablehnen',gefahr:true})) return;
       try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:false,p_note:notiz(),p_stand:stand.stand}); toast('Abgelehnt'); after(); }catch(err){ fail(err); loadCampaigns(); } };
     const uebernehmen=host.querySelector('[data-ki-text]');
     if(uebernehmen) uebernehmen.onclick=()=>{ host.querySelector('[data-rv-note]').value=(ki?.rueckmeldung||'').slice(0,300); };
@@ -2591,7 +2780,7 @@ async function unternehmenFn(body){
 const anNotizen=new Map();
 const istId=v=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(v));
 const zurueckLink=(seite,wort)=>`<a class="btn quiet zurueck" href="#/${esc(seite)}">${esc(wort)}</a>`;
-const AKTION_WORT={team_rolle_geaendert:'Rolle geändert',flags_changed:'Rechte geändert',zweiter_faktor_pflicht:'Pflicht zum zweiten Faktor',zweiter_faktor_eingerichtet:'Zweiter Faktor eingerichtet',zweiter_faktor_entfernt:'Zweiter Faktor entfernt',zweiter_faktor_zurueckgesetzt:'Zweiter Faktor zurückgesetzt',
+const AKTION_WORT={gebuehr_erstattet:'Gebühr erstattet',gebuehr_fehlgeschlagen:'Gebühr fehlgeschlagen',gebuehr_doppelt_erstattet:'Doppelte Gebühr erstattet',gebuehr_ohne_match:'Gebühr ohne Match',strafe_erlassen:'Strafgebühr erlassen',strafe_erstattet:'Strafgebühr erstattet',strafe_fehlgeschlagen:'Strafgebühr fehlgeschlagen',retainer_wiederholung:'Retainer-Wiederholung',projekt_beidseitig_abgebrochen:'Projekt beidseitig abgebrochen',projekt_ende_firma_geloescht:'Projekt beendet, Firma gelöscht',abbruch_von_selbst_geschlossen:'Abbruch-Fall von selbst geschlossen',agb_zugestimmt:'AGB zugestimmt',agb_bestand_bereinigt:'AGB-Bestand bereinigt',member_verwarnt:'Verwarnt',profil_moderiert:'Profil moderiert',nachricht_entfernt:'Nachricht entfernt',nachricht_datei_entfernt:'Anhang entfernt',notiz_angelegt:'Notiz angelegt',notiz_geloescht:'Notiz gelöscht',withdrawal_consent:'Widerruf-Zustimmung',stripe_refund:'Erstattung in Stripe',stripe_dispute:'Reklamation in Stripe',stripe_payment_failed:'Zahlung fehlgeschlagen',stripe_checkout_completed:'Kauf abgeschlossen',status_programm:'Status-Seite für Creator',team_rolle_geaendert:'Rolle geändert',flags_changed:'Rechte geändert',zweiter_faktor_pflicht:'Pflicht zum zweiten Faktor',zweiter_faktor_eingerichtet:'Zweiter Faktor eingerichtet',zweiter_faktor_entfernt:'Zweiter Faktor entfernt',zweiter_faktor_zurueckgesetzt:'Zweiter Faktor zurückgesetzt',
   member_suspended:'Konto gesperrt',member_unsuspended:'Sperre aufgehoben',plan_changed:'Tarif geändert',vip_granted:'VIP vergeben',points_adjusted:'Punkte gebucht',
   booking_cancelled_by_team:'Buchung storniert',buchung_angelegt:'Buchung angelegt',buchung_umgebucht:'Buchung umgebucht',platz_angelegt:'Platz angelegt',platz_geaendert:'Platz geändert',platz_verschoben:'Platz verschoben',platz_gesperrt:'Platz gesperrt',
   floor_plan_updated:'Raumplan geändert',check_in_von_hand:'Check-in von Hand',check_out_von_hand:'Check-out von Hand',kontingent_korrigiert:'Kontingent korrigiert',tuercode_ausgestellt:'Türcode ausgestellt',tuercode_widerrufen:'Türcode widerrufen',
@@ -2602,8 +2791,9 @@ const AKTION_WORT={team_rolle_geaendert:'Rolle geändert',flags_changed:'Rechte 
   concierge_grenzen:'Concierge-Grenzen geändert',concierge_notaus_an:'Concierge-Notaus an',concierge_notaus_aus:'Concierge-Notaus aus',probezeit_verlaengert:'Probezeit verschoben',push_wiederholt:'Push wiederholt',
   dsgvo_anfrage_angelegt:'Datenschutz-Anfrage eingetragen',dsgvo_anfrage_erledigt:'Datenschutz-Anfrage erledigt',dsgvo_anfrage_abgelehnt:'Datenschutz-Anfrage abgelehnt',dsgvo_anfrage_offen:'Datenschutz-Anfrage wieder offen',dsgvo_auskunft:'Auskunft erstellt',dsgvo_loeschung_gestartet:'Löschung gestartet',dsgvo_loeschung:'Konto durch das Team gelöscht',dsgvo_loeschung_fehler:'Löschung fehlgeschlagen',account_deletion_requested:'Konto anonymisiert',account_deleted:'Konto gelöscht',
   location_status:'Standort-Status geändert',location_opens_at:'Eröffnungsdatum geändert',betrieb_warnung:'Betriebswarnung',webhook_failed:'Stripe-Webhook fehlgeschlagen',
+  verified_antrag:'Verified beantragt',verified_erteilt:'Verified erteilt',verified_abgelehnt:'Verified abgelehnt',abbruch_bestaetigt:'Abbruch bestätigt',abbruch_abgelehnt:'Abbruch-Meldung abgelehnt',abbruch_chat_gelesen:'Projekt-Chat eingesehen',anliegen_chat_gelesen:'Projekt-Chat eingesehen',anliegen_eingereicht:'Anliegen eingereicht',anliegen_entschieden:'Anliegen entschieden',projekt_ende_konto:'Projekt beendet wegen Sperre',projekt_match:'Match',retainer_beendet:'Retainer beendet',campaign_eingereicht:'eingereicht',firma_zahlungsmethode:'Zahlungsmethode hinterlegt',strafe_bezahlt:'Strafgebühr bezahlt',
   campaign_created:'eingereicht',campaign_updated:'geändert',campaign_approved:'freigegeben',campaign_refused:'abgelehnt',
-  campaign_changes_requested:'Rückfrage',campaign_closed:'vom Unternehmen geschlossen',campaign_vom_netz:'vom Netz genommen',campaign_wieder_online:'wieder online',
+  campaign_changes_requested:'Rückfrage',campaign_closed:'vom Unternehmen geschlossen',campaign_vom_netz:'vom Netz genommen',campaign_wieder_online:'wieder online',projekt_zurueckgeholt:'zurückgeholt',
   campaign_completed:'abgeschlossen',campaign_checklist:'Checkliste gesetzt',campaign_ki_bestaetigt:'KI-Vorschläge bestätigt',
   anbieter_checklist:'Checkliste gesetzt',anbieter_geprueft:'geprüft',anbieter_abgelehnt:'abgelehnt',anbieter_gesperrt:'gesperrt',anbieter_entsperrt:'entsperrt'};
 const verlaufTabelle=v=>!reihe(v).length?'<p class="tiny">Noch nichts protokolliert.</p>'
@@ -2662,7 +2852,10 @@ async function loadUnternehmen(){
   if(!unter) anKiAbo=null;
   if(unter) return unternehmenDetail(unter);
   problemKnopf($('#anProblem'),anProblem);
+  /* Ueberall gleich: Eine spaete Antwort zum alten Filter darf die neue Liste nicht ueberschreiben. */
+  const lauf=++anLauf;
   const {data,error}=await sb.rpc('admin_unternehmen',{p_filter:anFilter,p_suche:$('#anq').value.trim()||null,p_limit:anProblem?200:SEITE,p_offset:anProblem?0:anOffset});
+  if(lauf!==anLauf) return;
   if(error){ $('#anList').innerHTML=fehlerBox(error.message); $('#anSeiten').innerHTML=''; return; }
   const z=data.zaehler||{};
   filterKnoepfe($('#anTabs'),[['alle','Alle',z.alle],['zu-pruefen','Zu prüfen',z.zu_pruefen],['unvollstaendig','Angaben fehlen',z.unvollstaendig],['geprueft','Geprüft',z.geprueft],['abgelehnt','Abgelehnt',z.abgelehnt],['gesperrt','Gesperrt',z.gesperrt]],anFilter,f=>{ anFilter=f; anOffset=0; loadUnternehmen(); });
@@ -2672,6 +2865,7 @@ async function loadUnternehmen(){
   const wartend=reihe(data.wartend), ids=[...new Set([...wartend,...anSeite].map(x=>x.id))];
   if(ids.length){
     const {data:ps,error:e2}=await sb.rpc('admin_anbieter_pruefstatus',{p_anbieter:ids});
+    if(lauf!==anLauf) return;
     if(e2) toast('Prüfstatus nicht geladen: '+e2.message,true);
     anStandSetzen(ps);
   }
@@ -2684,6 +2878,32 @@ async function loadUnternehmen(){
 }
 $('#anq').oninput=verzoegert(()=>{ anOffset=0; loadUnternehmen(); });
 $('#anProblem').onclick=()=>{ anProblem=!anProblem; anOffset=0; merkeSetz('c3-team-unternehmen-problem',anProblem?'1':'0'); loadUnternehmen(); };
+
+/* Zahlungsmethode, Partnerstand und Gebuehren. Gerechnet hat der Server. Faellt das aus, bleibt der Rest der Seite. */
+async function zahlungZeichnen(id,lauf){
+  const box=$('#anZahlung');
+  let z;
+  try{ z=await rpc('admin_unternehmen_zahlung',{p_id:id}); }
+  catch(err){ if(lauf===anLauf&&box.isConnected) box.innerHTML=fehlerBox(err.message); return; }
+  if(lauf!==anLauf||!box.isConnected) return;
+  if(!z){ box.innerHTML='<p class="tiny">Keine Daten.</p>'; return; }
+  const k=z.zahlungsmethode, pa=z.partner||{}, naechstes=reihe(pa.faellt_aus)[0], kunde=stripeLink('kunde',z.stripe_kunde), g=reihe(z.gebuehren);
+  box.innerHTML=`<dl class="fakten">
+      <dt>Zahlungsmethode</dt><dd><span class="dot ${k?'on':'warn'}"></span>${k?`hinterlegt${k.marke?` · ${esc(k.marke)}`:''}${k.endung?` · endet auf ${esc(k.endung)}`:''}${k.ablauf?` · gültig bis ${esc(k.ablauf)}`:''} · am ${esc(dd(k.am))}`:'keine hinterlegt'}</dd>
+      <dt>Kann zahlen</dt><dd><span class="dot ${z.kann_zahlen?'on':'warn'}"></span>${z.kann_zahlen?'ja':k?`nein, an der Karte steht AGB-Fassung ${esc(k.agb||'—')}, nötig ist ${esc(z.agb?.noetig)}`:'nein'}</dd>
+      <dt>AGB</dt><dd>Fassung ${esc(z.agb?.fassung||'—')}${z.agb?.reicht?'':` · nötig ist ${esc(z.agb?.noetig)}`}</dd>
+      ${z.stripe_kunde?`<dt>Stripe</dt><dd>${kunde?`<a href="${esc(kunde)}" target="_blank" rel="noopener noreferrer">Kunde öffnen</a>`:esc(z.stripe_kunde)}</dd>`:''}
+      <dt>Partnerstand</dt><dd>${pa.partner?marke('Partner, 0 € Gebühr','on')+' ':''}${num(pa.anzahl)} von ${num(pa.ziel)} in den letzten 12 Monaten${naechstes?`<div class="tiny">Projekt vom ${esc(dd(naechstes.abgeschlossen_am))} fällt am ${esc(dd(naechstes.faellt_aus_am))} aus dem Fenster.</div>`:''}</dd>
+      <dt>Budget-Credits</dt><dd>${num(z.credits_verfuegbar)} verfügbar</dd>
+    </dl>
+    <h3 class="mt-md mb-md">Gebühren</h3>
+    ${g.length?`<table><thead><tr><th>Projekt</th><th>Betrag</th><th>Gebühr</th><th>Stand</th><th>Datum</th></tr></thead><tbody>`+g.map(f=>{ const [gk,gw]=GEBUEHR_WORT[f.status]||['',f.status];
+        return `<tr class="${f.campaign_id?'click':''}" data-p="${esc(f.campaign_id||'')}"><td class="name">${esc(f.titel||'—')}</td><td class="tiny nowrap">${esc(euroGenau(f.budget_cents))}</td>
+          <td class="tiny nowrap">${esc(euroGenau(f.betrag_cents))}${f.betrag_cents!==f.gebuehr_cents?`<div class="tiny">statt ${esc(euroGenau(f.gebuehr_cents))}</div>`:''}</td>
+          <td>${marke(gw,gk)}${f.fehler_code?`<div class="tiny">${esc(f.fehler_code)}</div>`:''}</td><td class="tiny nowrap">${esc(dd(f.charged_at||f.created_at))}</td></tr>`; }).join('')+'</tbody></table>'
+      :'<p class="tiny">Noch keine Gebühren.</p>'}`;
+  zeilenKlick(box,r=>{ if(r.dataset.p) location.hash='#/projekte/'+r.dataset.p; });
+}
 
 let anLauf=0;
 async function unternehmenDetail(id){
@@ -2713,7 +2933,8 @@ async function unternehmenDetail(id){
           <dt>Website</dt><dd>${linkOderText(x.website,'keine')}</dd>
           <dt>E-Mail</dt><dd>${x.email?`<a href="mailto:${esc(x.email)}">${esc(x.email)}</a>`:'—'}</dd>
           <dt>Anschrift</dt><dd>${esc(x.anschrift||'keine')}</dd>
-          <dt>UID</dt><dd>${esc(x.uid_nummer||'—')}</dd>
+          <dt>Steuernummer</dt><dd>${esc(x.uid_nummer||'—')}${x.land?` · ${esc({AT:'Österreich',DE:'Deutschland',CH:'Schweiz',andere:'anderes Land'}[x.land]||x.land)}`:''}</dd>
+          <dt>Bei Stripe</dt><dd>${x.stripe_steuer?.wert?`${esc(x.stripe_steuer.wert)}${x.stripe_steuer.herkunft==='anmeldung'?' · aus der Anmeldung übertragen':' · von der Firma eingegeben'}${x.stripe_steuer.pruefung?` · Prüfung: ${esc({verified:'bestätigt',unverified:'nicht bestätigt',pending:'läuft',unavailable:'nicht möglich'}[x.stripe_steuer.pruefung]||x.stripe_steuer.pruefung)}`:''}${x.stripe_steuer.name?` · ${esc(x.stripe_steuer.name)}`:''}`:'noch nichts, kommt mit der Karte'}</dd>
           <dt>Register</dt><dd>${esc(x.firmenbuch||'—')}</dd>
           <dt>Kontakt</dt><dd>${esc(x.kontakt_name||'—')}${tel?` · <a href="tel:${esc(tel)}">${esc(x.kontakt_telefon)}</a>`:''}</dd>
           <dt>Tätigkeit</dt><dd>${esc(x.taetigkeit||'—')}</dd>
@@ -2721,6 +2942,7 @@ async function unternehmenDetail(id){
           <dt>Direkter Auftraggeber</dt><dd>${x.direkt_bestaetigt_am?`bestätigt am ${esc(dd(x.direkt_bestaetigt_am))}`:'nicht bestätigt'}</dd>
           <dt>Meldungen</dt><dd>${num(x.meldungen)}</dd>
         </dl></div>
+        <div class="card"><h3>Zahlung und Partner</h3><div id="anZahlung"><p class="tiny">Lädt …</p></div></div>
         <div class="card"><h3>Automatische Hinweise</h3>
           ${signale.length?signale.map(t=>`<div class="tiny mb-md"><span class="dot warn"></span>${esc(t)}</div>`).join(''):'<p class="tiny mb-md">Keine.</p>'}
           <div class="tiny mb-md"><strong>UID beim EU-Dienst:</strong> ${v?`<span class="dot ${v.gueltig?'on':'off'}"></span>${v.gueltig?'gültig':'ungültig'}${v.name?' · '+esc(v.name):''}${v.adresse?' · '+esc(v.adresse):''} · ${esc(dt(v.am))}`:'noch nicht geprüft'}</div>
@@ -2732,6 +2954,7 @@ async function unternehmenDetail(id){
       </div>
       <div id="anRechts"></div>
     </div>`;
+  zahlungZeichnen(id,lauf);
   zeilenKlick(host,r=>{ if(r.dataset.p) location.hash='#/projekte/'+r.dataset.p; });
   $('#anKonto').onclick=()=>memberDetail(x.profile_id);
   $('#anUid').onclick=async e=>{ e.target.disabled=true; e.target.textContent='Fragt den EU-Dienst …';
@@ -2743,15 +2966,25 @@ async function unternehmenDetail(id){
     const text=laeuft?'<p class="tiny">Die KI liest gerade Website und öffentliche Quellen. Das dauert bis zu zwei Minuten, du kannst schon alles ansehen.</p>'
       :ki?`<p class="tiny">${esc(ki.zusammenfassung||KI_ECHT[ki.einschaetzung]?.[1]||'')}</p>
         ${ki.geschaeft?`<p class="tiny mt-xs"><strong>Geschäft:</strong> ${esc(ki.geschaeft)}</p>`:''}
+        ${ki.steuer?`<p class="tiny mt-xs"><strong>Steuernummer:</strong> ${esc({passt:'passt zur Firma',unklar:'unklar',passt_nicht:'passt nicht'}[ki.steuer.urteil]||'unklar')}${ki.steuer.grund?` · ${esc(ki.steuer.grund)}`:''}</p>`:''}
         ${reihe(ki.hinweise).length?`<ul class="ki-punkte mt-sm">${reihe(ki.hinweise).map(t=>`<li><span class="dot ${esc(KI_FARBE[u]||'warn')}"></span>${esc(t)}</li>`).join('')}</ul>`:''}
         ${reihe(ki.quellen).length?`<p class="tiny mt-xs"><strong>Quellen:</strong> ${reihe(ki.quellen).map(q=>linkOderText(q)).join(' · ')}</p>`:''}`
       :(l?.zustand==='fehler'&&l.text)||st?.kiFehler?`<p class="tiny">${esc((l?.zustand==='fehler'&&l.text)||st.kiFehler)}</p>`
       :x.komplett?'<p class="tiny">Noch keine Einschätzung zu diesen Angaben.</p>':'<p class="tiny">Es fehlen noch Pflichtangaben. Darum prüft die KI nicht von selbst, der Knopf startet sie trotzdem.</p>';
-    host2.innerHTML=`<div class="card ${u==='problem'?'gefahrkarte':u==='ansehen'?'warnkarte':''}">
+    const rot=steuerGruende(x,ki), rotOffen=rot.length>0&&x.status!=='abgelehnt'&&x.status!=='gesperrt';
+    const rotKarte=rotOffen?`<div class="card gefahrkarte mb-md"><h3>Firmenangaben passen nicht</h3>
+      <ul class="ki-punkte mt-sm">${rot.map(t=>`<li><span class="dot off"></span>${esc(t)}</li>`).join('')}</ul>
+      ${darf('leitung')?'<div class="bar ende mt-md"><button class="btn quiet" data-an-rot>Ablehnen: Angaben nicht bestätigt</button></div>':'<p class="tiny mt-sm">Darüber entscheidet die Leitung.</p>'}</div>`:'';
+    host2.innerHTML=rotKarte+`<div class="card ${u==='problem'?'gefahrkarte':u==='ansehen'?'warnkarte':''}">
       <div class="ki-kopf"><span class="tiny"><strong>KI-Einschätzung</strong>, nur ein Hinweis, ihr entscheidet</span>${marke(w,k)}</div>
       ${text}
       <div class="bar ende mt-md"><button class="btn quiet" data-an-ki ${laeuft?'disabled':''}>${ki?'Neu prüfen':'Jetzt prüfen'}</button><span class="tiny">Die KI lehnt nie ab und gibt nie frei, auch bei „Problem“ liegt die Entscheidung bei euch. Website-Inhalte sind ungeprüft.</span></div>
     </div>`;
+    const rotKnopf=host2.querySelector('[data-an-rot]');
+    if(rotKnopf) rotKnopf.onclick=async()=>{
+      if(!await frage({titel:'Unternehmen ablehnen?',text:'Die Firma bekommt diese Nachricht: We could not confirm your company details. Questions: hallo@c3club.io. Ihre Projekte gehen vom Netz.',ja:'Ablehnen',gefahr:true})) return;
+      try{ await rpc('admin_anbieter_nicht_bestaetigt',{p_id:x.id}); toast('Abgelehnt'); unternehmenDetail(id); }catch(err){ fail(err); }
+    };
     host2.querySelector('[data-an-ki]').onclick=async()=>{ const r=await KI_AN.vonHand(x.id,!!ki); if(r.zustand==='fehler') toast(r.text,true); };
   };
   anKiAbo={id:x.id,zeichnen:kiKarte};
@@ -2789,7 +3022,8 @@ async function unternehmenDetail(id){
     rechts.querySelectorAll('[data-s]').forEach(btn=>btn.onclick=async()=>{
       const st=btn.dataset.s, n=$('#anNotiz').value.trim();
       if(st!=='geprueft'&&!n){ toast('Bitte begründen',true); return; }
-      if(st!=='geprueft'&&!await frage({titel:st==='gesperrt'?'Unternehmen sperren?':'Unternehmen ablehnen?',
+      if(!await frage(st==='geprueft'?{titel:'Unternehmen als geprüft markieren?',text:'Das Unternehmen bekommt eine Nachricht. Seine Projekte lassen sich danach freigeben.',ja:'Geprüft'}
+        :{titel:st==='gesperrt'?'Unternehmen sperren?':'Unternehmen ablehnen?',
         text:st==='gesperrt'?'Projekte gehen vom Netz, offene Bewerbungen werden abgesagt, Chat und Zugriff enden.':'Projekte gehen vom Netz, offene Bewerbungen werden abgesagt.',
         ja:st==='gesperrt'?'Sperren':'Ablehnen',gefahr:true})) return;
       try{ await rpc('admin_anbieter_pruefen',{p_id:x.id,p_status:st,p_notiz:n||null}); anNotizen.delete(x.id); toast('Gespeichert'); unternehmenDetail(id); }catch(err){ fail(err); unternehmenDetail(id); }
@@ -2803,21 +3037,18 @@ async function unternehmenDetail(id){
   zeichnen();
 }
 
-/* Budget deutsch formatiert: Der Server-Text ist englisch („€ 2,000 to 3,000“). */
-function budgetText(c){
-  const de=n=>(n/100).toLocaleString('de-DE',{maximumFractionDigits:0});
-  if(c?.budget_min_cents!=null&&c?.budget_max_cents!=null) return `€ ${de(c.budget_min_cents)} bis ${de(c.budget_max_cents)}`;
-  return c?.budget_text||'';
-}
 /* cpDaten: alles, was die KI-Warteschlange und die Zeilen brauchen. cpSeite: was gerade in der Tabelle steht. */
-let cpDaten=[], cpSeite=[], cpFilter='alle', cpOffset=0, cpProblem=merkeLies('c3-team-projekte-problem')==='1';
+let cpDaten=[], cpSeite=[], cpFilter='alle', cpOffset=0, cpLauf=0, cpProblem=merkeLies('c3-team-projekte-problem')==='1';
 /* Sortiert wird im Panel, das Urteil entsteht hier. Darum holt der Modus so viel, wie die Liste hergibt, auf einmal. */
 function problemKnopf(knopf,an){ knopf.classList.toggle('an',an); knopf.classList.toggle('quiet',!an); knopf.setAttribute('aria-pressed',String(an)); }
 async function loadCampaigns(){
   $('#cpListe').hidden=!!unter; $('#cpDetail').hidden=!unter;
   if(!unter) kiAbo=null;
   problemKnopf($('#cpProblem'),cpProblem);
+  const lauf=++cpLauf;
   const {data,error}=await sb.rpc('admin_projekte',{p_filter:cpFilter,p_suche:$('#cpq').value.trim()||null,p_limit:cpProblem?200:SEITE,p_offset:cpProblem?0:cpOffset});
+  await dienstLaden();
+  if(lauf!==cpLauf) return;
   if(error){ $('#cpList').innerHTML=fehlerBox(error.message); $('#cpSeiten').innerHTML=''; if(unter) campaignDetail(unter); return; }
   cpSeite=reihe(data.zeilen);
   const cpKorr=seiteKorrigieren(cpSeite.length,data.gesamt,cpOffset,SEITE);
@@ -2825,6 +3056,7 @@ async function loadCampaigns(){
   cpDaten=[...new Map([...reihe(data.wartend),...cpSeite].map(c=>[c.id,c])).values()];
   if(cpDaten.length){
     const {data:ps,error:e2}=await sb.rpc('admin_projekt_pruefstatus',{p_campaigns:cpDaten.map(c=>c.id)});
+    if(lauf!==cpLauf) return;
     if(e2) toast('Prüfstatus nicht geladen: '+e2.message,true);
     for(const p of reihe(ps)) KI.stand.set(p.campaign_id,{stand:p.stand,ki:p.ki,ki_am:p.ki_am,unternehmen:p.unternehmen,team:p.team,kiFehler:p.ki_fehler_heute,kiLaeuft:p.ki_laeuft});
   }
@@ -2842,16 +3074,16 @@ function renderProjekte(data){
   kiHinweisZeichnen();
   /* Eine Zeile mit falscher Form darf nie die ganze Liste kosten. */
   const sicher=(c,f,spalten)=>{ try{ return f(c); }catch(err){ console.error('Projektzeile',err); return `<tr><td colspan="${num(spalten)}" class="tiny">${esc(c?.title||'Projekt')}: Zeile nicht darstellbar.</td></tr>`; } };
-  const status=c=>{ const w=projektWort(c), k=c.completed_at?'':c.review_state==='refused'||c.art==='blockiert'?'off':c.review_state==='approved'?(c.is_open?'on':''):'warn'; return marke(w,k); };
+  const status=c=>{ const w=projektWort(c), k=c.completed_at||c.status==='cancelled'?'':c.status==='matched'?'on':c.status==='delivered'?'warn':c.review_state==='refused'||c.art==='blockiert'?'off':c.review_state==='approved'?(c.is_open?'on':''):'warn'; return marke(w,k); };
   $('#cpList').innerHTML = !cpSeite.length ? (z.alle?empty('Nichts gefunden','Andere Suche oder anderen Filter versuchen.'):empty('Noch keine Projekte','Unternehmen reichen sie über c3 for Business ein.'))
-   : `<table><thead><tr><th>Projekt</th><th>Stand</th><th>Prüfstatus</th><th>Budget</th><th>Bewerbungen</th><th>Fristen</th><th></th></tr></thead><tbody>`
+   : `<table><thead><tr><th>Projekt</th><th>Stand</th><th>Prüfstatus</th><th>Betrag</th><th>Bewerbungen</th><th>Fristen</th><th></th></tr></thead><tbody>`
    + cpSeite.map(x=>sicher(x,c=>`<tr class="click" data-cp="${esc(c.id)}">
       <td><div class="name">${esc(c.title)}</div><div class="tiny">${esc(c.client_name||'—')}</div></td>
       <td>${status(c)}</td>
       <td data-pz="${esc(c.id)}">${pruefZelle(c)}</td>
-      <td class="tiny">${esc(budgetText(c)||'—')}</td>
+      <td class="tiny">${esc(budgetText(c)||'—')}${c.retainer_rhythmus?`<div class="tiny">${esc(retainerWort(c))}</div>`:''}</td>
       <td><strong>${num(c.applications)}</strong><span class="tiny"> / ${esc(anz(c.slots,'Platz','Plätze'))}</span>${c.offene_bewerbungen?`<div class="tiny">${num(c.offene_bewerbungen)} offen</div>`:''}</td>
-      <td class="tiny nowrap">Bewerbung ${esc(c.deadline?dd(c.deadline):'laufend')}<br>${c.ueberfaellig?marke('Entscheidung '+dd(c.decide_by),'off'):'Entscheidung '+esc(c.decide_by?dd(c.decide_by):'—')}</td>
+      <td class="tiny nowrap">${fristZelle(c)}Bewerbung ${esc(c.deadline?dd(c.deadline):'laufend')}<br>${c.ueberfaellig?marke('Entscheidung '+dd(c.decide_by),'off'):'Entscheidung '+esc(c.decide_by?dd(c.decide_by):'—')}</td>
       <td class="aktion"><a class="btn ${c.art==='pending'?'blue':'quiet'}" href="#/projekte/${esc(c.id)}">${c.art==='pending'?'Prüfen':'Öffnen'}</a></td>
      </tr>`,7)).join('')+'</tbody></table>';
   if(cpProblem) $('#cpSeiten').innerHTML=data.gesamt>cpSeite.length?`<p class="tiny mt-md">Die ersten ${num(cpSeite.length)} von ${num(data.gesamt)}. Filter oder Suche grenzen weiter ein.</p>`:'';
@@ -2859,11 +3091,50 @@ function renderProjekte(data){
   zeilenKlick($('#cpList'),r=>{ if(r.dataset.cp) location.hash='#/projekte/'+r.dataset.cp; });
 }
 
+/* ── Service-Versprechen: 12 Stunden Pruefung, 48 Stunden erste Bewerbung ── */
+let dienst=null, dienstFehler='', dienstHtml='', dienstListeHtml='';
+async function dienstLaden(){
+  if(!darf('community')) return;
+  const {data,error}=await sb.rpc('admin_service_stand');
+  dienst=error?null:data; dienstFehler=error?error.message:'';
+  dienstZeichnen();
+}
+/* Uhr als Wort. Die Minute zaehlt fristenAuffrischen weiter, ohne die Liste neu zu zeichnen. */
+const fristMarke=(vor,frist,rot)=>`<span class="marke ${rot?'off':''}"><span class="dot ${rot?'off':'warn'}"></span><span data-frist="${esc(frist)}" data-vor="${esc(vor)}">${esc(vor+dienstWort({frist,rot},Date.now(),dt))}</span></span>`;
+function fristenAuffrischen(){
+  document.querySelectorAll('[data-frist]').forEach(x=>{
+    const w=fristWort(x.dataset.frist,Date.now(),dt); if(w) x.textContent=x.dataset.vor+w;
+    if(new Date(x.dataset.frist).getTime()<Date.now()){ const m=x.closest('.marke'); if(m){ m.classList.add('off'); m.querySelector('.dot').className='dot off'; } }
+  });
+}
+const dienstVon=id=>[...reihe(dienst?.pruefung_12h).map(z=>({...z,was:'Prüfung'})),...reihe(dienst?.bewerbung_48h).map(z=>({...z,was:'Erste Bewerbung'}))].find(z=>z.id===id)||null;
+/* Zeile in der Projektliste: Solange das Versprechen laeuft, steht seine Uhr vorn. */
+function fristZelle(c){
+  const z=dienstVon(c.id);
+  if(z) return fristMarke(z.was+': ',z.frist,z.rot)+'<br>';
+  return c.sla_frist&&c.review_state==='pending'?fristMarke('Prüfung: ',c.sla_frist,c.sla_rot)+'<br>':'';
+}
+function dienstZeichnen(){
+  const zeile=z=>`<tr class="click" data-cp="${esc(z.id)}"><td class="name">${esc(z.titel)}<div class="tiny">${esc(z.firma||'—')}</div></td><td class="tiny">${esc(z.was)}</td><td>${fristMarke('',z.frist,z.rot)}</td></tr>`;
+  const alle=dienstDringend(dienst,20), s=dienstSumme(dienst), mehr=s.pruefung+s.bewerbung-alle.length;
+  const liste=$('#cpDienst');
+  const html=dienstFehler?fehlerBox(dienstFehler):!alle.length?'<p class="tiny">Nichts offen.</p>'
+    :`<div class="bar">${marke(anz(s.pruefung,'Prüfung offen','Prüfungen offen'),s.pruefungRot?'off':'')}${marke(anz(s.bewerbung,'Projekt ohne Bewerbung','Projekte ohne Bewerbung'),s.bewerbungRot?'off':'')}</div>
+      <table><thead><tr><th>Projekt</th><th>Versprechen</th><th>Frist</th></tr></thead><tbody>${alle.map(zeile).join('')}</tbody></table>${mehr>0?`<p class="tiny mt-sm">Dazu ${num(mehr)} weitere, die dringendsten stehen oben.</p>`:''}`;
+  if(html!==dienstListeHtml||!liste.firstChild){ dienstListeHtml=html; liste.innerHTML=html; zeilenKlick(liste,r=>{ location.hash='#/projekte/'+r.dataset.cp; }); }
+  const start=$('#startDienst'), oben=dienstDringend(dienst,3);
+  const st=dienstFehler?fehlerBox(dienstFehler):`<div class="mini">${miniZahl(s.pruefung,'Prüfung, 12 Std',s.pruefungRot>0)}${miniZahl(s.bewerbung,'Erste Bewerbung, 48 Std',s.bewerbungRot>0)}</div>`
+    +(oben.length?`<div class="stand-block">${oben.map(z=>`<a class="stand-zeile" href="#/projekte/${esc(z.id)}"><b>${esc(z.titel)}</b><span class="${z.rot?'treffer-rot':''}" data-frist="${esc(z.frist)}" data-vor="">${esc(dienstWort(z,Date.now(),dt))}</span></a>`).join('')}</div>`:'<p class="tiny mt-md">Alles innerhalb der Frist.</p>');
+  if(st!==dienstHtml||!start.firstChild){ dienstHtml=st; start.innerHTML=st; }
+}
+
 /* ── Bewerbungen über alle Projekte ──────── */
-let bwFilter='offen', bwOffset=0;
+let bwFilter='offen', bwOffset=0, bwLauf=0;
 const BW_STATUS={open:['warn','offen'],accepted:['on','angenommen'],rejected:['off','abgelehnt'],withdrawn:['','zurückgezogen']};
 async function loadBewerbungen(){
+  const lauf=++bwLauf;
   const {data,error}=await sb.rpc('admin_bewerbungen',{p_filter:bwFilter,p_suche:$('#bwq').value.trim()||null,p_limit:SEITE,p_offset:bwOffset});
+  if(lauf!==bwLauf) return;
   if(error){ $('#bwList').innerHTML=fehlerBox(error.message); $('#bwSeiten').innerHTML=''; return; }
   const z=data.zaehler||{};
   filterKnoepfe($('#bwTabs'),[['offen','Offen',z.offen],['ueberfaellig','Entscheidung überfällig',z.ueberfaellig],['angenommen','Angenommen',z.angenommen],['abgelehnt','Abgelehnt',z.abgelehnt],['zurueckgezogen','Zurückgezogen',z.zurueckgezogen],['alle','Alle',z.alle]],bwFilter,f=>{ bwFilter=f; bwOffset=0; loadBewerbungen(); });
@@ -2954,23 +3225,26 @@ async function campaignDetail(id){
   if(lauf!==detailLauf||aktuell!=='projekte'||unter!==id) return;
   const c=stand.zeile;
   if(!c){ host.innerHTML=zurueck+fehlerBox('Dieses Projekt gibt es nicht mehr.'); return; }
-  const fertig_=!!c.completed_at;
-  const zu=!c.is_open&&!fertig_&&c.review_state!=='refused'?(c.schliessgrund==='team'?'vom Team geschlossen':c.schliessgrund==='firmensperre'?'durch die Sperre des Unternehmens geschlossen':'vom Unternehmen geschlossen')
+  const fertig_=!!c.completed_at, laeuftMatch=c.status==='matched'||c.status==='delivered', beendet=c.status==='cancelled', firma=!!stand.anbieter, entwurf=c.status==='draft'&&c.review_state==='draft';
+  const uhr=dienstVon(id);
+  const zu=entwurf?'noch nicht eingereicht':beendet||laeuftMatch?'':!c.is_open&&!fertig_&&c.review_state!=='refused'?(c.schliessgrund==='team'?'vom Team geschlossen':c.schliessgrund==='firmensperre'?'durch die Sperre des Unternehmens geschlossen':'vom Unternehmen geschlossen')
     :c.is_open&&!fertig_&&c.review_state==='approved'&&fristVorbei(c,heuteWien())?'Bewerbungsfrist abgelaufen, im Projekt-Feed nicht mehr sichtbar':'';
   host.innerHTML=`${zurueck}
     <div class="detail-kopf"><div><h2>${esc(c.title)}</h2>
-        <p class="hint">${esc(c.client_name||'—')} · ${esc(projektWort(c))}${zu?` · ${esc(zu)}`:''}</p></div>
+        <p class="hint">${esc(c.client_name||'—')} · ${esc(projektWort(c))}${zu?` · ${esc(zu)}`:''}</p>
+        ${uhr?`<div class="mt-xs">${fristMarke(uhr.was+': ',uhr.frist,uhr.rot)}</div>`:''}</div>
       <div class="bar ende">
-        ${fertig_?'':'<button class="btn" id="cbearb">Inhalt bearbeiten</button>'}
-        ${c.is_open&&!fertig_?'<button class="btn red" id="cnetz">Vom Netz nehmen</button>':''}
-        ${!c.is_open&&!fertig_&&c.schliessgrund==='team'?'<button class="btn" id="conline">Wieder online</button>':''}
-        ${c.is_open?'<button class="btn" id="ccomplete">Projekt abschließen</button>':''}
+        ${fertig_||beendet||laeuftMatch||entwurf?'':'<button class="btn" id="cbearb">Inhalt bearbeiten</button>'}
+        ${c.is_open&&!fertig_&&!entwurf?'<button class="btn red" id="cnetz">Vom Netz nehmen</button>':''}
+        ${!c.is_open&&!fertig_&&!beendet&&!laeuftMatch&&c.schliessgrund==='team'?'<button class="btn" id="conline">Wieder online</button>':''}
+        ${beendet&&darf('leitung')?'<button class="btn" id="czurueck">Zurückholen</button>':''}
+        ${(c.is_open&&!laeuftMatch&&!entwurf)||(laeuftMatch&&darf('leitung'))?`<button class="btn" id="ccomplete" ${laeuftMatch?'':'hidden'}>Projekt abschließen</button>`:''}
       </div></div>
     ${c.review_note?`<div class="quote mb-md">${esc(c.review_note)}</div>`:''}
     <div class="zwei">
       <div>
         ${projektFakten(c,stand)}
-        <div class="card"><h3>Bewerbungen</h3><p class="tiny mb-md">Jede Bewerbung bekommt eine Antwort bis zum Entscheidungsdatum.</p><div id="capps"></div></div>
+        <div class="card"><h3>Bewerbungen</h3><p class="tiny mb-md">Jede Bewerbung bekommt eine Antwort bis zum Entscheidungsdatum.${firma?' Zusagen tut das Unternehmen selbst, mit dem Match wird die Gebühr fällig. Absagen geht auch hier.':''}</p><div id="capps"></div></div>
         <div class="card"><h3>Verlauf</h3>${verlaufTabelle(stand.verlauf)}</div>
       </div>
       <div id="crv"></div>
@@ -2992,9 +3266,16 @@ async function campaignDetail(id){
     if(!await frage({titel:'Wieder online?',text:'Das Projekt erscheint wieder in der App. Abgesagte Bewerbungen bleiben abgesagt.',ja:'Wieder online'})) return;
     try{ await rpc('admin_projekt_wieder_online',{p_campaign:id}); toast('Wieder online'); loadCampaigns(); }catch(err){ fail(err); }
   };
+  const zurueckHolen=$('#czurueck');
+  if(zurueckHolen) zurueckHolen.onclick=async()=>{
+    const g=await frage({titel:'Zurückholen: '+c.title,text:'Das Projekt gilt danach als vom Team geschlossen und lässt sich wieder online nehmen. Mit Match geht das nicht, dort gilt der Abbruch.',
+      feld:{label:'Grund fürs Protokoll',pflicht:true,fehlt:'Bitte begründen.'},ja:'Zurückholen'});
+    if(g===null) return;
+    try{ await rpc('admin_projekt_zurueckholen',{p_campaign:id,p_grund:g}); toast('Zurückgeholt'); loadCampaigns(); }catch(err){ fail(err); }
+  };
   const cc=$('#ccomplete');
   if(cc) cc.onclick=async()=>{
-    if(!await frage({titel:'Projekt abschließen?',text:'Alle Angenommenen bekommen 100 Punkte, offene Bewerbungen werden abgesagt. Das lässt sich nicht zurücknehmen.',ja:'Abschließen'})) return;
+    if(!await frage({titel:'Projekt abschließen?',text:(laeuftMatch?'Normalerweise schließt die Abnahme durch das Unternehmen ab, das hier ist ein Eingriff des Teams. ':'')+'Alle Angenommenen bekommen 100 Punkte, offene Bewerbungen werden abgesagt. Das lässt sich nicht zurücknehmen.',ja:'Abschließen'})) return;
     try{ const n=await rpc('admin_complete_campaign',{p_campaign:id});
       toast(`Abgeschlossen · ${n} Mitwirkende`); loadCampaigns(); }catch(err){ fail(err); }
   };
@@ -3016,14 +3297,19 @@ async function campaignDetail(id){
   const antwortzeit=m=>m==null?'noch keine Antwortzeit'
     :m>=60?`antwortet in ~${num(Math.round(m/60))} h`:`antwortet in ~${num(Math.round(m))} min`;
   sb.rpc('admin_applications',{p_campaign:id}).then(({data:a0,error})=>{
-    if(!$('#capps')) return;
+    /* Eine spaete Antwort zu Projekt A darf nicht unter Projekt B stehen, die Knoepfe wirken auf ihre IDs. */
+    if(lauf!==detailLauf||!$('#capps')) return;
     if(error){ $('#capps').innerHTML=fehlerBox(error.message); return; }
-    const a=(a0||[]).slice().sort((p,q)=>(p.status==='open'?0:1)-(q.status==='open'?0:1)
-      ||(p.reply_minutes==null)-(q.reply_minutes==null)||(p.reply_minutes??0)-(q.reply_minutes??0));
+    /* Nach Zeitpunkt, wie der Server sie liefert: first come, first serve, keine Hervorhebung (§11). */
+    const a=a0||[];
+    /* Firmenprojekte sagt nur das Unternehmen selbst zu, mit dem Match wird die Gebuehr faellig (E13, E16). Alt-Projekte mit Zusage laufen aus (E48). */
+    const zusagenGeht=!firma||a.some(x=>x.status==='accepted');
+    /* Ohne Match und ohne Zusage gibt es nichts abzuschliessen, dafuer steht „Vom Netz nehmen“ daneben. */
+    const abschluss=$('#ccomplete'); if(abschluss&&!laeuftMatch) abschluss.hidden=!a.some(x=>x.status==='accepted');
     $('#capps').innerHTML = !a?.length ? '<p class="tiny">Noch keine Bewerbungen.</p>'
      : a.map(x=>{ const pf=sicherUrl(x.portfolio_url); return `<div class="fa-zeile">
         <div class="name">${esc(x.display_name)}
-          <span class="tiny"> · Stufe ${num(x.tier)} · ${num(x.past_campaigns)} Projekte</span></div>
+          <span class="tiny"> · ${x.verified?'Verified':'nicht Verified'} · Stufe ${num(x.tier)} · ${num(x.past_campaigns)} Projekte${x.quote_gesamt?` · ${num(x.quote_ja)} von ${num(x.quote_gesamt)} würden wieder`:''}</span></div>
         <div class="tiny">${esc(antwortzeit(x.reply_minutes))}${x.last_active_at?` · zuletzt aktiv ${esc(dd(x.last_active_at))}`:''}</div>
         <div class="tiny">${esc(x.job_title||'—')} · ${esc(x.city||'—')}
           ${pf?` · <a href="${esc(pf)}" target="_blank" rel="noopener noreferrer">Portfolio</a>`
@@ -3032,7 +3318,7 @@ async function campaignDetail(id){
           :x.message?`<div class="quote blau">${esc(x.message)}</div>`:''}
         ${x.status==='open'
           ? `<div class="bar ende mt-sm">
-               <button class="btn blue" data-ok="${esc(x.application_id)}">Annehmen</button>
+               ${zusagenGeht?`<button class="btn blue" data-ok="${esc(x.application_id)}">Annehmen</button>`:''}
                <button class="btn quiet" data-no="${esc(x.application_id)}">Ablehnen</button></div>
              <div data-decl="${esc(x.application_id)}" class="mt-sm" hidden>
                <div class="bar">${Object.entries(GRUND).map(([k,v])=>`<button class="btn quiet" data-why="${esc(k)}">${esc(v)}</button>`).join('')}</div>
@@ -3045,6 +3331,8 @@ async function campaignDetail(id){
         </div>`; }).join('');
     const fertig=msg=>{ toast(msg); loadCampaigns(); };
     $('#capps').querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{
+      const name=a.find(x=>x.application_id===b.dataset.ok)?.display_name||'Bewerbung';
+      if(!await frage({titel:'Annehmen: '+name,text:'Die Person bekommt die Zusage, der Gruppenchat wird angelegt. Das lässt sich hier nicht zurücknehmen.',ja:'Annehmen'})) return;
       try{ await rpc('decide_application',{p_application:b.dataset.ok,p_accept:true});
         fertig('Angenommen · Gruppenchat angelegt'); }catch(err){ fail(err); }
     });
@@ -3059,6 +3347,7 @@ async function campaignDetail(id){
       });
       box.querySelector('[data-send]').onclick=async()=>{
         if(!box.dataset.why){ toast('Bitte einen Grund wählen.',true); return; }
+        if(!await frage({titel:'Absage senden?',text:'Die Person bekommt die Absage. Das lässt sich hier nicht zurücknehmen.',ja:'Absage senden',gefahr:true})) return;
         try{ await rpc('decide_application',{p_application:box.dataset.decl,p_accept:false,
             p_reason:box.dataset.why,p_note:box.querySelector('[data-note]').value.trim()||null});
           fertig('Abgelehnt'); }catch(err){ fail(err); }
@@ -3069,7 +3358,7 @@ async function campaignDetail(id){
 
 /* Bearbeiten im Seitenblatt. Der Stand kommt von der gelesenen Fassung: Hat sie sich geaendert, lehnt der Server ab. */
 function projektBearbeiten(c,stand,id){
-  const firma=!!stand.anbieter;
+  const firma=!!stand.anbieter, spanne=hatSpanne(c), betrag=c.budget_cents??c.budget_max_cents;
   openPanel(`
     <h2>Inhalt bearbeiten</h2>
     <p class="hint">${c.review_state==='approved'?'Ändert sich der Inhalt, geht das Projekt vom Netz zurück in die Prüfung, die Checkliste beginnt neu, und das Unternehmen bekommt eine Nachricht.'
@@ -3086,10 +3375,9 @@ function projektBearbeiten(c,stand,id){
         <div><label class="lbl">Zeitraum von (Pflicht)</label><input type="date" id="cstart" value="${esc(c.starts_on||'')}"></div>
         <div><label class="lbl">Zeitraum bis (Pflicht)</label><input type="date" id="cend" value="${esc(c.ends_on||'')}"></div>
       </div>
-      <div class="cols mt-md">
-        <div><label class="lbl">Budgetrahmen von, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmin" value="${esc(c.budget_min_cents!=null?num(c.budget_min_cents/100):'')}" placeholder="3000"></div>
-        <div><label class="lbl">Budgetrahmen bis, in Euro (Pflicht)</label><input type="number" min="0" step="1" id="cbmax" value="${esc(c.budget_max_cents!=null?num(c.budget_max_cents/100):'')}" placeholder="5000"></div>
-      </div>
+      <div class="f mt-md"><label class="lbl">${spanne?'Fester Betrag in Euro, leer lässt die Spanne stehen':'Fester Betrag in Euro (Pflicht)'}</label>
+        <input type="number" min="1" step="0.01" id="cbetrag" value="${esc(!spanne&&betrag!=null?num(betrag/100):'')}" placeholder="5000">
+        ${spanne?`<p class="tiny mt-xs">Alt-Projekt mit Spanne: ${esc(budgetText(c))}. Sie bleibt, bis jemand einen festen Betrag einträgt. Neue Spannen gibt es nicht mehr.</p>`:''}</div>
       <div class="f mt-md"><label class="lbl">Nutzungsrechte: wer darf was wie lange nutzen</label>
         <textarea id="crechte" maxlength="500">${esc(c.nutzungsrechte||'')}</textarea></div>
       <div class="f"><label class="lbl">Kurzzeile</label>
@@ -3104,7 +3392,7 @@ function projektBearbeiten(c,stand,id){
       ${[1,2,3].map(n=>`<div class="f"><label class="lbl">Frage ${num(n)} (Ja/Nein), optional</label>
         <input id="cq${num(n)}" maxlength="120" value="${esc((Array.isArray(c.questions)?c.questions:[]).find(q=>q?.id==='q'+n)?.text||'')}" placeholder="${esc(['Eigene Cinema-Kamera?','Interviews auf Deutsch?','Reisebereit?'][n-1])}"></div>`).join('')}
       <div class="cols">
-        <div><label class="lbl">Plätze</label><input type="number" id="cslots" value="${esc(c.slots??1)}"></div>
+        ${firma?'':`<div><label class="lbl">Plätze</label><input type="number" id="cslots" value="${esc(c.slots??1)}"></div>`}
         <div><label class="lbl">Bewerbungsfrist</label><input type="date" id="cdead" value="${esc(c.deadline||'')}"></div>
       </div>
       <div class="bar ende mt-md"><button class="btn blue" id="csave">Speichern</button></div>
@@ -3115,18 +3403,399 @@ function projektBearbeiten(c,stand,id){
       if(crit.length>6) throw new Error('Höchstens sechs Kriterien.');
       const cents=v=>v===''?null:Math.round(parseFloat(v)*100);
       const questions=[1,2,3].map(n=>({id:'q'+n,text:$('#cq'+n).value.trim()})).filter(q=>q.text);
+      const fest=cents($('#cbetrag').value), bleibt=spanne&&fest===null;
       await rpc('admin_save_campaign',{p_id:id,p_title:$('#ctitle').value,p_description:$('#cdesc').value,
         p_client:firma?c.client_name:($('#cclient').value||null),p_meta:$('#cmeta').value||null,
         p_skills:$('#cskills').value.split(',').map(s=>s.trim()).filter(Boolean),
         p_requirements:$('#creqs').value.split('\n').map(s=>s.trim()).filter(Boolean),
-        p_slots:+$('#cslots').value||1,p_deadline:$('#cdead').value||null,
+        p_slots:firma?c.slots:+$('#cslots').value||1,p_deadline:$('#cdead').value||null,
         p_goal:$('#cgoal').value.trim(),p_starts_on:$('#cstart').value||null,p_ends_on:$('#cend').value||null,
-        p_budget_min_cents:cents($('#cbmin').value),p_budget_max_cents:cents($('#cbmax').value),
+        p_budget_min_cents:bleibt?c.budget_min_cents:fest,p_budget_max_cents:bleibt?c.budget_max_cents:fest,
         p_criteria:crit,p_decide_by:$('#cdecide').value||null,p_questions:questions,p_nutzungsrechte:$('#crechte').value,p_stand:stand.stand});
       toast(speicherWort(c)); closePanel(); loadCampaigns();
     }catch(err){ fail(err); }
   };
 }
+
+/* ── Verified (Migration 122, 150): Antrag, Pruefung, Push ── */
+const VF_STATUS={offen:['warn','offen'],verifiziert:['on','verifiziert'],abgelehnt:['off','abgelehnt']};
+let vfFilter='offen', vfOffset=0, vfLauf=0;
+const linkZelle=(l,leer)=>!l?esc(leer):l.url?`<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.text)}</a>`:`${esc(l.text)} <span class="tiny warn-text">kein gültiger Link</span>`;
+async function loadVerified(){
+  $('#vfListe').hidden=!!unter; $('#vfDetail').hidden=!unter;
+  if(unter) return verifiedDetail(unter);
+  const lauf=++vfLauf;
+  const {data,error}=await sb.rpc('admin_verified_warteschlange',{p_filter:vfFilter,p_suche:$('#vfq').value.trim()||null,p_limit:SEITE,p_offset:vfOffset});
+  if(lauf!==vfLauf) return;
+  if(error){ $('#vfList').innerHTML=fehlerBox(error.message); $('#vfSeiten').innerHTML=''; return; }
+  const z=data.zaehler||{}, rows=reihe(data.zeilen);
+  const korr=seiteKorrigieren(rows.length,data.gesamt,vfOffset,SEITE);
+  if(korr!==null){ vfOffset=korr; return loadVerified(); }
+  filterKnoepfe($('#vfTabs'),[['offen','Offen',z.offen||0],['verifiziert','Verifiziert',z.verifiziert||0],['abgelehnt','Abgelehnt',z.abgelehnt||0],['alle','Alle',(z.offen||0)+(z.verifiziert||0)+(z.abgelehnt||0)]],vfFilter,f=>{ vfFilter=f; vfOffset=0; loadVerified(); });
+  $('#vfList').innerHTML=!rows.length?(vfFilter==='offen'&&!$('#vfq').value?empty('Nichts offen','Jeder Antrag ist entschieden.'):empty('Nichts gefunden','Andere Suche oder anderen Filter versuchen.'))
+    :`<table><thead><tr><th>Person</th><th>Portfolio</th><th>Profil</th><th>Stand</th><th>Eingang</th><th></th></tr></thead><tbody>`+rows.map(x=>{ const [k,w]=VF_STATUS[x.status]||['',x.status], pf=webLink(x.portfolio_url,sicherUrl);
+      return `<tr class="click" data-id="${esc(x.id)}"><td><div class="name">${esc(x.display_name)}</div><div class="tiny">${esc(x.job_title||'—')} · ${esc(x.city||'—')}</div></td>
+        <td class="tiny">${linkZelle(pf,'keins')}</td>
+        <td class="tiny nowrap"><span class="dot ${x.vollstaendig>=100?'on':'warn'}"></span>${num(x.vollstaendig)} %${x.abgelehnt_bisher?`<div class="tiny">${esc(anz(x.abgelehnt_bisher,'Ablehnung','Ablehnungen'))} bisher</div>`:''}</td>
+        <td>${marke(w,k)}</td><td class="tiny nowrap">${esc(dd(x.created_at))}</td>
+        <td class="aktion"><a class="btn ${x.status==='offen'?'blue':'quiet'}" href="#/verifizierung/${esc(x.id)}">${x.status==='offen'?'Prüfen':'Öffnen'}</a></td></tr>`; }).join('')+'</tbody></table>';
+  blaettern($('#vfSeiten'),data.gesamt,vfOffset,o=>{ vfOffset=o; loadVerified(); window.scrollTo(0,0); });
+  zeilenKlick($('#vfList'),r=>{ location.hash='#/verifizierung/'+r.dataset.id; });
+}
+$('#vfq').oninput=verzoegert(()=>{ vfOffset=0; loadVerified(); });
+async function verifiedDetail(id){
+  const host=$('#vfDetail'), lauf=++vfLauf, zurueck=zurueckLink('verifizierung','Alle Anträge');
+  if(host.dataset.id!==id) host.innerHTML='<p class="tiny">Lädt …</p>';
+  host.dataset.id=id;
+  if(!istId(id)){ host.innerHTML=zurueck+fehlerBox('Diesen Antrag gibt es nicht.'); return; }
+  let x, d;
+  try{
+    x=await zeileSuchen((l,o)=>rpc('admin_verified_warteschlange',{p_filter:'alle',p_suche:null,p_limit:l,p_offset:o}),id);
+    if(x) d=await rpc('admin_member',{p_profile:x.profile_id});
+  }catch(err){ if(lauf===vfLauf) host.innerHTML=zurueck+fehlerBox(err.message); return; }
+  if(lauf!==vfLauf||aktuell!=='verifizierung'||unter!==id) return;
+  if(!x){ host.innerHTML=zurueck+fehlerBox('Diesen Antrag gibt es nicht.'); return; }
+  const p=d?.profile||{}, [k,w]=VF_STATUS[x.status]||['',x.status], l=profilLinks(p,sicherUrl), offen=x.status==='offen', ganz=x.vollstaendig>=100, fotos=reihe(d?.fotos);
+  const avatar=p.avatar_path?`${SUPABASE_URL}/storage/v1/object/public/avatars/${String(p.avatar_path).split('/').map(encodeURIComponent).join('/')}`:null;
+  host.innerHTML=`${zurueck}
+    <div class="detail-kopf"><div><h2>${esc(x.display_name)}</h2><p class="hint">${esc(x.job_title||'—')} · ${esc(x.city||'—')} · Antrag vom ${esc(dd(x.created_at))}</p></div>
+      <div class="bar ende"><button class="btn quiet" id="vfKonto">Mitglied öffnen</button></div></div>
+    <div class="zwei">
+      <div>
+        <div class="card"><h3>Prüfen</h3><p class="tiny mb-md">Öffnen in einem neuen Tab. Nur http und https werden zu Links, alles andere bleibt Text.</p><dl class="fakten">
+          <dt>Portfolio</dt><dd>${linkZelle(l.portfolio,'keins')}</dd>
+          <dt>Website</dt><dd>${linkZelle(l.website,'keine eigene angegeben')}</dd>
+          <dt>Profile im Netz</dt><dd>${l.social.length?l.social.map(s=>linkZelle(s,'')).join('<br>'):'keine'}</dd>
+        </dl></div>
+        <div class="card"><h3>Profil</h3><dl class="fakten">
+          ${p.bio?`<dt>Bio</dt><dd>${esc(p.bio)}</dd>`:''}
+          ${reihe(p.skills).length?`<dt>Gewerke</dt><dd>${esc(reihe(p.skills).join(', '))}</dd>`:''}
+          ${p.offering?`<dt>Bietet</dt><dd>${esc(p.offering)}</dd>`:''}
+          ${p.seeking?`<dt>Sucht</dt><dd>${esc(p.seeking)}</dd>`:''}
+          <dt>Dabei seit</dt><dd>${esc(dd(p.created_at))}</dd>
+          <dt>AGB</dt><dd>${p.terms_accepted_at?`Fassung ${esc(p.terms_version||'—')}`:'nicht bestätigt'}</dd>
+        </dl>
+        ${avatar||fotos.length?`<div class="fotos mt-md">${avatar?`<div class="foto"><img src="${esc(avatar)}" alt="Profilbild"></div>`:''}${fotos.map(f=>`<div class="foto"><div class="leer" data-foto="${esc(f.pfad)}">Foto</div></div>`).join('')}</div>`:''}</div>
+      </div>
+      <div class="card"><h3>Entscheidung</h3>
+        <p class="mb-md">${marke(w,k)}${x.entschieden_am?` <span class="tiny">am ${esc(dd(x.entschieden_am))}</span>`:''}</p>
+        ${x.grund?`<div class="quote mb-md">${esc(x.grund)}</div>`:''}
+        <dl class="fakten mb-md">
+          <dt>Profil vollständig</dt><dd><span class="dot ${ganz?'on':'warn'}"></span>${num(x.vollstaendig)} %</dd>
+          <dt>Abgelehnt bisher</dt><dd>${num(x.abgelehnt_bisher)}</dd>
+          <dt>Abbrüche</dt><dd>${num(x.abbrueche)}</dd>
+        </dl>
+        ${offen?`<div class="bar ende"><button class="btn blue" id="vfJa" ${ganz?'':'disabled'}>Verifizieren</button><button class="btn red" id="vfNein">Ablehnen</button></div>
+          ${ganz?'':'<p class="tiny mt-sm">Verifizieren geht erst mit vollständigem Profil. Lehne mit Grund ab, die Person ergänzt es und stellt den Antrag neu.</p>'}`:''}
+      </div>
+    </div>`;
+  $('#vfKonto').onclick=()=>memberDetail(x.profile_id);
+  if(fotos.length&&darf('community')) sb.storage.from('profile-photos').createSignedUrls(fotos.map(f=>f.pfad),3600).then(({data:urls,error:e})=>{
+    if(e) return;
+    for(const z of urls||[]){
+      const box=host.querySelector(`[data-foto="${CSS.escape(z.path||'')}"]`), url=sicherUrl(z.signedUrl);
+      if(box&&url){ const img=new Image(); img.src=url; img.alt='Profilfoto'; box.replaceWith(img); }
+    }
+  }).catch(()=>{});
+  const fertig=m=>{ toast(m); location.hash='#/verifizierung'; };
+  const ja=$('#vfJa'), nein=$('#vfNein');
+  if(ja) ja.onclick=async()=>{
+    if(!await frage({titel:'Verifizieren: '+x.display_name,text:'Die Person kann sich ab sofort auf Projekte bewerben und bekommt eine Nachricht. Unternehmen sehen das Verified-Zeichen.',ja:'Verifizieren'})) return;
+    ja.disabled=true;
+    try{ await rpc('admin_verified_entscheiden',{p_antrag:id,p_verifizieren:true,p_grund:null}); fertig('Verifiziert, die Person bekommt eine Nachricht'); }
+    catch(err){ fail(err); verifiedDetail(id); }
+  };
+  if(nein) nein.onclick=async()=>{
+    const g=await frage({titel:'Ablehnen: '+x.display_name,text:'Der Grund geht als Push an die Person. Sie kann den Antrag danach neu stellen.',
+      feld:{label:'Grund (die App ist englisch)',pflicht:true,fehlt:'Ablehnen braucht einen Grund.',platzhalter:'Your portfolio link does not open.'},ja:'Ablehnen',gefahr:true});
+    if(g===null) return;
+    nein.disabled=true;
+    try{ await rpc('admin_verified_entscheiden',{p_antrag:id,p_verifizieren:false,p_grund:g}); fertig('Abgelehnt, der Grund geht als Push raus'); }
+    catch(err){ fail(err); verifiedDetail(id); }
+  };
+}
+
+/* ── Abbrueche (Migration 125, 150): Geld nur ueber die Function ── */
+const ABR_STATUS={offen:['warn','offen'],bestaetigt:['off','bestätigt'],abgelehnt:['','abgelehnt']};
+const ABR_ART={absage:'Absage in der App',funkstille:'14 Tage keine Antwort',pruefung:'Nach Prüfung eines Anliegens',konto_ende:'Sperre oder Ausschluss, zählt nicht als Abbruch'};
+const ANL_ART={beschwerde:'Beschwerde',abbruch:'Abbruch-Anliegen'}, ANL_ROLLE={creator:'Creator',firma:'Unternehmen'};
+const ANL_STATUS={offen:['warn','offen'],ohne_folge:['','ohne Folge'],ohne_schuld:['off','beendet, ohne Schuld'],creator_schuld:['off','beendet, Abbruchregel'],erledigt:['','von selbst erledigt']};
+let abrFilter='offen', abrOffset=0, abrLauf=0, anlFilter='offen', anlOffset=0, anlLauf=0;
+const gebuehrMarke=x=>{ const [k,w]=GEBUEHR_WORT[x.gebuehr_status]||['','keine Gebühr']; return marke(w,k); };
+const strafeMarke=s=>{ if(!s) return '<span class="tiny">noch keine</span>'; const [k,w]=STRAFE_WORT[s.status]||['',s.status]; return marke((s.betrag_cents>0?euroGenau(s.betrag_cents)+' · ':'')+w,k); };
+async function zahlungFn(body){
+  const {data,error}=await sb.functions.invoke('projekt-zahlung',{body});
+  if(error){ let text='Der Zahlungsdienst antwortet nicht. Prüfe den Stand, bevor du es noch einmal versuchst.'; try{ const j=await error.context.json(); if(j?.error) text=j.error; }catch(_){} throw new Error(text); }
+  return data;
+}
+async function loadAbbrueche(){
+  $('#abrListe').hidden=!!unter; $('#abrDetail').hidden=!unter;
+  if(unter) return unter.startsWith('a-')?anliegenDetail(unter.slice(2)):abbruchDetail(unter);
+  /* Der Chat bleibt nicht versteckt im Dokument liegen, wenn jemand den Fall verlaesst. */
+  const lauf=++abrLauf; $('#abrDetail').innerHTML=''; delete $('#abrDetail').dataset.id;
+  loadAnliegen();
+  const {data,error}=await sb.rpc('admin_abbruch_faelle',{p_filter:abrFilter,p_limit:SEITE,p_offset:abrOffset});
+  if(lauf!==abrLauf) return;
+  if(error){ $('#abrList').innerHTML=fehlerBox(error.message); $('#abrSeiten').innerHTML=''; return; }
+  const z=data.zaehler||{}, rows=reihe(data.zeilen);
+  const korr=seiteKorrigieren(rows.length,data.gesamt,abrOffset,SEITE);
+  if(korr!==null){ abrOffset=korr; return loadAbbrueche(); }
+  filterKnoepfe($('#abrTabs'),[['offen','Offen',z.offen||0],['bestaetigt','Bestätigt',z.bestaetigt||0],['abgelehnt','Abgelehnt',z.abgelehnt||0],['alle','Alle',(z.offen||0)+(z.bestaetigt||0)+(z.abgelehnt||0)]],abrFilter,f=>{ abrFilter=f; abrOffset=0; loadAbbrueche(); });
+  $('#abrList').innerHTML=!rows.length?(abrFilter==='offen'?empty('Nichts offen','Keine Meldung wartet auf eine Entscheidung.'):empty('Nichts gefunden','Anderen Filter versuchen.'))
+    :`<table><thead><tr><th>Projekt</th><th>Creator</th><th>Auslöser</th><th>Stille</th><th>Gebühr</th><th>Strafe</th><th>Stand</th><th></th></tr></thead><tbody>`+rows.map(x=>{ const [k,w]=ABR_STATUS[x.status]||['',x.status];
+      return `<tr class="click" data-id="${esc(x.id)}"><td><div class="name">${esc(x.title||'Projekt')}</div><div class="tiny">${esc(x.firma_name||'—')} · ${esc(dd(x.created_at))}</div></td>
+        <td>${esc(x.creator_name||'—')}${x.sanktionsstufe?`<div class="tiny">Sanktionsstufe ${num(x.sanktionsstufe)}</div>`:''}</td>
+        <td class="tiny">${esc(ABR_ART[x.art]||x.art)}</td>
+        <td class="tiny nowrap">${x.stille_tage==null?'—':esc(anz(x.stille_tage,'Tag','Tage'))}</td>
+        <td class="tiny">${esc(euroGenau(x.gebuehr_cents))}<div>${gebuehrMarke(x)}</div></td>
+        <td>${strafeMarke(x.strafe)}</td><td>${marke(w,k)}</td>
+        <td class="aktion"><a class="btn ${x.status==='offen'?'blue':'quiet'}" href="#/abbrueche/${esc(x.id)}">${x.status==='offen'?'Prüfen':'Öffnen'}</a></td></tr>`; }).join('')+'</tbody></table>';
+  blaettern($('#abrSeiten'),data.gesamt,abrOffset,o=>{ abrOffset=o; loadAbbrueche(); window.scrollTo(0,0); });
+  zeilenKlick($('#abrList'),r=>{ location.hash='#/abbrueche/'+r.dataset.id; });
+}
+/* Offene Anliegen stehen vorn, entschiedene findet man ueber die Reiter. */
+async function loadAnliegen(){
+  const lauf=++anlLauf;
+  const {data,error}=await sb.rpc('admin_anliegen_faelle',{p_filter:anlFilter,p_limit:SEITE,p_offset:anlOffset});
+  if(lauf!==anlLauf) return;
+  if(error){ $('#anlList').innerHTML=fehlerBox(error.message); $('#anlSeiten').innerHTML=''; return; }
+  const rows=reihe(data.zeilen);
+  const korr=seiteKorrigieren(rows.length,data.gesamt,anlOffset,SEITE);
+  if(korr!==null){ anlOffset=korr; return loadAnliegen(); }
+  filterKnoepfe($('#anlTabs'),[['offen','Offen',data.offen||0],['ohne_folge','Ohne Folge'],['ohne_schuld','Beendet, ohne Schuld'],['creator_schuld','Beendet, Abbruchregel'],['erledigt','Von selbst erledigt'],['alle','Alle']],anlFilter,f=>{ anlFilter=f; anlOffset=0; loadAnliegen(); });
+  $('#anlList').innerHTML=!rows.length?`<p class="tiny">${anlFilter==='offen'?'Nichts offen.':'Nichts gefunden.'}</p>`
+    :`<table><thead><tr><th>Projekt</th><th>Von</th><th>Art</th><th>Eingereicht</th><th>Stand</th><th></th></tr></thead><tbody>`+rows.map(x=>{ const [k,w]=ANL_STATUS[x.status]||['',x.status], offen=x.status==='offen';
+      return `<tr class="click" data-id="${esc(x.id)}"><td><div class="name">${esc(x.title||'Projekt')}</div><div class="tiny">${esc(x.firma_name||'—')} · ${esc(x.creator_name||'—')}</div></td>
+      <td class="tiny">${esc(x.von_name||'—')}<div>${esc(ANL_ROLLE[x.rolle]||x.rolle)}</div></td><td class="tiny">${esc(ANL_ART[x.art]||x.art)}</td><td class="tiny nowrap">${esc(dd(x.created_at))}</td><td>${marke(w,k)}</td>
+      <td class="aktion"><a class="btn ${offen?'blue':'quiet'}" href="#/abbrueche/a-${esc(x.id)}">${offen?'Prüfen':'Öffnen'}</a></td></tr>`; }).join('')+'</tbody></table>';
+  blaettern($('#anlSeiten'),data.gesamt,anlOffset,o=>{ anlOffset=o; loadAnliegen(); });
+  zeilenKlick($('#anlList'),r=>{ location.hash='#/abbrueche/a-'+r.dataset.id; });
+}
+async function anliegenDetail(id){
+  const host=$('#abrDetail'), lauf=++abrLauf, zurueck=zurueckLink('abbrueche','Alle Fälle'), schluessel='a-'+id;
+  if(host.dataset.id!==schluessel) host.innerHTML='<p class="tiny">Lädt …</p>';
+  host.dataset.id=schluessel;
+  if(!istId(id)){ host.innerHTML=zurueck+fehlerBox('Diesen Fall gibt es nicht.'); return; }
+  let x;
+  try{ x=await zeileSuchen((l,o)=>rpc('admin_anliegen_faelle',{p_filter:'alle',p_limit:l,p_offset:o}),id); }
+  catch(err){ if(lauf===abrLauf) host.innerHTML=zurueck+fehlerBox(err.message); return; }
+  if(lauf!==abrLauf||aktuell!=='abbrueche'||unter!==schluessel) return;
+  if(!x){ host.innerHTML=zurueck+fehlerBox('Diesen Fall gibt es nicht.'); return; }
+  const [k,w]=ANL_STATUS[x.status]||['',x.status], offen=x.status==='offen', vorLieferung=x.projekt_status==='matched', laeuft=vorLieferung||x.projekt_status==='delivered', leitung=darf('leitung');
+  host.innerHTML=`${zurueck}
+    <div class="detail-kopf"><div><h2>${esc(x.title||'Projekt')}</h2><p class="hint">${esc(ANL_ART[x.art]||x.art)} von ${esc(ANL_ROLLE[x.rolle]||x.rolle)} · ${esc(dd(x.created_at))}</p></div>
+      ${x.campaign_id?`<div class="bar ende"><a class="btn quiet" href="#/projekte/${esc(x.campaign_id)}">Projekt öffnen</a></div>`:''}</div>
+    ${x.text?`<div class="quote blau mb-md pre">${esc(x.text)}</div>`:''}
+    <div class="zwei">
+      <div>
+        <div class="card"><h3>Fall</h3><dl class="fakten">
+          <dt>Creator</dt><dd>${x.creator_id?`<button class="btn quiet" data-konto="${esc(x.creator_id)}">${esc(x.creator_name||'—')}</button>`:'—'}</dd>
+          <dt>Unternehmen</dt><dd>${x.firma_id?`<button class="btn quiet" data-konto="${esc(x.firma_id)}">${esc(x.firma_name||'—')}</button>`:'—'}</dd>
+          <dt>Projektstand</dt><dd>${esc(projektWort({status:x.projekt_status,matched_at:x.matched_at,completed_at:x.projekt_status==='completed'?1:null}))}</dd>
+          <dt>Match</dt><dd>${esc(dt(x.matched_at))}</dd>
+          <dt>Gebühr</dt><dd>${esc(euroGenau(x.gebuehr_cents))} ${gebuehrMarke(x)}</dd>
+          <dt>Abbrüche des Creators</dt><dd>${num(x.abbrueche_24m)} in 24 Monaten · ${num(x.abbrueche_12m)} in 12 Monaten</dd>
+        </dl></div>
+        <div class="card"><h3>Projekt-Chat</h3>
+          ${!offen?'<p class="tiny">Der Verlauf ist nur bei offenen Fällen einsehbar.</p>':!leitung?'<p class="tiny">Den Verlauf öffnet nur die Leitung.</p>'
+            :`<p class="tiny mb-md">Nur zum offenen Fall. Jeder Blick steht mit deinem Namen im Protokoll.</p><div id="anlChat"><button class="btn" id="anlChatAuf">Verlauf öffnen, wird protokolliert</button></div>`}</div>
+      </div>
+      <div>
+        <div class="card ${offen?'warnkarte':''}"><h3>Entscheidung</h3>
+          <p class="mb-md">${marke(w,k)}${x.entschieden_am?` <span class="tiny">am ${esc(dd(x.entschieden_am))}</span>`:''}</p>
+          ${x.entscheidung_grund?`<div class="quote mb-md">${esc(x.entscheidung_grund)}</div>`:''}
+          ${!offen?'':!leitung?'<p class="tiny">Entscheiden darf nur die Leitung.</p>':`
+            <p class="tiny mb-md"><strong>Weiterlaufen:</strong> Nichts ändert sich, beide Seiten bekommen den Grund.</p>
+            <p class="tiny mb-md"><strong>Beenden, Creator ohne Schuld:</strong> Das Projekt endet. Keine Strafe, keine Statusfolge, die Gebühr bleibt bei c3.</p>
+            <p class="tiny pre mb-md"><strong>Beenden, Abbruchregel:</strong> ${esc(abbruchFolgeText(x.folge))}</p>
+            <div class="bar ende"><button class="btn" data-erg="ohne_folge">Weiterlaufen</button><button class="btn" data-erg="ohne_schuld" ${laeuft?'':'disabled'}>Beenden, Creator ohne Schuld</button><button class="btn red" data-erg="creator_schuld" ${vorLieferung?'':'disabled'}>Beenden, Abbruchregel</button></div>
+            ${vorLieferung?'':'<p class="tiny mt-sm">Die Abbruchregel gilt nur vor der Lieferung.</p>'}`}
+        </div>
+      </div>
+    </div>`;
+  host.querySelectorAll('[data-konto]').forEach(b=>b.onclick=()=>memberDetail(b.dataset.konto));
+  const auf=$('#anlChatAuf');
+  if(auf) auf.onclick=async()=>{
+    auf.disabled=true;
+    let c;
+    try{ c=await rpc('admin_anliegen_chat',{p_anliegen:id}); }
+    catch(err){ fail(err); auf.disabled=false; return; }
+    if(lauf!==abrLauf||!$('#anlChat')) return;
+    const von={creator:x.creator_name||'Creator',firma:x.firma_name||'Unternehmen',andere:'Team oder andere'}, n=reihe(c.nachrichten);
+    $('#anlChat').innerHTML=n.length?n.map(m=>`<div class="notiz"><div class="tiny">${esc(von[m.von]||m.von)} · ${esc(dt(m.am))}</div><div class="pre">${m.text?esc(m.text):`<span class="tiny">${esc(m.art||'Anhang')}</span>`}</div></div>`).join(''):'<p class="tiny">Keine Nachrichten im Projekt-Chat.</p>';
+  };
+  host.querySelectorAll('[data-erg]').forEach(b=>b.onclick=async()=>{
+    const erg=b.dataset.erg, titel={ohne_folge:'Weiterlaufen lassen',ohne_schuld:'Beenden, Creator ohne Schuld',creator_schuld:'Beenden, Abbruchregel'}[erg];
+    const g=await frage({titel:titel+': '+(x.title||'Projekt'),
+      text:erg==='creator_schuld'?abbruchFolgeText(x.folge):erg==='ohne_schuld'?'Das Projekt endet sofort, das lässt sich nicht zurücknehmen. Die Gebühr bleibt bei c3.':'Das Projekt läuft weiter, es fließt kein Geld.',
+      feld:{label:'Grund für beide Seiten (auf Englisch)',pflicht:true,fehlt:'Die Entscheidung braucht einen Grund.'},ja:titel,gefahr:erg!=='ohne_folge'});
+    if(g===null) return;
+    b.disabled=true;
+    try{
+      const e=await zahlungFn({aktion:'anliegen_entscheiden',anliegen_id:id,ergebnis:erg,grund:g});
+      if(erg==='creator_schuld'){ const r=abbruchErgebnis({...e,bestaetigt:true}); toast(r.text,r.schlecht); }
+      else toast(erg==='ohne_schuld'?'Projekt beendet, die Gebühr bleibt bei c3.':'Geschlossen, das Projekt läuft weiter.');
+    }catch(err){ fail(err); }
+    abzeichenBald();
+    if(aktuell==='abbrueche'&&unter===schluessel) anliegenDetail(id);
+  });
+}
+async function abbruchDetail(id){
+  const host=$('#abrDetail'), lauf=++abrLauf, zurueck=zurueckLink('abbrueche','Alle Fälle');
+  if(host.dataset.id!==id) host.innerHTML='<p class="tiny">Lädt …</p>';
+  host.dataset.id=id;
+  if(!istId(id)){ host.innerHTML=zurueck+fehlerBox('Diesen Fall gibt es nicht.'); return; }
+  let x;
+  try{ x=await zeileSuchen((l,o)=>rpc('admin_abbruch_faelle',{p_filter:'alle',p_limit:l,p_offset:o}),id); }
+  catch(err){ if(lauf===abrLauf) host.innerHTML=zurueck+fehlerBox(err.message); return; }
+  if(lauf!==abrLauf||aktuell!=='abbrueche'||unter!==id) return;
+  if(!x){ host.innerHTML=zurueck+fehlerBox('Diesen Fall gibt es nicht.'); return; }
+  const [k,w]=ABR_STATUS[x.status]||['',x.status], offen=x.status==='offen', still=Number(x.stille_tage)>=14, laeuft=x.projekt_status==='matched';
+  host.innerHTML=`${zurueck}
+    <div class="detail-kopf"><div><h2>${esc(x.title||'Projekt')}</h2><p class="hint">${esc(ABR_ART[x.art]||x.art)} · gemeldet am ${esc(dd(x.created_at))}</p></div>
+      ${x.campaign_id?`<div class="bar ende"><a class="btn quiet" href="#/projekte/${esc(x.campaign_id)}">Projekt öffnen</a></div>`:''}</div>
+    ${x.notiz?`<div class="quote blau mb-md">${esc(x.notiz)}</div>`:''}
+    <div class="zwei">
+      <div>
+        <div class="card"><h3>Fall</h3><dl class="fakten">
+          <dt>Creator</dt><dd>${x.creator_id?`<button class="btn quiet" data-konto="${esc(x.creator_id)}">${esc(x.creator_name||'—')}</button>`:'—'}</dd>
+          <dt>Unternehmen</dt><dd>${x.firma_id?`<button class="btn quiet" data-konto="${esc(x.firma_id)}">${esc(x.firma_name||'—')}</button>`:'—'}</dd>
+          <dt>Projektstand</dt><dd>${esc(projektWort({status:x.projekt_status,matched_at:x.matched_at,completed_at:x.projekt_status==='completed'?1:null}))}</dd>
+          <dt>Match</dt><dd>${esc(dt(x.matched_at))}</dd>
+          <dt>Letzte Lieferung</dt><dd>${x.zuletzt_geliefert_am?esc(dt(x.zuletzt_geliefert_am)):'—'}</dd>
+          <dt>Nachbesserung verlangt</dt><dd>${x.nachbesserung_am?esc(dt(x.nachbesserung_am)):'—'}</dd>
+          <dt>Letzte Aktivität</dt><dd>${esc(dt(x.stille_seit))}</dd>
+          <dt>Stille</dt><dd><span class="dot ${still?'off':'gut'}"></span>${x.stille_tage==null?'—':esc(anz(x.stille_tage,'Tag','Tage'))}</dd>
+          <dt>Abbrüche bisher</dt><dd>${num(x.abbrueche_24m)} in 24 Monaten · ${num(x.abbrueche_12m)} in 12 Monaten · ${num(x.abbrueche_gesamt)} gesamt</dd>
+          <dt>Mit dieser Firma</dt><dd>${num(x.gleiche_firma)}</dd>
+        </dl></div>
+        <div class="card"><h3>Projekt-Chat</h3>
+          ${!offen?'<p class="tiny">Der Verlauf ist nur bei offenen Fällen einsehbar.</p>':!darf('leitung')?'<p class="tiny">Den Verlauf öffnet nur die Leitung.</p>'
+            :`<p class="tiny mb-md">Nur zum offenen Fall und nur, um die Funkstille zu prüfen. Jeder Blick steht mit deinem Namen im Protokoll.</p>
+            <div id="abrChat"><button class="btn" id="abrChatAuf">Verlauf öffnen, wird protokolliert</button></div>`}</div>
+      </div>
+      <div>
+        <div class="card"><h3>Geld</h3><dl class="fakten">
+          <dt>Betrag</dt><dd>${esc(euroGenau(x.budget_cents))}</dd>
+          <dt>Gebühr</dt><dd>${esc(euroGenau(x.gebuehr_cents))} ${gebuehrMarke(x)}</dd>
+          <dt>Strafgebühr</dt><dd>${strafeMarke(x.strafe)}${x.strafe?.fehler_code?`<div class="tiny">${esc(x.strafe.fehler_code)}</div>`:''}</dd>
+        </dl>
+        ${darf('leitung')&&x.strafe&&['offen','fehlgeschlagen','bezahlt'].includes(x.strafe.status)?`<div class="bar ende mt-sm"><button class="btn" id="abrErlassen">Strafgebühr erlassen</button></div>`:''}</div>
+        <div class="card ${offen?'warnkarte':''}"><h3>Entscheidung</h3>
+          <p class="mb-md">${marke(w,k)}${x.sanktionsstufe?` <span class="tiny">Sanktionsstufe ${num(x.sanktionsstufe)}</span>`:''}${x.entschieden_am?` <span class="tiny">am ${esc(dd(x.entschieden_am))}</span>`:''}</p>
+          ${x.entscheidung_grund?`<div class="quote mb-md">${esc(x.entscheidung_grund)}</div>`:''}
+          ${offen?`<p class="tiny pre mb-md">${esc(abbruchFolgeText(x.folge))}</p>
+            ${darf('leitung')?`<div class="bar ende"><button class="btn red" id="abrJa" ${still&&laeuft?'':'disabled'}>Abbruch bestätigen</button><button class="btn" id="abrNein">Meldung ablehnen</button></div>
+            ${laeuft?'':'<p class="tiny mt-sm">Das Projekt läuft nicht mehr, bestätigen geht nicht. Bitte die Meldung ablehnen.</p>'}
+            ${still?'':'<p class="tiny mt-sm">In den letzten 14 Tagen gab es eine Nachricht, eine Lieferung oder eine verlangte Nachbesserung. Das ist keine Funkstille, bestätigen geht nicht.</p>'}`:'<p class="tiny">Entscheiden darf nur die Leitung.</p>'}`:''}
+        </div>
+      </div>
+    </div>`;
+  host.querySelectorAll('[data-konto]').forEach(b=>b.onclick=()=>memberDetail(b.dataset.konto));
+  const auf=$('#abrChatAuf');
+  if(auf) auf.onclick=async()=>{
+    auf.disabled=true;
+    let c;
+    try{ c=await rpc('admin_abbruch_chat',{p_fall:id}); }
+    catch(err){ fail(err); auf.disabled=false; return; }
+    if(lauf!==abrLauf||!$('#abrChat')) return;
+    const von={creator:x.creator_name||'Creator',firma:x.firma_name||'Unternehmen',andere:'Team oder andere'}, n=reihe(c.nachrichten);
+    $('#abrChat').innerHTML=`<dl class="fakten mb-md"><dt>Letzte vom Creator</dt><dd>${esc(dt(c.letzte_creator_nachricht))}</dd><dt>Letzte vom Unternehmen</dt><dd>${esc(dt(c.letzte_firma_nachricht))}</dd></dl>
+      ${n.length?n.map(m=>`<div class="notiz"><div class="tiny">${esc(von[m.von]||m.von)} · ${esc(dt(m.am))}</div><div class="pre">${m.text?esc(m.text):`<span class="tiny">${esc(m.art||'Anhang')}</span>`}</div></div>`).join(''):'<p class="tiny">Keine Nachrichten im Projekt-Chat.</p>'}`;
+  };
+  const entscheiden=async(bestaetigen,grund,knopf)=>{
+    knopf.disabled=true;
+    try{
+      const e=abbruchErgebnis(await zahlungFn({aktion:'abbruch_entscheiden',fall_id:id,bestaetigen,grund:grund||null}));
+      toast(e.text,e.schlecht);
+    }catch(err){ fail(err); }
+    /* Auch nach einem Fehler: Die Statuswirkung kann schon gelten, oder jemand anders war schneller. */
+    abzeichenBald();
+    if(aktuell==='abbrueche'&&unter===id) abbruchDetail(id);
+  };
+  const erlassen=$('#abrErlassen');
+  if(erlassen) erlassen.onclick=async()=>{
+    const g=await frage({titel:'Strafgebühr erlassen: '+(x.title||'Projekt'),
+      text:(x.strafe.status==='bezahlt'?'Die Strafgebühr entfällt, und das Geld geht automatisch an die Person zurück.':'Die Strafgebühr entfällt. Sie ist nicht bezahlt, es fließt kein Geld.')+' Die Sperre fällt, wenn sonst nichts offen ist. Punkte, Bewerbungssperre, Verified und ein Ausschluss bleiben.',
+      feld:{label:'Grund fürs Protokoll',pflicht:true,fehlt:'Erlassen braucht einen Grund.'},ja:'Strafgebühr erlassen',gefahr:true});
+    if(g===null) return;
+    erlassen.disabled=true;
+    try{
+      const e=await zahlungFn({aktion:'strafe_erlassen',strafe_id:x.strafe.id,grund:g});
+      toast(e.erstattung==='erstattet'?'Strafgebühr erlassen, Geld geht zurück':e.erstattung==='offen'?'Strafgebühr erlassen, die Erstattung holt der Zahlungslauf nach':'Strafgebühr erlassen',e.erstattung==='offen');
+    }catch(err){ fail(err); }
+    abzeichenBald();
+    if(aktuell==='abbrueche'&&unter===id) abbruchDetail(id);
+  };
+  const ja=$('#abrJa'), nein=$('#abrNein');
+  if(ja) ja.onclick=async()=>{
+    const g=await frage({titel:'Abbruch bestätigen: '+(x.title||'Projekt'),text:abbruchFolgeText(x.folge),
+      feld:{label:'Notiz fürs Protokoll, optional'},ja:'Abbruch bestätigen',gefahr:true});
+    if(g===null) return;
+    entscheiden(true,g,ja);
+  };
+  if(nein) nein.onclick=async()=>{
+    const g=await frage({titel:'Meldung ablehnen: '+(x.title||'Projekt'),text:'Das Projekt läuft weiter, es fließt kein Geld. Das Unternehmen bekommt den Grund als Nachricht und kann später neu melden.',
+      feld:{label:'Grund fürs Unternehmen (auf Englisch)',pflicht:true,fehlt:'Ablehnen braucht einen Grund.',platzhalter:'The creator replied in the project chat.'},ja:'Meldung ablehnen'});
+    if(g===null) return;
+    entscheiden(false,g,nein);
+  };
+}
+
+/* ── Report Umgehung (§14): nur eine Ansicht ── */
+let umLauf=0;
+async function loadUmgehung(){
+  const lauf=++umLauf;
+  const {data,error}=await sb.rpc('admin_umgehung_report',{p_monate:+$('#umMonate').value,p_mindestens:+$('#umMindestens').value});
+  if(lauf!==umLauf) return;
+  const boxen=['#umPaare','#umFirmen','#umZahlung'];
+  if(error){ boxen.forEach(b=>{ $(b).innerHTML=fehlerBox(error.message); }); return; }
+  const paare=reihe(data.paare), firmen=reihe(data.firmen), zahl=reihe(data.zahlungsverhalten);
+  $('#umPaare').innerHTML=!paare.length?'<p class="tiny">Nichts Auffälliges in diesem Zeitraum.</p>'
+    :`<table><thead><tr><th>Unternehmen</th><th>Creator</th><th>Abbrüche</th><th>Davon beidseitig</th><th>Davon Abbruchregel</th><th>Zuletzt</th></tr></thead><tbody>`+paare.map(x=>`<tr class="click" data-id="${esc(x.firma_id)}">
+      <td class="name">${esc(x.firma_name||'—')}</td><td>${esc(x.creator_name||'—')}</td><td><strong>${num(x.abbrueche)}</strong></td><td class="tiny">${num(x.beidseitig)}</td><td class="tiny">${num(x.abbruchregel)}</td><td class="tiny nowrap">${esc(dd(x.zuletzt))}</td></tr>`).join('')+'</tbody></table>';
+  $('#umFirmen').innerHTML=!firmen.length?'<p class="tiny">Nichts Auffälliges in diesem Zeitraum.</p>'
+    :`<table><thead><tr><th>Unternehmen</th><th>Matches</th><th>Abbrüche</th><th>Anteil</th><th>Verschiedene Creator</th></tr></thead><tbody>`+firmen.map(x=>`<tr class="click" data-id="${esc(x.firma_id)}">
+      <td class="name">${esc(x.firma_name||'—')}</td><td>${num(x.matches)}</td><td><strong>${num(x.abbrueche)}</strong></td><td class="tiny">${num(Math.round(Number(x.anteil)*100))} %</td><td class="tiny">${num(x.creator)}</td></tr>`).join('')+'</tbody></table>';
+  $('#umZahlung').innerHTML=!zahl.length?'<p class="tiny">Keine schlechten Werte in diesem Zeitraum.</p>'
+    :`<table><thead><tr><th>Unternehmen</th><th>Bewertungen</th><th>Davon schlecht</th></tr></thead><tbody>`+zahl.map(x=>`<tr class="click" data-id="${esc(x.firma_id)}">
+      <td class="name">${esc(x.firma_name||'—')}</td><td>${num(x.bewertungen)}</td><td><strong>${num(x.schlecht)}</strong></td></tr>`).join('')+'</tbody></table>';
+  boxen.forEach(b=>zeilenKlick($(b),r=>memberDetail(r.dataset.id)));
+}
+$('#umMonate').onchange=$('#umMindestens').onchange=()=>loadUmgehung();
+
+/* ── Leaderboard intern (§13): dazu Abo, VIP und Tier ── */
+let liZeitraum='monat', liOffset=0, liLauf=0;
+/* Kleine Linie, ohne Bibliothek. Ein Monat kann negativ sein (Abbruch): Die Null rutscht dann nach oben. */
+function verlaufLinie(reihen){
+  const w=reihen.map(x=>x.punkte), tief=Math.min(0,...w), P=sparkPunkte(w.map(x=>x-tief),112,32,5), letzt=P[P.length-1];
+  return `<svg class="spark" viewBox="0 0 112 32" role="img" aria-label="Punkte je Monat, älteste zuerst: ${esc(w.join(', '))}"><line x1="0" y1="31" x2="112" y2="31"/><polyline points="${esc(P.map(([x,y])=>x+','+y).join(' '))}"/>${letzt?`<circle r="4" cx="${num(letzt[0])}" cy="${num(letzt[1])}"/>`:''}</svg>`;
+}
+async function loadLeaderboard(){
+  const monat=$('#liMonat');
+  if(!monat.value) monat.value=heuteWien().slice(0,7);
+  monat.hidden=liZeitraum!=='monat';
+  filterKnoepfe($('#liTabs'),[['monat','Monat'],['gesamt','Gesamt']],liZeitraum,f=>{ liZeitraum=f; liOffset=0; loadLeaderboard(); });
+  const lauf=++liLauf;
+  const {data,error}=await sb.rpc('admin_leaderboard_intern',{p_zeitraum:liZeitraum,p_monat:liZeitraum==='monat'?monat.value+'-01':null,p_limit:SEITE+1,p_offset:liOffset});
+  if(lauf!==liLauf) return;
+  if(error){ $('#liList').innerHTML=fehlerBox(error.message); $('#liSeiten').innerHTML=''; return; }
+  /* Der Server nennt keine Gesamtzahl: Eine Zeile mehr als die Seite sagt, ob es weitergeht. */
+  const rows=reihe(data).slice(0,SEITE), heute=heuteWien().slice(0,7);
+  $('#liList').innerHTML=!rows.length?empty('Noch keine Punkte',liZeitraum==='monat'?'In diesem Monat hat niemand Punkte gesammelt.':'Noch hat niemand Punkte gesammelt.')
+    :`<table><thead><tr><th>Rang</th><th>Name</th><th>Punkte</th><th>12 Monate</th><th>Tier</th><th>Abo</th><th>Verlauf, 6 Monate</th></tr></thead><tbody>`+rows.map(x=>`<tr class="click" data-id="${esc(x.profile_id)}">
+      <td><strong>${num(x.rang)}</strong></td>
+      <td><div class="name">${esc(x.display_name)}</div><div class="tiny">${x.verified?'Verified':'nicht Verified'}</div></td>
+      <td><strong>${num(x.punkte)}</strong></td><td class="tiny">${num(x.punkte_12m)}</td><td>${num(x.tier)}</td>
+      <td>${x.vip?marke('VIP','on'):esc(x.abo?planName(x.abo):'kein Abo')}${x.abo&&x.abo_status&&x.abo_status!=='active'?`<div class="tiny">${esc(wort(MITGLIED_STATUS,x.abo_status))}</div>`:''}</td>
+      <td>${verlaufLinie(monatsReihe(x.verlauf,heute))}</td></tr>`).join('')+'</tbody></table>';
+  const zurueck=liOffset>0, weiter=reihe(data).length>SEITE;
+  $('#liSeiten').innerHTML=!zurueck&&!weiter?'':`<div class="bar rechts ende mt-md"><button class="btn quiet" data-zur ${zurueck?'':'disabled'}>Zurück</button><button class="btn quiet" data-vor ${weiter?'':'disabled'}>Weiter</button></div>`;
+  $('#liSeiten').querySelector('[data-zur]')?.addEventListener('click',()=>{ liOffset=Math.max(0,liOffset-SEITE); loadLeaderboard(); });
+  $('#liSeiten').querySelector('[data-vor]')?.addEventListener('click',()=>{ liOffset+=SEITE; loadLeaderboard(); });
+  zeilenKlick($('#liList'),r=>memberDetail(r.dataset.id));
+}
+$('#liMonat').onchange=()=>{ liOffset=0; loadLeaderboard(); };
 
 /* ── Punkte ──────────────────────────────── */
 async function loadPoints(){
@@ -3213,23 +3882,40 @@ async function werteSpeichern(felder,schreiben,knopf,min){
   else toast(`${gut} ${gut===1?'Wert':'Werte'} gespeichert`);
 }
 async function loadSettings(){
+  /* Punktwerte und Stufen aendert nur die Leitung. Sonst liefert der Server null Zeilen, ohne Grund. */
+  const aendern=darf('leitung'), nurLeitung='<p class="tiny">Ändern darf nur die Leitung.</p>';
   const {data:pc,error:e1}=await sb.from('points_config').select('*').order('key');
   $('#pcList').innerHTML = e1 ? fehlerBox(e1.message) : (pc||[]).map(x=>`<div class="bar">
       <div class="grow"><strong>${esc(x.description||x.key)}</strong>
         <div class="tiny">${esc(x.key)}</div></div>
-      <input class="kurz" type="number" step="1" value="${esc(x.value)}" data-pc="${esc(x.key)}" aria-label="${esc(x.description||x.key)}">
-    </div>`).join('') + (e1?'':'<button class="btn blue" id="pcSave">Punktwerte speichern</button>');
-  if(!e1) $('#pcSave').onclick=e=>werteSpeichern(document.querySelectorAll('[data-pc]'),
+      <input class="kurz" type="number" step="1" value="${esc(x.value)}" data-pc="${esc(x.key)}" aria-label="${esc(x.description||x.key)}" ${aendern?'':'disabled'}>
+    </div>`).join('') + (e1?'':aendern?'<button class="btn blue" id="pcSave">Punktwerte speichern</button>':nurLeitung);
+  if(!e1&&aendern) $('#pcSave').onclick=e=>werteSpeichern(document.querySelectorAll('[data-pc]'),
     (i,v)=>sb.from('points_config').update({value:v}).eq('key',i.dataset.pc).select('key'),e.currentTarget);
 
   const {data:tt,error:e2}=await sb.from('tier_thresholds').select('*').order('tier');
   $('#tierList').innerHTML = e2 ? fehlerBox(e2.message) : (tt||[]).map(x=>`<div class="bar">
       <div class="grow"><strong>${esc(x.name)}</strong></div>
-      <input class="kurz" type="number" step="1" min="0" value="${esc(x.min_points)}" data-tt="${esc(x.tier)}" aria-label="${esc(x.name)}">
+      <input class="kurz" type="number" step="1" min="0" value="${esc(x.min_points)}" data-tt="${esc(x.tier)}" aria-label="${esc(x.name)}" ${aendern?'':'disabled'}>
       <span class="tiny">Punkte nötig</span></div>`).join('')
-    + (e2?'':'<button class="btn blue" id="ttSave">Stufen speichern</button>');
-  if(!e2) $('#ttSave').onclick=e=>werteSpeichern(document.querySelectorAll('[data-tt]'),
+    + (e2?'':aendern?'<button class="btn blue" id="ttSave">Stufen speichern</button>':nurLeitung);
+  if(!e2&&aendern) $('#ttSave').onclick=e=>werteSpeichern(document.querySelectorAll('[data-tt]'),
     (i,v)=>sb.from('tier_thresholds').update({min_points:v}).eq('tier',+i.dataset.tt).select('tier'),e.currentTarget,0);
+  loadStatusProgramm();
+}
+/* Status-Seite: Vor der Freigabe sehen Creator nichts davon. Schalten darf nur die Leitung, das steht im Protokoll. */
+async function loadStatusProgramm(){
+  const {data,error}=await sb.rpc('status_programm_stand');
+  if(error){ $('#stpBox').innerHTML=fehlerBox(error.message); return; }
+  const an=!!data?.an;
+  $('#stpBox').innerHTML=`<p class="tiny mb-md"><span class="dot ${an?'on':''}"></span>${an?'Freigegeben: Alle Creator sehen ihre Stufe, die Status-Seite und das Level-up.':'Nicht freigegeben: Creator sehen nichts davon, auch nicht über einen direkten Link.'}</p>
+    ${darf('leitung')?`<div class="bar ende"><button class="btn ${an?'':'blue'}" id="stpBtn">${an?'Freigabe zurücknehmen':'Status-Seite für Creator freigeben'}</button></div>`:'<p class="tiny">Ändern darf nur die Leitung.</p>'}`;
+  const knopf=$('#stpBtn');
+  if(knopf) knopf.onclick=async()=>{
+    if(!await frage(an?{titel:'Freigabe zurücknehmen?',text:'Die Status-Seite und das Level-up verschwinden für alle Creator. Punkte und Stufen rechnen im Hintergrund weiter.',ja:'Zurücknehmen',gefahr:true}
+      :{titel:'Status-Seite für Creator freigeben?',text:'Danach sehen alle Creator ihre Stufe, die Vorteile und das Level-up, ohne neuen Build. Wer inzwischen aufgestiegen ist, bekommt einmal einen Push.',ja:'Freigeben',gefahr:true})) return;
+    try{ await rpc('admin_status_programm_schalten',{p_an:!an}); toast(an?'Freigabe zurückgenommen':'Status-Seite freigegeben'); loadStatusProgramm(); }catch(err){ fail(err); }
+  };
 }
 /* ── Standorte ───────────────────────────── */
 const ORT_STATUS={open:['on','Offen'],opening_soon:['warn','Eröffnet bald'],coming_soon:['','Demnächst']};
@@ -3331,12 +4017,8 @@ function standortDetail(id){
     zeilen.push('','Folge in Stripe:',eroeffnungFolge(id,status,datum));
     if(!await frage({titel:`${l.city} ändern?`,text:zeilen.join('\n'),ja:'Übernehmen',gefahr:true})) return;
     try{
-      /* Oeffnet der Standort, zuerst der Status: Sonst verschoebe der Abgleich die
-         Probezeiten noch auf das neue Datum, obwohl er das bei „offen“ nicht mehr soll.
-         Sonst zuerst das Datum, damit der Abgleich nach dem Status den neuen Tag sieht. */
-      if(neuStatus&&status==='open') await rpc('admin_set_location_status',{p_location:id,p_status:status});
-      if(neuDatum) await rpc('admin_set_location_opens_at',{p_location:id,p_opens_at:datum});
-      if(neuStatus&&status!=='open') await rpc('admin_set_location_status',{p_location:id,p_status:status});
+      /* Eine Transaktion: Scheitert ein Teil, bleibt der andere auch aus. */
+      await rpc('admin_standort_oeffnung',{p_location:id,p_status:neuStatus?status:null,p_datum_aendern:neuDatum,p_opens_at:datum});
       toast('Übernommen'); closePanel(); loadStandorte();
     }catch(err){ fail(err); loadStandorte(); }
   };
@@ -3588,6 +4270,8 @@ function kanalDetail(id){
 /* ── Rollen und zweiter Faktor (Migration 96) ─ */
 /* Das Panel blendet aus, was eine Rolle nicht darf. Entschieden wird auf dem Server. */
 const darf=b=>rolleDarf(zugang?.rolle,b);
+/* Wie intern.team_ziel_pruefen: Team-Konten aendert nur die Leitung, ein Owner-Konto nur ein Owner. */
+const teamZielErlaubt=rolle=>!rolle||darf(rolle==='owner'?'owner':'leitung');
 async function zugangLesen(){
   const {data,error}=await sb.rpc('admin_zugang');
   if(error) throw error;
@@ -4410,8 +5094,8 @@ async function loadAudit(){
   blaettern($('#auditSeiten'),data.gesamt,prOffset,o=>{ prOffset=o; loadAudit(); window.scrollTo(0,0); });
   zeilenKlick($('#auditList'),r=>{ const x=z.find(y=>y.id===r.dataset.pr);
     openPanel(`<h2>${esc(aktionWort(x.aktion,AKTION_WORT))}</h2><p class="hint">${esc(dt(x.am))} · ${esc(x.wer||'System')}</p>
-      <div class="card"><dl class="fakten"><dt>Aktion</dt><dd>${esc(x.aktion)}</dd><dt>Bereich</dt><dd>${esc(x.bereich||'—')}</dd><dt>Objekt</dt><dd>${esc(x.objekt||'—')}</dd></dl>
-      ${x.detail?`<h3 class="mt-md mb-md">Details</h3><div class="quote blau">${esc(JSON.stringify(x.detail,null,2))}</div>`:''}</div>`); });
+      <div class="card"><dl class="fakten"><dt>Bereich</dt><dd>${esc(x.bereich||'—')}</dd><dt>Objekt</dt><dd>${esc(x.objekt||'—')}</dd>
+      ${x.detail?detailZeilen(x.detail).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join(''):''}</dl></div>`); });
 }
 
 /* ── Datenschutz ─────────────────────────── */
@@ -4468,7 +5152,7 @@ async function auskunftErstellen(id,anfrage){
 }
 /* Loeschung: zwei Bestaetigungen, die zweite ist die Adresse. Derselbe Weg wie in der App. */
 async function kontoLoeschen(id,name,email,anfrage,danach){
-  if(!await frage({titel:'Konto endgültig löschen: '+(name||email),text:'Das Abo wird in Stripe beendet, das Profil anonymisiert, alle Dateien gelöscht, die Anmeldung gesperrt. Rechnungs- und Buchungsdaten bleiben anonym erhalten, solange das Gesetz es verlangt. Das lässt sich nicht zurücknehmen.',ja:'Weiter',gefahr:true})) return;
+  if(!await frage({titel:'Konto endgültig löschen: '+(name||email),text:'Laufende Creator-Projekte enden als Abbruch: Die Firma bekommt die Gebühr zurück, die Strafgebühr wird eingezogen. Laufende Projekte einer Firma enden ohne Erstattung und ohne Folgen für den Creator. Das Abo wird in Stripe beendet, das Profil anonymisiert, alle Dateien gelöscht, die Anmeldung gesperrt. Rechnungs- und Buchungsdaten bleiben anonym erhalten, solange das Gesetz es verlangt. Das lässt sich nicht zurücknehmen.',ja:'Weiter',gefahr:true})) return;
   if(!email) return toast('Für dieses Konto ist keine E-Mail bekannt. Bitte im Supabase-Dashboard klären.',true);
   const m=await frage({titel:'Zweite Bestätigung',text:'Tippe die E-Mail des Kontos ab.',feld:{label:'E-Mail des Kontos',pflicht:true,muss:email,fehlt:'Die E-Mail stimmt nicht.'},ja:'Endgültig löschen',gefahr:true});
   if(m===null) return;

@@ -17,9 +17,7 @@
 </header>
 
 <h1>Datenschutzerklärung</h1>
-<p class="stand">Fassung 1.4 · Stand 04.11.2026 · gilt für die c3 App (iOS, Android), die Web-App unter c3club.app und die Website c3club.io</p>
-
-<!-- [TODO Owner: rechtliche Pruefung der Fassung 1.4 steht noch aus] -->
+<p class="stand">Fassung 1.5 · Stand 05.11.2026 · gilt für die c3 App (iOS, Android), die Web-App unter c3club.app und die Website c3club.io</p>
 
 <h2>1 · Verantwortlicher</h2>
 <p>
@@ -49,7 +47,9 @@
   Überwachung von Personen (lit. b) noch in der umfangreichen Verarbeitung
   besonderer Kategorien von Daten nach Art. 9 oder 10 DSGVO (lit. c). Die
   Standortfunktion Partner Up ist freiwillig, arbeitet mit gerundeten Werten
-  und löscht sie nach 24 Stunden. Die deutsche Sonderregel in § 38 BDSG
+  und löscht sie nach 24 Stunden.
+  <!-- [TODO Anwalt: Trägt diese Begründung auch mit der Videoüberwachung in den Spaces (Abschnitt 5.21)? Siehe docs/launch/MODELL_V7_ANWALT.md] -->
+  Die deutsche Sonderregel in § 38 BDSG
   greift nicht, weil bei uns weniger als 20 Personen ständig mit der
   automatisierten Verarbeitung personenbezogener Daten beschäftigt sind.
   Ansprechstelle für Datenschutz ist <a href="mailto:hallo@c3club.io">hallo@c3club.io</a>.
@@ -65,6 +65,9 @@
   <li>Standort nur, wenn du Partner Up einschaltest; gespeichert wird ein auf
       etwa 500 m gerundeter Wert, andere sehen nur ganze Kilometer.</li>
   <li>Datenexport und Kontolöschung gehen direkt in der App, ohne Anfrage.</li>
+  <li>Andere sehen von deinen Projekten nur zwei Zahlen: Wieder-Arbeiten-Quote und
+      Anzahl abgeschlossener Projekte. Tarif, VIP und Level zeigen wir nicht.</li>
+  <li>Die c3 Spaces sind videoüberwacht (Abschnitt 5.21).</li>
 </ul>
 
 <h2>5 · Was wir verarbeiten, wozu, auf welcher Grundlage und wie lange</h2>
@@ -97,7 +100,7 @@
   <tr>
     <td>Profilfoto und weitere Fotos, Beruf, Stadt, Kurzbeschreibung,
         Gewerke, Angebot und Gesuch, Portfolio- und Social-Links,
-        Antworten auf Profil-Fragen, Level</td>
+        Antworten auf Profil-Fragen, Status Verified</td>
     <td>Sichtbarkeit für andere Mitglieder im Verzeichnis, in Chats, Teams,
         Projekten und bei Partner Up</td>
     <td>lit. b</td>
@@ -133,7 +136,7 @@
   </tr>
   <tr>
     <td>Projekte, die du anlegst (Titel, Ziel, Beschreibung, Auftraggeber,
-        gesuchte Gewerke, Zeitraum, Budgetrahmen, Kriterien, Fristen, Fragen
+        gesuchte Gewerke, Zeitraum, Budget, Kriterien, Fristen, Fragen
         an Bewerber), ihr Prüfstatus, eine Begründung bei Ablehnung</td>
     <td>Veröffentlichung des Projekts nach Prüfung durch das c3 Team,
         Schutz der Community vor unzulässigen Projekten</td>
@@ -151,8 +154,8 @@
   <tr>
     <td>Antwortzeit im Chat: Median aus den Zeitstempeln deiner Nachrichten
         der letzten 90 Tage</td>
-    <td>Auswahl für das Projekt</td>
-    <td>lit. b</td>
+    <td>Betreuung der Projekte durch das c3 Team</td>
+    <td>lit. f (Qualität der Vermittlung)</td>
     <td>wird bei jedem Abruf neu berechnet und nicht gespeichert</td>
   </tr>
 </table>
@@ -163,7 +166,8 @@
   Kamera, Fotomediathek und Mikrofon nutzt die App nur, wenn du ein Foto
   oder eine Sprachnachricht aufnimmst oder auswählst, und erst nach der
   Freigabe durch das Betriebssystem. Wir lesen Nachrichten nicht mit; Inhalte
-  sehen wir nur, wenn sie uns gemeldet werden (Abschnitt 5.10).
+  sehen wir nur, wenn sie uns gemeldet werden (Abschnitt 5.10), und im Projekt-Chat,
+  wenn ein Unternehmen Funkstille meldet (Abschnitt 5.20).
 </p>
 <p>
   <strong>Projekte.</strong> Projekte legen geprüfte Unternehmen an
@@ -179,20 +183,21 @@
   deine strukturierten Antworten (etwa Verfügbarkeit, Kapazität, Aufwand,
   relevante Arbeiten, Budget-Passung, „Warum du“ und die Ja/Nein-Fragen des
   Projekts), dazu Angaben aus deinem Profil (Name, Profilfoto, Beruf, Stadt,
-  Gewerke, Portfolio-Link, Level, Zahl früherer Zusagen, letzte Aktivität).
-  Bewerbungen sind kostenlos. Zusage oder Absage trifft ein Mensch.
+  Gewerke, Portfolio-Link, Status Verified, Wieder-Arbeiten-Quote und Anzahl
+  abgeschlossener Projekte). Dein Tarif, ein VIP-Status und dein Level gehören
+  nicht dazu. Bewerbungen sind kostenlos. Zusage oder Absage trifft ein Mensch.
 </p>
 <p>
-  <strong>Antwortzeit.</strong> Zusätzlich sehen die Person oder das Unternehmen,
-  die das Projekt angelegt haben, und das c3 Team deine ungefähre Antwortzeit im Chat, als
-  gerundeten Wert in Minuten oder Stunden. Wir berechnen sie als Median aus den Zeitstempeln der
+  <strong>Antwortzeit und Aktivität.</strong> Nur das c3 Team sieht bei einer Bewerbung
+  zusätzlich dein Level, wann du zuletzt aktiv warst und deine ungefähre Antwortzeit im Chat, als
+  gerundeten Wert in Minuten oder Stunden; Unternehmen sehen das nicht. Wir berechnen sie als Median aus den Zeitstempeln der
   Nachrichten in deinen Unterhaltungen der letzten 90 Tage: wie lange es
   dauert, bis du auf eine eingehende Nachricht antwortest. Dafür werden nur
   Zeitpunkte verwendet, nie Inhalte; Kanäle zählen nicht mit, unbeantwortete
   Nachrichten und Antworten nach mehr als sieben Tagen ebenfalls nicht. Der
   Wert wird bei jedem Aufruf neu berechnet und nicht gespeichert. Zweck ist
-  die Auswahl für das Projekt, Rechtsgrundlage Art. 6 Abs. 1 lit. b DSGVO
-  (Durchführung der von dir gewünschten Bewerbung).
+  die Betreuung der Projekte durch das Team, Rechtsgrundlage Art. 6 Abs. 1 lit. f DSGVO
+  (Qualität der Vermittlung).
 </p>
 <p>
   <strong>Melden von Projekten.</strong> Projekte kannst du wie Profile und
@@ -301,17 +306,18 @@
 <table>
   <tr><th>Daten</th><th>Zweck</th><th>Rechtsgrundlage</th><th>Speicherdauer</th></tr>
   <tr>
-    <td>Punkte und ihre Quelle (etwa Check-in, Event, Einladung), Level,
-        Streak, Abzeichen, Wochenrückblick, Vergleich der Standorte</td>
+    <td>Punkte und ihre Quelle (etwa Check-in, Event, Einladung, abgeschlossenes
+        Projekt, Fragebogen, Abzug bei einem Abbruch), Level, Streak, Abzeichen, Wochenrückblick, Vergleich der Standorte</td>
     <td>Club-Funktionen: Anerkennung von Aktivität, freigeschaltete Extras</td>
     <td>lit. b</td>
     <td>bis zur Löschung des Kontos</td>
   </tr>
 </table>
 <p>
-  Andere Mitglieder sehen dein Level. Punktestände einzelner Personen
-  veröffentlichen wir nicht; der Standortvergleich zeigt nur Summen je
-  Standort.
+  Andere Mitglieder können in der Rangliste deinen Namen, dein Profilfoto, deine
+  Punkte, deinen Rang und deinen Verlauf nach Monaten abrufen. Dein Level sehen nur
+  du und das c3 Team. Der Standortvergleich zeigt nur Summen je Standort.
+  <!-- [TODO Anwalt: Rangliste ohne Widerspruchsmöglichkeit auf lit. b? Siehe docs/launch/MODELL_V7_ANWALT.md] -->
 </p>
 
 <h3>5.9 Push-Benachrichtigungen</h3>
@@ -429,7 +435,9 @@
       widerrufen; das berührt die Rechtmäßigkeit der bisherigen Verarbeitung
       nicht. Der Concierge ist freiwillig; alles geht auch ohne ihn.</td></tr>
   <tr><th>Empfänger</th><td>Anthropic (Abschnitt 7) erzeugt die Antworten und
-      verwendet die Daten laut seinen Vertragsbedingungen nicht zum Training.</td></tr>
+      verwendet die Daten laut seinen Vertragsbedingungen nicht zum Training.
+      ElevenLabs (Abschnitt 7) erhält den Antworttext zum Vorlesen, siehe „Sprechen
+      statt tippen“.</td></tr>
   <tr><th>Speicherdauer</th><td>das Gespräch 90 Tage in deinem Konto, oder bis
       du es löschst, die Einwilligung widerrufst oder dein Konto löschst; deine
       Bewertungen gehen mit dem Gespräch; der
@@ -453,12 +461,19 @@
 </p>
 <p>
   Daraus entstehen allgemeine Hinweise für den Concierge, die nur wiedergeben dürfen, was
-  schon in seiner Wissensbasis steht und die wir automatisch prüfen, sowie Vorschläge,
-  die das c3 Team von Hand freigibt. Beide enthalten nur eine Zusammenfassung und die
+  schon in seiner Wissensbasis steht und die wir automatisch prüfen und das c3 Team zusätzlich
+  freigibt, sowie Vorschläge, die das c3 Team von Hand freigibt. Beide enthalten nur eine Zusammenfassung und die
   Zahl der Personen, keinen Bezug zu dir. Sie bleiben deshalb bestehen, wenn du
   dein Gespräch löschst oder widerrufst. Einzelne Personen werden nicht bewertet, und dir
   gegenüber wird nichts entschieden. Inaktive Hinweise, entschiedene Vorschläge und die
   Laufprotokolle (nur Zahlen) löschen wir nach 12 Monaten.
+</p>
+<p>
+  <strong>Übergabe an das Team.</strong> Kommt der Concierge nicht weiter, kann er dir einen
+  E-Mail-Entwurf an hallo@c3club.io mit Zusammenfassung und Frage vorbereiten. Er öffnet sich
+  in deinem Mailprogramm und geht erst ab, wenn du ihn selbst absendest. Die Stimme aus der Cloud
+  nutzt nur, wer ihr vor dem ersten Gespräch eigens zustimmt. Widerrufen kannst du unter „Your
+  data“, ohne Einwilligung liest dein Gerät vor.
 </p>
 <p>
   <strong>Sprechen statt tippen.</strong> Im Voice-Memo und im Gespräch wandelt
@@ -467,28 +482,36 @@
   Betriebssystems, nach Möglichkeit auf dem Gerät. Im Browser nutzt die Web-App
   dessen Spracherkennung, die deine Stimme an den Anbieter des Browsers schicken
   kann (bei Chrome an Google); dafür gelten dessen Bedingungen. Vorgelesen wird
-  die Antwort von der Stimme deines Geräts; hat der Browser keine lokale Stimme,
-  kann auch dabei der Antworttext an seinen Anbieter gehen. Mit KI erzeugte Antworten können
+  die Antwort mit der Cloud-Stimme von ElevenLabs (Abschnitt 7), sobald wir sie
+  eingeschaltet haben. Dorthin geht nur der Text der Antwort, Satz für Satz, nie deine
+  Stimme oder eine Kennung deines Kontos. Das Audio speichern wir nicht. Ist die Cloud-Stimme aus oder nicht erreichbar, liest die Stimme deines
+  Geräts vor; hat der Browser keine lokale Stimme, kann auch dabei der Antworttext an
+  seinen Anbieter gehen. Mit KI erzeugte Antworten können
   falsch sein und sind als KI gekennzeichnet (Art. 50 KI-Verordnung).
+  <!-- [TODO Owner: Aufbewahrungsfrist bei ElevenLabs laut Vertrag eintragen] -->
 </p>
-<!-- [TODO Owner: Sobald die Cloud-Stimme freigeschaltet wird (concierge-stimme),
-hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -->
 
 <h3>5.16 Konten für Unternehmen (c3 for Business)</h3>
 <table>
   <tr><th>Daten</th><td>Name des Unternehmens, Website, Anschrift,
-      UID- oder Registernummer, Tätigkeit, Kontaktperson, Telefon falls angegeben,
+      Land, Steuernummer, Registernummer falls angegeben, Tätigkeit, Kontaktperson, Telefon falls angegeben,
       Beschreibung, E-Mail, Erklärung als direkter Auftraggeber, Prüfstand und
-      Prüfergebnisse, eingereichte Projekte.</td></tr>
+      Prüfergebnisse, eingereichte Projekte, Zahlungsdaten und Gebühren (siehe unten).</td></tr>
   <tr><th>Zweck</th><td>Das Konto führen, prüfen, ob ein Anbieter echt und direkter
       Auftraggeber ist (keine Agentur oder Vermittlung), und Projekte prüfen und
-      veröffentlichen. Die UID gleichen wir beim Dienst VIES der EU-Kommission ab.
-      Name, Website, Tätigkeit und Nummern können wir von einer KI anhand öffentlicher
-      Quellen recherchieren lassen (Anthropic, Abschnitt 7); die Kontaktperson geht dabei
-      nicht an die KI. Entschieden wird von Menschen.</td></tr>
+      veröffentlichen. Die Steuernummer gleichen wir beim Dienst VIES der EU-Kommission und bei Stripe ab, Stripe prüft
+      EU-Nummern dazu bei den Behörden.
+      Entschieden wird von Menschen.</td></tr>
+  <tr><th>KI-Recherche</th><td>Name, Website, Tätigkeit, Land, Steuer- und Registernummer und die Antworten von VIES und Stripe dazu gehen an eine
+      KI (Anthropic, Abschnitt 7), die dazu die Website und öffentliche Quellen liest und
+      einschätzt, ob das Unternehmen direkter Auftraggeber oder Vermittler ist. Die
+      Kontaktperson, Anschrift und E-Mail gehen nicht an die KI. Das Ergebnis sieht nur
+      das Team. Es ist ein Hinweis: Die KI gibt nichts frei und lehnt nichts ab. Ändert das
+      Unternehmen seine Angaben, verwerfen wir das Ergebnis.</td></tr>
   <tr><th>Grundlage</th><td>Vertrag (lit. b); für die Prüfung unser berechtigtes
       Interesse, Mitglieder vor unseriösen Angeboten zu schützen (lit. f).</td></tr>
-  <tr><th>Sichtbarkeit</th><td>Mitglieder sehen den Namen und das Projekt, alle
+  <tr><th>Sichtbarkeit</th><td>Mitglieder sehen den Namen, das Projekt, die
+      Wieder-Arbeiten-Quote und die Anzahl abgeschlossener Projekte, alle
       übrigen Angaben nur das c3 Team. Im Mitgliederverzeichnis erscheinen
       Anbieter nicht.</td></tr>
   <tr><th>KI-Vorprüfung</th><td>Bei Projekten von Anbietern gehen Projekt- und
@@ -498,8 +521,17 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
   <tr><th>E-Mail</th><td>Über Rückfragen, Freigaben, Bewerbungen und neue Nachrichten
       informieren wir Anbieter per E-Mail über Google Workspace (Abschnitt 7).
       Versendete Benachrichtigungen löschen wir nach 30 Tagen.</td></tr>
+  <tr><th>Zahlungsdaten und Gebühren</th><td>Die Karte gibt das Unternehmen auf der
+      Bezahlseite von Stripe ein; sie erreicht unsere Server nicht. Wir speichern die
+      Stripe-Kennungen, Marke, Endziffern und Ablauf der Karte, den Zeitpunkt und die
+      AGB-Fassung beim Hinterlegen. Zu jeder Gebühr speichern wir Projekt, Budget, Betrag,
+      Stand, Kennung der Zahlung bei Stripe, Erstattung und Grund. Beim Match zieht Stripe die
+      Gebühr ein. Für Rechnung und Gutschrift gehen Firmenname, Anschrift und Steuernummer an Stripe, und
+      wir speichern deren Kennungen. Zweck: die c3-Gebühr abrechnen und erstatten, Partnerstatus und
+      Budget-Credit berechnen. Grundlage: Vertrag (lit. b), Aufbewahrung lit. c.</td></tr>
   <tr><th>Speicherdauer</th><td>bis zur Löschung des Kontos, Projekte und
-      Bewerbungen wie in Abschnitt 5.3.</td></tr>
+      Bewerbungen wie in Abschnitt 5.3. Gebühren für die gesetzliche
+      Aufbewahrungsfrist (Abschnitt 11).</td></tr>
   <tr><th>Abgelehnte und gesperrte Konten</th><td>Lehnen wir ein Konto ab oder sperren es,
       speichern wir von UID- und Registernummer nur einen Hashwert (SHA-256) und den
       Status, auch über die Löschung des Kontos hinaus. Name und übrige Angaben
@@ -509,6 +541,98 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
       unseriösen Angeboten zu schützen (lit. f). Prüft das Team die Nummer später als
       echt, löschen wir den Hashwert.</td></tr>
 </table>
+
+<h3>5.17 Prüfung für den Status Verified</h3>
+<table>
+  <tr><th>Daten</th><td>dein Antrag, Stand, Entscheidung, bei einer Ablehnung der Grund, wer
+      im Team entschieden hat und wann; dafür sichtet das Team dein Profil samt Links zu
+      Website, Portfolio und Social-Profilen.</td></tr>
+  <tr><th>Zweck</th><td>Nur geprüfte Profile können sich auf Projekte bewerben (<a href="/agb#verified">AGB, Abschnitt 3.9</a>).
+      Entschieden wird von Menschen, nicht von einer KI.</td></tr>
+  <tr><th>Grundlage</th><td>Vertrag (lit. b).</td></tr>
+  <tr><th>Sichtbarkeit</th><td>Dass du Verified bist, sehen Mitglieder und Unternehmen. Antrag
+      und Grund sehen nur du und das Team.</td></tr>
+  <tr><th>Speicherdauer</th><td>bis zur Löschung des Kontos.</td></tr>
+</table>
+
+<h3>5.18 Projektablauf</h3>
+<table>
+  <tr><th>Daten</th><td>Match, Zeitpunkte von Lieferung, Abnahme und Abschluss,
+      und Grund einer Nachbesserung. Rechnungen zwischen dir und dem Unternehmen laufen nicht
+      über uns, wir speichern keine.</td></tr>
+  <tr><th>Zweck</th><td>Abschluss des Projekts, Punkte und Partnerstatus. Das Projektbudget
+      läuft nicht über uns.</td></tr>
+  <tr><th>Grundlage</th><td>Vertrag (lit. b).</td></tr>
+  <tr><th>Sichtbarkeit</th><td>Wer gematcht wurde und den Grund sehen nur die beiden Seiten
+      des Projekts und das c3 Team. Auf deine Anfrage schicken wir dir den Verlauf deines
+      eigenen Projekts als Zusammenfassung, etwa für einen Anwalt.</td></tr>
+  <tr><th>Speicherdauer</th><td>bis zur Löschung des Kontos, dann entfernen wir den Grund.</td></tr>
+</table>
+
+<h3>5.19 Bewertungen und Wieder-Arbeiten-Quote</h3>
+<table>
+  <tr><th>Daten</th><td>dein Fragebogen nach einem abgeschlossenen Projekt: vier Noten von 1 bis 5,
+      „Würdest du wieder zusammenarbeiten?“ (Ja oder Nein), Freitext falls angegeben, Zeitpunkt.
+      Daraus berechnet: die Quote und die Anzahl abgeschlossener Projekte.</td></tr>
+  <tr><th>Zweck</th><td>Vertrauen zwischen Creators und Unternehmen, Auswahl für Projekte, Schutz
+      vor Unternehmen, die wiederholt nicht zahlen.</td></tr>
+  <tr><th>Grundlage</th><td>Vertrag (lit. b); für die Auswertung durch das Team und die Anzeige
+      gegenüber Dritten unser berechtigtes Interesse an verlässlichen Projekten (lit. f).
+      <!-- [TODO Anwalt: Rechtsgrundlage und Widerspruch bei Bewertungen und Quote prüfen] --></td></tr>
+  <tr><th>Sichtbarkeit</th><td>Blind: Die andere Seite sieht deine Antworten erst, wenn beide
+      abgegeben haben oder 14 Tage nach dem Abschluss. Noten und Freitext sehen nur die
+      bewertete Seite und das c3 Team. Alle anderen Mitglieder und Unternehmen sehen nur Quote und Anzahl,
+      keine Sterne und keine einzelnen Antworten. Für die Quote zählen nur schon sichtbare
+      Antworten. Niedrige Werte beim Zahlungsverhalten sieht das Team in einem Bericht.</td></tr>
+  <tr><th>Speicherdauer</th><td>bis zur Löschung des Kontos. Dann löschen wir die Freitexte
+      von dir und über dich. Noten und Ja oder Nein bleiben ohne Namen, weil sie in die Quote
+      der anderen Seite eingehen.</td></tr>
+</table>
+<p>
+  Punkte für den Abschluss und den Fragebogen stehen in Abschnitt 5.8.
+  Über eine Bewertung entscheidet nichts automatisch; die Quote ist eine reine Rechnung.
+</p>
+
+<h3>5.20 Abbruch, Einsicht in den Projekt-Chat und Strafgebühr</h3>
+<table>
+  <tr><th>Daten</th><td>der Abbruch-Fall: Projekt, beide Seiten, Art (Absage, Funkstille, Prüfung eines Anliegens oder Ende wegen Sperre), Beschwerde oder Abbruch-Anliegen aus den ersten 7 Tagen samt deinem Text, Notiz
+      der Meldung, Stand, Entscheidung und Grund, Stufe. Dazu die Strafgebühr: Betrag,
+      Stand, die akzeptierte AGB-Fassung, Kennung der Zahlung bei Stripe, Fehlergrund und Zahl
+      der Versuche. Sperren und ihre Dauer.</td></tr>
+  <tr><th>Zweck</th><td>Die Abbruchregel durchführen (<a href="/agb#abbruch">AGB, Abschnitt 3.12</a>):
+      erstatten, einziehen, Folgen anwenden, Wiederholungen zählen.</td></tr>
+  <tr><th>Grundlage</th><td>Vertrag (lit. b); Aufbewahrung von Zahlungsdaten lit. c.</td></tr>
+  <tr><th>Einsicht in den Chat</th><td>Meldet ein Unternehmen Funkstille oder reicht eine Seite in den ersten 7 Tagen
+      eine Beschwerde oder ein Abbruch-Anliegen ein, kann die Leitung des c3 Teams bei dem
+      offenen Fall den zugehörigen Projekt-Chat einsehen: die letzten 50 nicht gelöschten
+      Nachrichten und die Zeitpunkte der letzten Nachricht beider Seiten. Andere Chats sehen
+      wir dafür nicht. Das geht nur, solange der Fall offen ist, und jeder Blick wird mit
+      Person und Zeitpunkt protokolliert (Abschnitt 5.12). Du bekommst eine Benachrichtigung, sobald die
+      Meldung eingeht, und eine Nachricht von dir genügt, um die Funkstille zu beenden.
+      Grundlage: unser berechtigtes Interesse und das des Unternehmens, eine Meldung
+      fair zu prüfen (lit. f).
+      <!-- [TODO Anwalt: Chat-Einsicht bei Funkstille prüfen, auch für Nachrichten der anderen Seite] --></td></tr>
+  <tr><th>Einzug</th><td>Stripe zieht die Strafgebühr von der hinterlegten Zahlungsmethode ein,
+      zuerst von der deiner Mitgliedschaft. Scheitert das, sperren wir das Konto bis zur Zahlung.
+      Bezahlen kannst du dann auf der Bezahlseite von Stripe.</td></tr>
+  <tr><th>Sichtbarkeit</th><td>Fall und Stand sehen beide Seiten des Projekts und das Team. Die
+      Strafgebühr sehen nur du und das Team. Das Unternehmen erfährt, dass das Projekt beendet
+      ist und ob die Gebühr erstattet wird. Eine Beschwerde oder ein Abbruch-Anliegen samt Text
+      sehen nur du, wenn du es eingereicht hast, und das Team; die andere Seite erfährt nur, dass
+      wir prüfen.</td></tr>
+  <tr><th>Speicherdauer</th><td>bis zur Löschung des Kontos. Dann löschen wir Notizen und
+      Gründe. Beträge und Stand bleiben für die gesetzliche Aufbewahrungsfrist (Abschnitt 11),
+      das Protokoll drei Jahre.</td></tr>
+</table>
+
+<h3>5.21 Videoüberwachung im Space</h3>
+<p>
+  Die c3 Spaces sind videoüberwacht. Zweck ist der Schutz von Personen und Eigentum. Die
+  App verarbeitet keine Aufnahmen. Rechtsgrundlage, Speicherfrist und die überwachten
+  Bereiche nennen wir hier, bevor der erste Space eröffnet.
+  <!-- [TODO Anwalt: Rechtsgrundlage, Speicherfrist, Hinweispflicht (Schild vor Ort), Zugriff und
+  Datenschutz-Folgenabschätzung festlegen. Keine Frist erfunden. Siehe docs/launch/MODELL_V7_ANWALT.md] -->
+</p>
 
 <h2>6 · Website c3club.io und Web-App c3club.app</h2>
 <p>
@@ -569,7 +693,8 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
 <p>
   Innerhalb von c3 erhalten nur die Personen Zugriff, die ihn für ihre
   Aufgabe brauchen. Andere Mitglieder sehen, was du für sie sichtbar machst
-  (Profil, Nachrichten in gemeinsamen Unterhaltungen, Level, gerundete
+  (Profil, Nachrichten in gemeinsamen Unterhaltungen, Punkte und Rang, Status Verified,
+  Quote und Anzahl abgeschlossener Projekte, gerundete
   Entfernung). Darüber hinaus arbeiten wir mit diesen Dienstleistern:
 </p>
 <table>
@@ -585,7 +710,7 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
   </tr>
   <tr>
     <td>Stripe Payments Europe, Ltd., Dublin, Irland, mit Stripe, Inc., USA</td>
-    <td>Zahlungsabwicklung, Rechnungen, Apple Pay</td>
+    <td>Zahlungsabwicklung, Rechnungen, Apple Pay, c3-Gebühr der Unternehmen und Strafgebühr</td>
     <td>teils Auftragsverarbeiter, teils eigenverantwortlich
         (Betrugsabwehr, gesetzliche Pflichten)</td>
     <td>Irland und USA; EU-US Data Privacy Framework und
@@ -633,11 +758,18 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
   </tr>
   <tr>
     <td>Anthropic, PBC, San Francisco, USA</td>
-    <td>Antworten und wöchentliche Auswertung des c3 Concierge (nur wenn du ihn nutzt, Abschnitt 5.15) und Vorprüfung eingereichter Projekte (Abschnitt 5.16)</td>
+    <td>Antworten und wöchentliche Auswertung des c3 Concierge (nur wenn du ihn nutzt, Abschnitt 5.15), Recherche zu Unternehmen und Vorprüfung eingereichter Projekte (Abschnitt 5.16), Vorschläge für die Schritte eines Projekts aus dem Projekttext</td>
     <td>Auftragsverarbeiter</td>
     <td>USA; siehe Abschnitt 8
         <!-- [TODO Owner: DPA mit Anthropic abschließen, DPF-Status und
         Standardvertragsklauseln prüfen] --></td>
+  </tr>
+  <tr>
+    <td>ElevenLabs (Eleven Labs Inc., New York, USA, und ElevenLabs Poland sp. z o.o., Warschau, Polen)</td>
+    <td>Vorlesen der Antworten des c3 Concierge (Abschnitt 5.15): nur der Text der Antwort</td>
+    <td>Auftragsverarbeiter</td>
+    <td>Polen und USA; EU-US Data Privacy Framework und Standardvertragsklauseln laut Anbieter
+        <!-- [TODO Owner: Vertragspartner, DPA und DPF-Status vor dem Einschalten prüfen] --></td>
   </tr>
   <!-- [TODO Owner: Schließsystem (Anbieter, Ort, Garantie) eintragen, sobald angebunden;
   bis dahin werden keine Daten an ein Schließsystem übermittelt] -->
@@ -670,7 +802,8 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
   Für ein Konto brauchen wir E-Mail, Passwort, Anzeigename, die
   Altersbestätigung und die Zustimmung zu den AGB; ohne sie können wir keinen
   Vertrag schließen. Für eine Mitgliedschaft oder einen Tagespass brauchen
-  wir zusätzlich die Zahlungsabwicklung über Stripe. Alles andere, etwa
+  wir zusätzlich die Zahlungsabwicklung über Stripe. Für eine Bewerbung auf Projekte
+  brauchen wir ein vollständiges, geprüftes Profil (Abschnitt 5.17). Alles andere, etwa
   Profilfotos, Standort, Push, GIFs oder der c3 Concierge, ist freiwillig.
 </p>
 
@@ -680,8 +813,12 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
   Wirkung entfaltet oder dich ähnlich erheblich beeinträchtigt (Art. 22
   DSGVO). Moderationsentscheidungen treffen Menschen. Automatisch laufen nur
   Mengenbegrenzungen gegen Missbrauch, die Sortierung der Vorschläge bei
-  Partner Up (Abschnitt 5.5) und die Berechnung der Antwortzeit für
-  Bewerbungen (Abschnitt 5.3); über eine Bewerbung entscheidet ein Mensch.
+  Partner Up (Abschnitt 5.5), die Berechnung von Antwortzeit und Quote
+  (Abschnitte 5.3 und 5.19) und die automatische Abnahme eines Projekts nach 7 Tagen, die nur
+  auf Status und Punkte wirkt; über eine Bewerbung entscheidet ein Mensch. Sagst du
+  ein Projekt selbst ab, greifen die Folgen der Abbruchregel sofort nach festen Regeln
+  (Abschnitt 5.20). Funkstille und den Status Verified entscheidet ein Mensch.
+  <!-- [TODO Anwalt: Art. 22 DSGVO bei den Folgen einer Absage prüfen] -->
   Die Antworten des c3 Concierge schreibt eine KI; sie entscheidet nichts,
   sondern schlägt nur vor (Abschnitt 5.15).
 </p>
@@ -693,6 +830,11 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
       Text gelöscht und Absender entfernt.</li>
   <li><strong>Bewerbungen auf Projekte:</strong> bis zum Abschluss des
       Projekts und weitere 12 Monate, danach anonymisiert.</li>
+  <li><strong>Verified-Antrag, Projektablauf:</strong> bis zur Löschung des Kontos.</li>
+  <li><strong>Bewertungen:</strong> bis zur Löschung des Kontos; danach ohne Freitext
+      und ohne Namen, weil sie in die Quote der anderen Seite eingehen.</li>
+  <li><strong>Abbruch-Fälle und Anliegen:</strong> bis zur Löschung des Kontos; danach ohne Notizen und
+      Gründe. Beträge wie Rechnungen und Zahlungsbelege.</li>
   <li><strong>Vorregistrierung auf der Website:</strong> bis zum Widerruf,
       spätestens drei Monate nach dem Launch oder nach deiner Registrierung in
       der App.</li>
@@ -708,7 +850,9 @@ hier und in Abschnitt 7 den Anbieter nennen: an ihn geht nur der Antworttext.] -
   <li><strong>Zahlungsereignisse von Stripe:</strong> 30 Tage.</li>
   <li><strong>Meldungen, Moderationsentscheidungen, Team-Protokoll,
       Support-Korrespondenz:</strong> drei Jahre nach Abschluss.</li>
-  <li><strong>Buchungen, Rechnungen, Zahlungsbelege:</strong> für die Dauer
+  <li><strong>Videoaufnahmen im Space:</strong> Die Frist nennen wir vor der Eröffnung
+      (Abschnitt 5.21).</li>
+  <li><strong>Buchungen, Rechnungen, Zahlungsbelege, c3-Gebühren, Strafgebühren:</strong> für die Dauer
       der gesetzlichen Aufbewahrungspflicht, in Österreich sieben Jahre ab
       Ende des Kalenderjahres (§ 132 BAO); soweit deutsches Recht längere
       Fristen vorschreibt (§ 147 AO), gelten diese. Nach einer Kontolöschung
