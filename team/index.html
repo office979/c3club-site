@@ -644,7 +644,7 @@ button.treffer{width:100%;text-align:left}
   <section class="page" id="p-verifizierung">
     <h1 tabindex="-1">Verified</h1>
     <div id="vfListe">
-      <p class="hint">Verified ist die Eintrittskarte zu Projekten: Profil vollständig und von euch geprüft. Öffne Portfolio, Website und Profile im Netz, bevor du entscheidest. Der Grund einer Ablehnung geht als Push an die Person.</p>
+      <p class="hint">Verified ist die Eintrittskarte zu Projekten: Profil vollständig und von euch geprüft. Öffne Portfolio, Website und Profile im Netz, bevor du entscheidest. Der Grund einer Ablehnung geht als Push und per Mail an die Person.</p>
       <div class="bar" id="vfTabs"></div>
       <div class="bar"><input class="grow" id="vfq" placeholder="Name suchen" aria-label="Name suchen"></div>
       <div class="card"><div id="vfList"></div><div id="vfSeiten"></div></div>
@@ -2701,7 +2701,11 @@ function pruefungEinhaengen(host,c,stand,after){
           <button class="btn blue" data-rv-ok>Freigeben</button>
           <button class="btn quiet" data-rv-frage>Rückfrage senden</button>
           <button class="btn quiet" data-rv-no>Ablehnen</button></div>
-        <p class="tiny mt-sm" data-rv-hinweis></p></div>`}`;
+        <p class="tiny mt-sm" data-rv-hinweis></p>
+        <div data-rv-vorlagen></div></div>`}`;
+    void ablehnungsKnoepfe(host.querySelector('[data-rv-vorlagen]'),'projekt',async kurz=>{
+      try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:false,p_note:kurz,p_stand:stand.stand}); toast('Abgelehnt, die Mail geht raus'); after(); }catch(err){ fail(err); loadCampaigns(); }
+    });
     const start=host.querySelector('[data-ki-start]');
     if(start) start.onclick=async()=>{ const r=await KI.vonHand(cid,!!ki); if(r.zustand==='fehler') toast(r.text,true); };
     if(nurLesen) return;
@@ -2752,7 +2756,7 @@ function pruefungEinhaengen(host,c,stand,after){
       try{ await rpc('admin_rueckfrage_campaign',{p_campaign:cid,p_note:notiz(),p_stand:stand.stand}); toast('Rückfrage gesendet'); after(); }catch(err){ fail(err); loadCampaigns(); } };
     host.querySelector('[data-rv-no]').onclick=async()=>{
       if(!notiz()){ toast('Eine Ablehnung braucht eine Begründung',true); return; }
-      if(!await frage({titel:'Projekt ablehnen: '+c.title,text:'Das Unternehmen bekommt die Begründung als Nachricht. In die Prüfung kommt das Projekt nur zurück, wenn das Unternehmen es neu einreicht.',ja:'Ablehnen',gefahr:true})) return;
+      if(!await frage({titel:'Projekt ablehnen: '+c.title,text:'Das Unternehmen bekommt die Begründung per Mail. In die Prüfung kommt das Projekt nur zurück, wenn das Unternehmen es neu einreicht.',ja:'Ablehnen',gefahr:true})) return;
       try{ await rpc('admin_review_campaign',{p_campaign:cid,p_approve:false,p_note:notiz(),p_stand:stand.stand}); toast('Abgelehnt'); after(); }catch(err){ fail(err); loadCampaigns(); } };
     const uebernehmen=host.querySelector('[data-ki-text]');
     if(uebernehmen) uebernehmen.onclick=()=>{ host.querySelector('[data-rv-note]').value=(ki?.rueckmeldung||'').slice(0,300); };
@@ -2982,7 +2986,7 @@ async function unternehmenDetail(id){
     </div>`;
     const rotKnopf=host2.querySelector('[data-an-rot]');
     if(rotKnopf) rotKnopf.onclick=async()=>{
-      if(!await frage({titel:'Unternehmen ablehnen?',text:'Die Firma bekommt diese Nachricht: We could not confirm your company details. Questions: hallo@c3club.io. Ihre Projekte gehen vom Netz.',ja:'Ablehnen',gefahr:true})) return;
+      if(!await frage({titel:'Unternehmen ablehnen?',text:'Die Firma bekommt diese Nachricht und eine Mail: We could not confirm your company details. Please check your company name and address. Ihre Projekte gehen vom Netz.',ja:'Ablehnen',gefahr:true})) return;
       try{ await rpc('admin_anbieter_nicht_bestaetigt',{p_id:x.id}); toast('Abgelehnt'); unternehmenDetail(id); }catch(err){ fail(err); }
     };
     host2.querySelector('[data-an-ki]').onclick=async()=>{ const r=await KI_AN.vonHand(x.id,!!ki); if(r.zustand==='fehler') toast(r.text,true); };
@@ -3007,7 +3011,12 @@ async function unternehmenDetail(id){
           ${x.status==='gesperrt'?'<button class="btn" id="anFrei">Sperre aufheben</button>':'<button class="btn red" data-s="gesperrt">Sperren</button>'}
         </div>
         ${alle&&x.komplett?'':`<p class="tiny mt-sm">${x.komplett?'Geprüft geht erst, wenn alle 7 Punkte auf ok stehen.':'Geprüft geht erst, wenn alle Pflichtangaben da sind und alle 7 Punkte auf ok stehen.'}</p>`}
+        ${x.status==='abgelehnt'||x.status==='gesperrt'?'':'<div id="anVorlagen"></div>'}
       </div>`;
+    void ablehnungsKnoepfe($('#anVorlagen'),'unternehmen',async kurz=>{
+      try{ await rpc('admin_anbieter_pruefen',{p_id:x.id,p_status:'abgelehnt',p_notiz:kurz}); anNotizen.delete(x.id); toast('Abgelehnt, die Mail geht raus'); }catch(err){ fail(err); }
+      unternehmenDetail(id);
+    });
     if(fokus) rechts.querySelector(fokus)?.focus({preventScroll:true});
     $('#anNotiz').oninput=e=>anNotizen.set(x.id,e.target.value);
     /* Speichern ohne Neuladen: Sieben Klicks sind sieben Klicks, nicht sieben Listen (L-50). */
@@ -3035,6 +3044,20 @@ async function unternehmenDetail(id){
     };
   };
   zeichnen();
+}
+
+/* Fuenf fertige Ablehnungen je Bereich. Ein Klick lehnt ab und schickt die Mail (Owner, 2026-11-06), darum ohne Rueckfrage. */
+const ablehnungsVorlagen=new Map();
+async function ablehnungsKnoepfe(box,bereich,ablehnen){
+  if(!box) return;
+  let liste=ablehnungsVorlagen.get(bereich);
+  if(!liste){ try{ liste=await rpc('admin_ablehnung_vorlagen',{p_bereich:bereich}); ablehnungsVorlagen.set(bereich,liste); }catch(err){ return; } }
+  box.innerHTML=`<p class="lbl mt-md">Ablehnen mit fertiger Antwort: Ein Klick lehnt sofort ab und schickt die Mail.</p>
+    <div class="bar">${liste.map((v,i)=>`<button class="btn quiet" data-vorlage="${i}" title="${esc(v.kurz)}">${esc(v.knopf)}</button>`).join('')}</div>`;
+  box.querySelectorAll('[data-vorlage]').forEach(k=>k.onclick=async()=>{
+    box.querySelectorAll('button').forEach(b=>{ b.disabled=true; });
+    await ablehnen(liste[Number(k.dataset.vorlage)].kurz);
+  });
 }
 
 /* cpDaten: alles, was die KI-Warteschlange und die Zeilen brauchen. cpSeite: was gerade in der Tabelle steht. */
@@ -3486,7 +3509,8 @@ async function verifiedDetail(id){
           <dt>Abbrüche</dt><dd>${num(x.abbrueche)}</dd>
         </dl>
         ${offen?`<div class="bar ende"><button class="btn blue" id="vfJa" ${ganz?'':'disabled'}>Verifizieren</button><button class="btn red" id="vfNein">Ablehnen</button></div>
-          ${ganz?'':'<p class="tiny mt-sm">Verifizieren geht erst mit vollständigem Profil. Lehne mit Grund ab, die Person ergänzt es und stellt den Antrag neu.</p>'}`:''}
+          ${ganz?'':'<p class="tiny mt-sm">Verifizieren geht erst mit vollständigem Profil. Lehne mit Grund ab, die Person ergänzt es und stellt den Antrag neu.</p>'}
+          <div id="vfVorlagen"></div>`:''}
       </div>
     </div>`;
   $('#vfKonto').onclick=()=>memberDetail(x.profile_id);
@@ -3498,6 +3522,10 @@ async function verifiedDetail(id){
     }
   }).catch(()=>{});
   const fertig=m=>{ toast(m); location.hash='#/verifizierung'; };
+  void ablehnungsKnoepfe($('#vfVorlagen'),'verified',async kurz=>{
+    try{ await rpc('admin_verified_entscheiden',{p_antrag:id,p_verifizieren:false,p_grund:kurz}); fertig('Abgelehnt, Push und Mail gehen raus'); }
+    catch(err){ fail(err); verifiedDetail(id); }
+  });
   const ja=$('#vfJa'), nein=$('#vfNein');
   if(ja) ja.onclick=async()=>{
     if(!await frage({titel:'Verifizieren: '+x.display_name,text:'Die Person kann sich ab sofort auf Projekte bewerben und bekommt eine Nachricht. Unternehmen sehen das Verified-Zeichen.',ja:'Verifizieren'})) return;
@@ -3506,11 +3534,11 @@ async function verifiedDetail(id){
     catch(err){ fail(err); verifiedDetail(id); }
   };
   if(nein) nein.onclick=async()=>{
-    const g=await frage({titel:'Ablehnen: '+x.display_name,text:'Der Grund geht als Push an die Person. Sie kann den Antrag danach neu stellen.',
+    const g=await frage({titel:'Ablehnen: '+x.display_name,text:'Der Grund geht als Push und per Mail an die Person. Sie kann den Antrag danach neu stellen.',
       feld:{label:'Grund (die App ist englisch)',pflicht:true,fehlt:'Ablehnen braucht einen Grund.',platzhalter:'Your portfolio link does not open.'},ja:'Ablehnen',gefahr:true});
     if(g===null) return;
     nein.disabled=true;
-    try{ await rpc('admin_verified_entscheiden',{p_antrag:id,p_verifizieren:false,p_grund:g}); fertig('Abgelehnt, der Grund geht als Push raus'); }
+    try{ await rpc('admin_verified_entscheiden',{p_antrag:id,p_verifizieren:false,p_grund:g}); fertig('Abgelehnt, Push und Mail gehen raus'); }
     catch(err){ fail(err); verifiedDetail(id); }
   };
 }
