@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,353 +17,644 @@
 <meta name="theme-color" content="#03040A">
 <link rel="icon" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
+<link rel="preload" href="/3d/c3-feld16.png" as="image">
+<link rel="preload" href="/fonts/NectoMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/_stil.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"c3 Creative Creator Club","alternateName":"c3","url":"https://c3club.io/","logo":"https://c3club.io/social.png","email":"hallo@c3club.io","address":{"@type":"PostalAddress","streetAddress":"1908 Thomes Ave, Ste 12672","postalCode":"82001","addressLocality":"Cheyenne","addressRegion":"WY","addressCountry":"US"},"sameAs":["https://c3club.app"]}
 </script>
 <style>
-  .seite { max-width: 1120px; position: relative; z-index: 1; }
-  .mitte { max-width: 640px; margin: 0 auto; }
+  /* Die Seite zieht sich um ein Zeichen: das c3 als Glasskulptur (3d/c3-glas.js). Jedes Element mit data-c3 ist eine
+     Station (gier, nick, roll in Grad, Deckkraft), data-c3-ort der Platzhalter, in dem das Zeichen dort steht.
+     Die Bildsprache kommt aus der Produktion: Sucher, Timecode, Schnittmarken, Kontaktbogen. */
+  /* Zweitschrift: Necto Mono von Marco Condello / Collletttivo, SIL Open Font License 1.1 (fonts/NectoMono-OFL.txt).
+     Sie hebt hervor; Outfit bleibt die Stimme. */
+  @font-face { font-family: 'Necto Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/NectoMono-Regular.woff2') format('woff2'); }
+  :root { --rand: 24px; --breit: 1180px; --karte: rgba(13,15,30,0.56); --linie: rgba(255,255,255,0.085);
+          --mono: 'Necto Mono', ui-monospace, 'SF Mono', Menlo, monospace; --rec: #FF4D4D; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { background: #03040A; background-image: none; line-height: 1.6; overflow-x: hidden; }
+  ::selection { background: rgba(35,101,255,0.45); }
+  .springen { position: absolute; left: 16px; top: -60px; z-index: 30; padding: 10px 16px; border-radius: 99px; background: #fff; color: #070812; font-weight: 600; text-decoration: none; }
+  .springen:focus { top: 16px; }
+  .mono { font-family: var(--mono); font-size: 12px; letter-spacing: .4px; }
 
-  /* Hintergrund: Video-Loop unter dem blauen Verlauf, dazu ein feines Raster */
-  .hintergrund { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #03040A; }
-  .hintergrund video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-                       opacity: 0.38; filter: saturate(0.85); }
-  .hintergrund .schleier { position: absolute; inset: 0;
-    background: linear-gradient(150deg, rgba(3,4,10,0.82) 0%, rgba(10,10,46,0.72) 55%, rgba(30,30,214,0.55) 140%); }
-  .hintergrund .raster { position: absolute; inset: 0; opacity: 0.5;
-    background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
-    background-size: 140px 140px; background-position: center top;
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 20%, transparent 100%);
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 20%, transparent 100%); }
-  .hintergrund .kegel { position: absolute; left: 50%; top: -10%; width: 1100px; height: 900px;
-    transform: translateX(-50%); pointer-events: none;
-    background: radial-gradient(ellipse 45% 55% at 50% 30%, rgba(35,101,255,0.32), rgba(35,101,255,0.10) 40%, transparent 70%);
-    filter: blur(20px); }
-  body { background-image: none; }
+  /* ── Raum: Lichtkegel, feines Raster, die Skulptur ── */
+  .raum { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .raum .kegel { position: absolute; left: 50%; top: -18vh; width: min(1500px, 170vw); height: 120vh; transform: translateX(-50%);
+    background: radial-gradient(ellipse 36% 52% at 50% 18%, rgba(76,110,255,0.34), rgba(52,60,230,0.13) 45%, transparent 72%),
+                radial-gradient(ellipse 60% 40% at 50% 0%, rgba(126,92,255,0.20), transparent 70%); filter: blur(10px); }
+  .raum .raster { position: absolute; inset: 0; opacity: 0.55;
+    background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 120px 120px; background-position: center -1px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 30%, #000 10%, transparent 100%);
+    mask-image: radial-gradient(ellipse 60% 55% at 50% 30%, #000 10%, transparent 100%); }
+  .raum canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+  .raum canvas.bereit { opacity: 1; }
+  .korn { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='k'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23k)'/></svg>"); }
 
-  .held { text-align: center; padding: 46px 0 28px; }
-  .held .logo-bild { height: 112px; width: auto; }
-  .held .klein { color: var(--txt3); letter-spacing: 3px; font-size: 12px;
-                 text-transform: uppercase; margin-top: 10px; }
-  .kicker { display: inline-flex; align-items: center; gap: 8px; margin-top: 30px;
-            padding: 6px 14px; border-radius: 99px; border: 1px solid var(--kante);
-            background: var(--glas); color: var(--txt2); font-size: 13px;
-            letter-spacing: 1.5px; text-transform: uppercase; }
-  .held h1 { font-size: 52px; line-height: 1.06; margin: 22px 0 14px; letter-spacing: -0.02em; font-weight: 600; }
-  .held h1 .soon { display: block; font-size: 0.62em; font-weight: 400; letter-spacing: 0.01em;
-                   color: var(--txt2); margin-top: 10px; }
-  .held p.lead { font-size: 18px; max-width: 560px; margin: 0 auto; color: var(--txt2); }
-  .held p.lead .wir { display: block; margin-top: 14px; color: var(--txt); font-weight: 600; }
-  .held p.lead .zusammen { white-space: nowrap; }
-  @media (max-width: 480px) { .held p.lead { font-size: 16px; } }
-  @media (max-width: 350px) { .held p.lead .zusammen { white-space: normal; } }
-  .motto { display: flex; align-items: center; justify-content: center; gap: 22px;
-           margin: 40px auto 0; max-width: 760px; font-size: 30px; line-height: 1.1;
-           letter-spacing: -0.015em; font-weight: 600; color: var(--txt); white-space: nowrap; }
-  .motto::before, .motto::after { content: ""; flex: 1; height: 1px;
-           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28)); }
-  .motto::after { background: linear-gradient(90deg, rgba(255,255,255,0.28), transparent); }
-  .motto .dim { color: var(--txt3); font-weight: 400; }
-  @keyframes puls { 0%,100% { box-shadow: 0 0 10px var(--glow); } 50% { box-shadow: 0 0 22px var(--glow), 0 0 40px rgba(102,148,255,0.45); } }
-  .kicker .leuchte { animation: puls 2.2s ease-in-out infinite; }
+  .rahmen { position: relative; z-index: 2; max-width: var(--breit); margin: 0 auto; padding: 0 var(--rand); }
 
-  .ticker { overflow: hidden; margin: 44px -20px 0; border-top: 1px solid rgba(255,255,255,0.07);
-            border-bottom: 1px solid rgba(255,255,255,0.07); padding: 12px 0;
-            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
-  .ticker .lauf { display: flex; gap: 0; width: max-content; animation: lauf 38s linear infinite; }
-  .ticker span { white-space: nowrap; padding: 0 22px; font-size: 13px; letter-spacing: 2.5px;
-                 text-transform: uppercase; color: var(--txt3); }
+  /* ── Leiste ── */
+  .leiste { position: sticky; top: 14px; z-index: 10; display: flex; justify-content: center; padding: 0 var(--rand); margin-top: 14px; }
+  .leiste nav { display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 16px; border-radius: 99px;
+    background: rgba(10,12,24,0.62); border: 1px solid var(--linie); border-top-color: rgba(255,255,255,0.14);
+    -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); box-shadow: 0 10px 40px rgba(0,0,0,0.35); }
+  .leiste .marke { height: 22px; width: auto; display: block; margin-right: 10px; }
+  .leiste a.weg { color: var(--txt2); text-decoration: none; font-size: 14px; padding: 8px 12px; border-radius: 99px; transition: color .15s ease, background .15s ease; }
+  .leiste a.weg:hover { color: var(--txt); background: rgba(255,255,255,0.06); }
+  .knopf-blau { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; font: inherit; font-weight: 600; font-size: 14px; color: #fff; text-decoration: none;
+    padding: 9px 16px; border-radius: 99px; border: 0; cursor: pointer; background: var(--akzent);
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0) 55%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset, 0 8px 26px rgba(35,101,255,0.38); transition: transform .15s ease, box-shadow .2s ease; }
+  .knopf-blau:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.2) inset, 0 10px 34px rgba(35,101,255,0.55); }
+  .knopf-blau:active, .knopf-hell:active { transform: scale(0.97); }
+  .knopf-hell { display: inline-flex; align-items: center; min-height: 48px; font-weight: 600; font-size: 15px; text-decoration: none; color: #070812;
+    background: #fff; padding: 13px 22px; border-radius: 99px; box-shadow: 0 10px 40px rgba(102,148,255,0.35); transition: transform .15s ease; }
+  .knopf-leise { display: inline-flex; align-items: center; min-height: 48px; font-weight: 500; font-size: 15px; text-decoration: none; color: var(--txt);
+    padding: 13px 20px; border-radius: 99px; border: 1px solid var(--linie); background: rgba(255,255,255,0.04); }
+  @media (max-width: 860px) { .leiste a.weg { display: none; } }
+
+  /* ── Hero ── */
+  .held { text-align: center; padding: 56px 0 0; }
+  .kicker { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 99px;
+    border: 1px solid var(--linie); background: rgba(255,255,255,0.04); color: var(--txt2); font-family: var(--mono); font-size: 13px; letter-spacing: .3px; }
+  .kicker b { font-family: var(--mono); font-weight: 400; font-size: 12px; letter-spacing: .5px; color: #070812; background: #fff; padding: 3px 9px; border-radius: 99px; }
+  .held h1 { font-size: clamp(46px, 8.4vw, 104px); line-height: 0.96; letter-spacing: -0.045em; font-weight: 600; margin: 26px auto 0; max-width: 980px; }
+  .held h1 .eins { display: block; color: #fff; }
+  .held h1 .zwei { display: block; font-family: var(--mono); font-weight: 400; font-size: 0.34em; letter-spacing: 0.02em; line-height: 1.2;
+    color: rgba(255,255,255,0.72); margin-top: 0.7em; }
+  /* In einer Monoschrift steht jeder Punkt in einer ganzen Zelle. Enger gesetzt wirken die drei als Auslassung. */
+  .held h1 .zwei .punkte { letter-spacing: -0.38em; margin-left: -0.26em; }
+  .held h1 .zwei::after { content: ""; display: inline-block; width: max(2px, .1em); height: 1.1em; margin-left: .02em; vertical-align: -0.16em; background: rgba(255,255,255,0.72); animation: blinken 1.1s steps(2, start) infinite; }
+  @keyframes blinken { to { visibility: hidden; } }
+  @media (prefers-reduced-motion: reduce) { .held h1 .zwei::after { animation: none; } }
+  .held .tun { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+  .held .lead { max-width: 640px; margin: 10px auto 0; font-size: 18px; color: var(--txt2); }
+  .held .lead .wir { display: block; margin-top: 12px; color: var(--txt); font-weight: 600; }
+  .held .lead .zusammen { white-space: nowrap; }
+
+  /* Die Buehne mit vier Sucherecken, sonst nichts. */
+  .buehne { position: relative; height: clamp(300px, 47vh, 540px); margin: 22px auto 0; max-width: 760px; }
+  .buehne::after { content: ""; position: absolute; left: 50%; bottom: 6%; width: min(760px, 92vw); height: 120px; transform: translateX(-50%);
+    background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(70,100,255,0.32), rgba(70,100,255,0.06) 55%, transparent 72%); filter: blur(6px); }
+  .sucher { position: absolute; inset: 0; pointer-events: none; }
+  .sucher i { position: absolute; width: 26px; height: 26px; border: 0 solid rgba(255,255,255,0.32); }
+  .sucher i:nth-child(1) { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; }
+  .sucher i:nth-child(2) { right: 0; top: 0; border-right-width: 1px; border-top-width: 1px; }
+  .sucher i:nth-child(3) { left: 0; bottom: 0; border-left-width: 1px; border-bottom-width: 1px; }
+  .sucher i:nth-child(4) { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+  .buehne .ersatz { position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%); height: 52%; width: auto;
+    filter: drop-shadow(0 0 40px rgba(102,148,255,0.55)); transition: opacity .8s ease; }
+  html.glas-an .buehne .ersatz { opacity: 0; }
+  @media (max-width: 520px) { .held { padding-top: 40px; } .held .lead { font-size: 16px; } .buehne { height: 40vh; margin-top: 18px; } }
+  @media (max-width: 350px) { .held .lead .zusammen { white-space: normal; } }
+
+  /* ── Fakten wie ein Slate ── */
+  .slate { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 64px; border: 1px solid var(--linie); border-radius: 18px; overflow: hidden;
+    background: rgba(10,12,24,0.5); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+  .slate div { padding: 18px 20px; border-left: 1px solid var(--linie); }
+  .slate div:first-child { border-left: 0; }
+  .slate .mono { color: rgba(255,255,255,0.5); display: block; margin-bottom: 6px; }
+  .slate b { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  @media (max-width: 900px) { .slate { grid-template-columns: repeat(2, 1fr); } .slate div { border-left: 0; border-top: 1px solid var(--linie); } .slate div:nth-child(-n+2) { border-top: 0; } .slate div:nth-child(even) { border-left: 1px solid var(--linie); } .slate div:last-child { grid-column: 1 / -1; border-left: 0; } }
+
+  /* ── Motto und Ticker ── */
+  /* Manifest: Schaerfe ziehen. Jede Zeile ist unscharf und wird scharf, wenn sie in der Bildmitte steht. */
+  .manifest { padding: 140px 0 40px; }
+  .fokus { margin: 0; font-size: clamp(40px, 7.4vw, 104px); line-height: 1.02; letter-spacing: -0.045em; font-weight: 600; color: var(--txt);
+    will-change: filter, opacity; transition: filter .12s linear, opacity .12s linear; }
+  .fokus + .fokus { margin-top: .12em; }
+  .fokus.dim { color: var(--txt3); }
+  .fokus.marke { font-family: var(--mono); font-weight: 400; letter-spacing: -0.03em; font-size: clamp(36px, 6.4vw, 92px); margin-top: .35em; }
+  @media (max-width: 520px) { .manifest { padding-top: 100px; } }
+  .ticker { overflow: hidden; margin: 60px calc(-1 * var(--rand)) 0; border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); padding: 14px 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .ticker .lauf { display: flex; width: max-content; animation: lauf 46s linear infinite; }
+  .ticker span { white-space: nowrap; padding: 0 22px; font-family: var(--mono); font-size: 14px; letter-spacing: .2px; color: rgba(255,255,255,0.5); }
   .ticker span i { font-style: normal; color: var(--akzent); padding-right: 22px; }
   @keyframes lauf { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @media (prefers-reduced-motion: reduce) { .ticker .lauf, .kicker .leuchte { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .ticker .lauf { animation: none; } }
 
-  .karte { background: rgba(18,20,32,0.72); border: 1px solid rgba(255,255,255,0.08);
-           border-top-color: rgba(255,255,255,0.16); border-radius: 22px;
-           padding: 28px 26px; margin: 34px auto 0; max-width: 560px;
-           box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
-  .karte h2 { margin: 0 0 6px; font-size: 22px; }
-  .karte .unter { color: var(--txt2); font-size: 15px; margin: 0 0 20px; }
+  /* ── Abschnitte ── */
+  .etikett { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; letter-spacing: .3px; color: rgba(255,255,255,0.62); margin-bottom: 16px; }
+  .etikett::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: var(--akzent); box-shadow: 0 0 10px rgba(102,148,255,0.6); }
+  h2.gross { font-size: clamp(34px, 5vw, 60px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 600; margin: 0; }
+  h2.gross .dim { color: var(--txt3); }
+  .glas { background: var(--karte); border: 1px solid var(--linie); border-top-color: rgba(255,255,255,0.15); border-radius: 24px;
+    -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%); box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
+  /* Schnittmarken an den Ecken, wie auf einem Druckbogen. */
+  .marken { position: relative; }
+  .marken::before, .marken::after { content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none; border: 0 solid rgba(102,148,255,0.55); }
+  .marken::before { left: -9px; top: -9px; border-left-width: 1px; border-top-width: 1px; }
+  .marken::after { right: -9px; bottom: -9px; border-right-width: 1px; border-bottom-width: 1px; }
+
+  /* Hervorgehoben wird mit der Zweitschrift, nicht mit Farbe: Die Kernfakten stehen in Necto Mono, in reinem Weiss. */
+  mark.auswahl { background: none; color: #fff; font-family: var(--mono); font-size: .94em; letter-spacing: -.01em; padding: 0; }
+  /* Crafts: links die Gewerke als grosse Zeilen, rechts steht das Zeichen. */
+  .crafts { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px; align-items: center; padding-top: 150px; }
+  .crafts .platz { height: min(56vh, 520px); }
+  .gewerke { list-style: none; margin: 34px 0 0; padding: 0; border-top: 1px solid var(--linie); }
+  .gewerke li { display: flex; align-items: baseline; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--linie); margin: 0;
+    font-size: clamp(24px, 3.2vw, 38px); line-height: 1.1; letter-spacing: -0.025em; font-weight: 600; color: var(--txt); transition: color .2s ease, padding .25s ease; }
+  .gewerke li .mono { color: var(--txt3); min-width: 34px; }
+  .gewerke li:hover { color: #fff; padding-left: 8px; }
+  .gewerke li { color: rgba(255,255,255,0.86); }
+  .crafts .zusatz { color: var(--txt2); margin: 18px 0 0; max-width: 540px; }
+  @media (max-width: 860px) { .crafts { grid-template-columns: 1fr; padding-top: 110px; } .crafts .platz { display: none; } }
+
+  /* What creatives need: links steht das Zeichen, rechts laufen die vier Karten vorbei, wie Bilder auf einem Kontaktbogen. */
+  .bedarf { padding-top: 150px; }
+  .bedarf .kopf { max-width: 680px; }
+  .spalten { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 40px; margin-top: 56px; }
+  .anzeige { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 13vh 0 12vh; }
+  .anzeige .platz-c3 { flex: 1; min-height: 0; }
+  .anzeige .nr { font-size: 15px; color: var(--txt3); letter-spacing: 1px; }
+  .anzeige .nr b { display: block; font-size: 64px; line-height: 1; color: var(--txt); font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .anzeige .nr { font-family: var(--mono); }
+  .anzeige .nr b { font-family: Outfit, sans-serif; }
+  .anzeige .nr span { color: rgba(255,255,255,0.72); }
+  .karten { display: flex; flex-direction: column; gap: 22vh; padding: 14vh 0 22vh; }
+  .merkmal { overflow: visible; }
+  .merkmal .bild { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #0a0b14; border-radius: 24px 24px 0 0; }
+  .merkmal .bild img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .merkmal .bild .raster-bild { image-rendering: pixelated; transition: opacity 1.2s ease; }
+  /* Entwickeln: Das echte Foto kommt aus der Unschaerfe, wenn die Karte in der Mitte steht oder die Maus darauf liegt. */
+  .merkmal .bild .foto { opacity: 0; filter: blur(14px) saturate(0.6) brightness(0.85); transform: scale(1.06);
+    transition: opacity 1.2s ease, filter 1.4s ease, transform 1.6s cubic-bezier(.2,.7,.2,1); }
+  .merkmal.entwickelt .bild .foto, .merkmal:hover .bild .foto { opacity: 1; filter: blur(0) saturate(0.85) brightness(0.88); transform: scale(1.02); }
+  .merkmal.entwickelt .bild .raster-bild, .merkmal:hover .bild .raster-bild { opacity: 0; }
+  .merkmal .bild::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(35,101,255,0.20), rgba(30,30,214,0.06) 45%, rgba(10,11,20,0) 65%), linear-gradient(180deg, rgba(10,11,20,0) 55%, rgba(13,15,30,0.96) 100%); }
+  .merkmal .bild .rahmennr { position: absolute; left: 16px; top: 14px; z-index: 1; color: rgba(255,255,255,0.75); }
+  .merkmal .bild .rahmennr::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 99px; background: var(--akzent); margin-right: 8px; vertical-align: 1px; }
+  .merkmal .text { padding: 6px 30px 30px; }
+  .merkmal h3 { font-size: 28px; line-height: 1.12; letter-spacing: -0.02em; margin: 0 0 10px; }
+  .merkmal p { margin: 0; font-size: 16px; }
+  @media (max-width: 860px) {
+    .spalten { grid-template-columns: 1fr; margin-top: 36px; }
+    .anzeige { display: none; }
+    .karten { gap: 26px; padding: 0; }
+    .merkmal .text { padding: 4px 22px 24px; }
+    .merkmal h3 { font-size: 23px; }
+  }
+
+  /* Wien first */
+  .staedte-teil { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 40px; padding-top: 150px; align-items: center; min-height: 80vh; }
+  .staedte-teil .platz { height: min(62vh, 560px); }
+  .staedte { display: grid; gap: 14px; margin-top: 34px; }
+  .stadt { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; }
+  .stadt .name { font-weight: 600; font-size: 22px; letter-spacing: -0.01em; }
+  .stadt .lage { color: var(--txt2); font-size: 14px; }
+  .stadt .bald { color: var(--txt3); font-size: 13px; text-align: right; white-space: nowrap; }
+  .stadt.geheim { border-style: dashed; background: rgba(13,15,30,0.32); }
+  .stadt.geheim .name { filter: blur(7px); user-select: none; color: var(--txt2); }
+  .leuchte { width: 8px; height: 8px; border-radius: 99px; background: var(--akzent); box-shadow: 0 0 10px var(--glow); display: inline-block; margin-right: 8px; vertical-align: 1px; animation: puls 2.2s ease-in-out infinite; }
+  @keyframes puls { 0%,100% { box-shadow: 0 0 8px var(--glow); } 50% { box-shadow: 0 0 20px var(--glow), 0 0 36px rgba(102,148,255,0.45); } }
+  @media (prefers-reduced-motion: reduce) { .leuchte { animation: none; } }
+  @media (max-width: 860px) { .staedte-teil { grid-template-columns: 1fr; min-height: 0; padding-top: 110px; } .staedte-teil .platz { display: none; } }
+  @media (max-width: 480px) { .stadt { flex-direction: column; align-items: flex-start; gap: 4px; } .stadt .bald { text-align: left; } }
+
+  /* The deal */
+  .deal { padding-top: 120px; text-align: center; }
+  .platz-deal { height: clamp(150px, 22vh, 220px); margin-bottom: 18px; }
+  .deal .kopf { max-width: 680px; margin: 0 auto; }
+  .angebote { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; text-align: left; }
+  .angebot { padding: 28px 26px; }
+  .angebot .tag { display: block; font-family: var(--mono); font-size: 13px; letter-spacing: .3px; color: rgba(255,255,255,0.62); margin-bottom: 14px; }
+  .angebot h3 { font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 10px; }
+  .angebot p { margin: 0; font-size: 15px; }
+  .angebot.mitte { background: linear-gradient(180deg, rgba(35,101,255,0.16), rgba(13,15,30,0.56) 60%); border-color: rgba(102,148,255,0.3); }
+  .geheimzahl { filter: blur(6px); user-select: none; display: inline-block; }
+  .deal .klein { color: var(--txt3); font-size: 14px; margin-top: 20px; }
+  @media (max-width: 900px) { .angebote { grid-template-columns: 1fr; } }
+
+  /* So laeuft's bis zum Opening: links das Zeichen, rechts die Schritte wie Takes auf einer Klappe. */
+  .ablauf { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 40px; padding-top: 150px; align-items: center; }
+  .ablauf .platz { height: min(48vh, 440px); margin-top: 30px; }
+  .schritte { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
+  .schritte { gap: 0; border-top: 1px solid var(--linie); }
+  .schritt { display: grid; grid-template-columns: 64px 1fr; gap: 18px; padding: 24px 4px; margin: 0; border-bottom: 1px solid var(--linie); }
+  .schritt .take { font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.5); padding-top: 4px; }
+  .schritt h3 { margin: 0 0 4px; font-size: 21px; letter-spacing: -0.015em; }
+  .schritt p { margin: 0; font-size: 15px; }
+  @media (max-width: 860px) { .ablauf { grid-template-columns: 1fr; padding-top: 110px; } .ablauf .platz { display: none; } .schritt { grid-template-columns: 48px 1fr; padding: 20px 0; } }
+
+  /* Antworten: sichtbar, nicht hinter Klappen. */
+  .antworten { padding-top: 150px; }
+  .antworten .kopf { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .antworten .kopf p { margin: 0; color: var(--txt2); }
+  .antworten .kopf a { color: var(--txt); }
+  .fragen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .fragen { gap: 0 40px; }
+  .frage { padding: 22px 0; border-top: 1px solid var(--linie); }
+  .frage h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: -0.01em; }
+  .frage p { margin: 0; font-size: 15px; }
+  @media (max-width: 960px) { .fragen { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px) { .fragen { grid-template-columns: 1fr; } .antworten { padding-top: 110px; } }
+
+  /* Get on the list: Das Zeichen steht frontal darueber. */
+  .liste { padding-top: 120px; text-align: center; }
+  .liste .platz { height: clamp(280px, 44vh, 460px); }
+  .karte { padding: 32px 30px; margin: 0 auto; max-width: 560px; text-align: left; }
+  .karte h2 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+  .karte .unter { color: var(--txt2); font-size: 15px; margin: 0 0 22px; }
   .feld { margin-bottom: 14px; }
   .feld label { display: block; font-size: 13px; color: var(--txt2); margin-bottom: 6px; }
-  .feld input, .feld select {
-    width: 100%; font: inherit; font-size: 16px; color: var(--txt);
-    background: rgba(12,13,20,0.9); border: 1px solid rgba(255,255,255,0.11);
-    border-radius: 14px; padding: 13px 14px; outline: none;
-    -webkit-appearance: none; appearance: none; }
-  .feld select { background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.5) 50%),
-                 linear-gradient(135deg, rgba(255,255,255,0.5) 50%, transparent 50%);
-                 background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
-                 background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
+  .feld input, .feld select { width: 100%; font: inherit; font-size: 16px; color: var(--txt); background: rgba(8,9,18,0.8); border: 1px solid rgba(255,255,255,0.11);
+    border-radius: 14px; padding: 13px 14px; outline: none; -webkit-appearance: none; appearance: none; transition: border-color .15s ease, box-shadow .15s ease; }
+  .feld select { background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.5) 50%), linear-gradient(135deg, rgba(255,255,255,0.5) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
   .feld input:focus, .feld select:focus { border-color: var(--glow); box-shadow: 0 0 0 3px rgba(102,148,255,0.22); }
   .feld input::placeholder { color: var(--txt3); }
   .zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .einwilligung { display: flex; gap: 10px; align-items: flex-start; font-size: 13px;
-                  color: var(--txt2); margin: 4px 0 18px; line-height: 1.5; }
+  .einwilligung { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--txt2); margin: 4px 0 18px; line-height: 1.5; }
   .einwilligung input { width: 18px; height: 18px; margin: 2px 0 0; flex: none; accent-color: var(--akzent); }
   .einwilligung a { color: var(--txt); }
-  .knopf.breit { display: block; width: 100%; text-align: center; font-size: 16px; padding: 15px 20px;
-                 border-radius: 99px; border: 0; cursor: pointer; font-family: inherit; font-weight: 600;
-                 background: var(--akzent);
-                 background-image: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 55%, rgba(0,0,0,0.12));
-                 box-shadow: 0 10px 30px rgba(102,148,255,0.28); color: #fff; }
-  .knopf.breit[disabled] { opacity: 0.6; cursor: default; }
+  .knopf-blau.breit { display: flex; width: 100%; font-size: 16px; padding: 15px 20px; min-height: 52px; }
+  .knopf-blau[disabled] { opacity: 0.6; cursor: default; }
   .fehler { color: #FF8A8A; font-size: 14px; margin: 10px 0 0; min-height: 1.2em; }
   .danke { text-align: center; padding: 14px 0 4px; }
-  .danke .stern { width: 56px; height: 56px; border-radius: 99px; margin: 0 auto 16px;
-                  background: rgba(35,101,255,0.18); border: 1px solid rgba(102,148,255,0.5);
-                  box-shadow: 0 0 30px rgba(102,148,255,0.35); display: flex; align-items: center;
-                  justify-content: center; font-size: 26px; }
+  .danke .stern { width: 56px; height: 56px; border-radius: 99px; margin: 0 auto 16px; background: rgba(35,101,255,0.18); border: 1px solid rgba(102,148,255,0.5);
+    box-shadow: 0 0 30px rgba(102,148,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 26px; }
   .danke h2 { margin: 0 0 8px; }
   .danke p { color: var(--txt2); margin: 0; }
   .honig { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .oder { text-align: center; color: var(--txt3); font-size: 14px; margin-top: 22px; }
+  .oder a { color: var(--txt2); }
+  @media (max-width: 520px) { .zwei { grid-template-columns: 1fr; } .karte { padding: 24px 18px; } }
 
-  .staedte { display: grid; grid-template-columns: repeat(3, 1fr);
-             gap: 14px; margin: 44px 0 8px; }
-  @media (max-width: 720px) { .staedte { grid-template-columns: 1fr; } }
-  .stadt { background: var(--glas); border: 1px solid var(--kante); border-radius: 18px;
-           padding: 18px 20px; }
-  .stadt .name { font-weight: 600; font-size: 18px; }
-  .stadt .lage { color: var(--txt2); font-size: 14px; }
-  .stadt .bald { color: var(--txt3); font-size: 13px; margin-top: 6px; }
-  .stadt.geheim .name { filter: blur(7px); user-select: none; color: var(--txt2); }
-  .geheimzahl { filter: blur(6px); user-select: none; display: inline-block; }
-  .stadt.geheim { border-style: dashed; }
-  .leuchte { width: 8px; height: 8px; border-radius: 99px; background: var(--akzent);
-             box-shadow: 0 0 10px var(--glow); display: inline-block;
-             margin-right: 8px; vertical-align: 1px; }
+  .fuss { margin-top: 120px; padding: 26px 0 40px; border-top: 1px solid var(--linie); display: flex; flex-wrap: wrap; gap: 18px; align-items: center; color: var(--txt3); font-size: 13px; }
+  .fuss img { height: 18px; width: auto; margin-right: auto; opacity: .8; }
+  .fuss a { color: var(--txt3); text-decoration: none; padding: 6px 0; }
+  .fuss a:hover { color: var(--txt2); }
+  .schriftnachweis { flex-basis: 100%; text-align: right; font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,0.32); }
+  .schriftnachweis a { padding: 0; }
 
-  .punkte { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  @media (max-width: 980px) { .punkte { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .punkte { grid-template-columns: 1fr; } }
-  h2.abschnitt { font-size: 30px; letter-spacing: -0.015em; margin: 52px 0 18px; }
-  .punkte.drei { grid-template-columns: repeat(3, 1fr); }
-  @media (max-width: 980px) { .punkte.drei { grid-template-columns: 1fr; } }
-  .punkt { background: var(--glas); border: 1px solid var(--kante); border-radius: 18px; padding: 20px 22px; }
-  .punkt h3 { margin-top: 0; }
-  .punkt.bild { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-  .punkt.bild .visual { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #0a0b14; }
-  .punkt.bild .visual img { width: 100%; height: 100%; object-fit: cover; display: block;
-    filter: grayscale(0.55) contrast(1.08) brightness(0.82); transform: scale(1.02);
-    transition: transform 0.9s ease, filter 0.9s ease; }
-  .punkt.bild:hover .visual img { transform: scale(1.08); filter: grayscale(0.2) contrast(1.08) brightness(0.9); }
-  .punkt.bild .visual::before { content: ""; position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(180deg, rgba(35,101,255,0.22), rgba(30,30,214,0.10) 50%, rgba(10,11,20,0.0) 70%),
-                linear-gradient(180deg, rgba(10,11,20,0) 55%, rgba(14,16,28,0.95) 100%); mix-blend-mode: normal; }
-  .punkt.bild .text { padding: 16px 22px 22px; }
-  .punkt .tag { display: inline-block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-                color: var(--akzent); margin-bottom: 8px; }
-  .punkt p { margin-bottom: 0; font-size: 15px; }
-  .mitglied { text-align: center; color: var(--txt3); font-size: 14px; margin-top: 36px; }
-  .mitglied a { color: var(--txt2); }
-  @media (max-width: 520px) {
-    .held h1 { font-size: 36px; }
-    .motto { font-size: 20px; gap: 12px; white-space: normal; text-align: center; }
-    .hintergrund .kegel { width: 700px; height: 600px; }
-    .zwei { grid-template-columns: 1fr; }
-    .karte { padding: 22px 18px; }
+  /* Am Handy immer greifbar: die Liste und die Mail. Weg, sobald das Formular selbst im Bild ist. */
+  .handyleiste { display: none; }
+  @media (max-width: 720px) {
+    .handyleiste { display: flex; gap: 8px; position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 20; padding: 8px;
+      border-radius: 99px; background: rgba(10,12,24,0.78); border: 1px solid var(--linie); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: transform .3s ease, opacity .3s ease; }
+    .handyleiste .knopf-blau { flex: 1; min-height: 46px; font-size: 15px; }
+    .handyleiste .knopf-leise { min-height: 46px; padding: 10px 18px; }
+    .handyleiste.weg { transform: translateY(140%); opacity: 0; }
+    body { padding-bottom: 90px; }
   }
+
+  /* Einblenden beim Scrollen: leise, die Bewegung kommt vom Zeichen. */
+  .auf { opacity: 0; transform: translateY(18px) scale(0.985); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .auf.da { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .auf { opacity: 1; transform: none; transition: none; } }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
 </style>
 </head>
 <body>
-<div class="hintergrund" aria-hidden="true">
-  <video id="loop" autoplay muted loop playsinline preload="none" poster="/bg/poster.jpg"></video>
-  <div class="schleier"></div>
-  <div class="raster"></div>
+<a class="springen" href="#inhalt">Zum Inhalt</a>
+<div class="raum" aria-hidden="true">
   <div class="kegel"></div>
+  <div class="raster"></div>
+  <canvas id="glas"></canvas>
 </div>
-<div class="seite">
+<div class="korn" aria-hidden="true"></div>
 
-<div class="held mitte">
-  <img src="/wortmarke.png" alt="c3" class="logo-bild">
-  <div class="klein">creative · creator · club</div>
+<div class="leiste">
+  <nav aria-label="Seite">
+    <img src="/wortmarke.png" alt="c3" class="marke" width="22" height="24">
+    <a class="weg" href="#crafts">Crafts</a>
+    <a class="weg" href="#space">Space</a>
+    <a class="weg" href="#projects">Projects</a>
+    <a class="weg" href="#deal">Deal</a>
+    <a class="weg" href="#antworten">FAQ</a>
+    <a class="knopf-blau" href="#liste">Get on the list</a>
+  </nav>
+</div>
 
-  <div class="kicker"><span class="leuchte"></span>Wien · opening Februar 2027</div>
-  <h1>The Club for Creatives.<span class="soon">opening soon.</span></h1>
+<main class="rahmen" id="inhalt">
+
+<header class="held" data-c3="-24,4,0,1" data-c3-ort="#buehne" data-c3-gross="0.78">
+  <div class="kicker"><b>Wien</b><span>opening 1. Februar 2027</span></div>
+  <h1><span class="eins">The Club for Creatives.</span><span class="zwei">opening soon<span class="punkte">..</span>.</span></h1>
+  <div class="tun">
+    <a class="knopf-hell" href="#liste">Get on the list</a>
+    <a class="knopf-leise" href="#space">What you get</a>
+  </div>
+  <div class="buehne" id="buehne">
+    <img class="ersatz" src="/wortmarke.png" alt="">
+    <div class="sucher" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  </div>
   <p class="lead">
     Ein Ecosystem from Creatives for Creatives. Desks, Studios und Meetingrooms
     für Filmmaker, Fotografinnen, Podcaster und Designer. Dazu die Crew und
-    die Kunden für dein nächstes Projekt. <span class="zusammen">No Cowork-Bulls**t.</span>
-    <span class="zusammen">No Agency, die dir deinen&nbsp;Profit&nbsp;drückt.</span>
-    <span class="wir">We are c3.</span>
+    die Kunden für dein nächstes Projekt.
   </p>
-</div>
-<p class="motto">From Creatives. <span class="dim">For Creatives.</span></p>
+</header>
 
-<div class="karte" id="karte">
-  <form id="form" novalidate>
-    <h2>Get on the list.</h2>
-    <p class="unter">Kostenlos und unverbindlich. First come, first in: Die Liste entscheidet, wer zum Opening als Erste reinkommt. Wir pingen dich an, sobald App und Space live gehen.</p>
-
-    <div class="feld">
-      <label for="email">E-Mail</label>
-      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@yourstudio.at" required>
-    </div>
-    <div class="feld">
-      <label for="name">Name</label>
-      <input id="name" name="name" type="text" autocomplete="name" placeholder="Wie nennt dich deine Crew?" maxlength="80">
-    </div>
-    <div class="zwei">
-      <div class="feld">
-        <label for="stadt">Deine Stadt</label>
-        <select id="stadt" name="stadt">
-          <option value="">Wähl aus</option>
-          <option>Wien</option>
-          <option>Graz</option>
-          <option>Linz</option>
-          <option>Salzburg</option>
-          <option>Deutschland</option>
-          <option>Schweiz</option>
-          <option>Andere</option>
-        </select>
-      </div>
-      <div class="feld">
-        <label for="gewerk">Dein Craft</label>
-        <select id="gewerk" name="gewerk">
-          <option value="">Wähl aus</option>
-          <option>Film &amp; Video</option>
-          <option>Fotografie</option>
-          <option>Podcast &amp; Audio</option>
-          <option>Design</option>
-          <option>Musik</option>
-          <option>Text &amp; Content</option>
-          <option>Social Media</option>
-          <option>Anderes</option>
-        </select>
-      </div>
-    </div>
-    <div class="honig" aria-hidden="true">
-      <label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
-    </div>
-    <label class="einwilligung">
-      <input id="ok" type="checkbox" required>
-      <span>Okay für mich: c3 speichert meine Angaben und pingt mich zum Launch per Mail an.
-        Raus jederzeit mit einer Mail an hallo@c3club.io.
-        <a href="/datenschutz">Datenschutz</a></span>
-    </label>
-    <button class="knopf breit" id="senden" type="submit">Count me in</button>
-    <p class="fehler" id="fehler" aria-live="polite"></p>
-  </form>
-
-  <div class="danke" id="danke" hidden>
-    <div class="stern">★</div>
-    <h2>Fast geschafft.</h2>
-    <p>Check dein Postfach und bestätige deine Adresse, dann bist du offiziell dabei. Keine Mail da? Schau im Spam-Ordner nach.</p>
-  </div>
+<div class="slate auf" role="list" aria-label="Auf einen Blick">
+  <div role="listitem"><span class="mono">Ort</span><b>Wien</b></div>
+  <div role="listitem"><span class="mono">Opening</span><b>1. Februar 2027</b></div>
+  <div role="listitem"><span class="mono">Geöffnet</span><b>Täglich 8–20 Uhr</b></div>
+  <div role="listitem"><span class="mono">Community</span><b>0 €</b></div>
+  <div role="listitem"><span class="mono">Provision auf Projects</span><b>Keine</b></div>
 </div>
 
+<section class="manifest" id="manifest" aria-label="Manifest" data-c3="0,-6,0,0.3" data-c3-gross="0.5">
+  <p class="fokus">From Creatives.</p>
+  <p class="fokus dim">For Creatives.</p>
+  <p class="fokus">No Cowork-Bulls**t.</p>
+  <p class="fokus">No Agency, die dir deinen Profit drückt.</p>
+  <p class="fokus marke">We are c3.</p>
+</section>
 <div class="ticker" aria-hidden="true">
   <div class="lauf">
-    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Events</span><span><i>·</i>Projects</span>
-    <span><i>·</i>From Creatives</span><span><i>·</i>For Creatives</span><span><i>·</i>Wien 2027</span><span><i>·</i>Desks</span><span><i>·</i>Studios</span><span><i>·</i>Crew</span><span><i>·</i>Events</span><span><i>·</i>Projects</span>
+    <span><i>●</i>Film &amp; Video</span><span><i>●</i>Photography</span><span><i>●</i>Podcast &amp; Audio</span><span><i>●</i>Design</span><span><i>●</i>Music</span><span><i>●</i>Text &amp; Content</span><span><i>●</i>Social Media</span><span><i>●</i>Wien 2027</span>
+    <span><i>●</i>Film &amp; Video</span><span><i>●</i>Photography</span><span><i>●</i>Podcast &amp; Audio</span><span><i>●</i>Design</span><span><i>●</i>Music</span><span><i>●</i>Text &amp; Content</span><span><i>●</i>Social Media</span><span><i>●</i>Wien 2027</span>
   </div>
 </div>
 
-<div class="staedte">
-  <div class="stadt">
-    <div class="name">Wien</div>
-    <div class="lage">Location to be announced</div>
-    <div class="bald"><span class="leuchte"></span>opening 1. Februar 2027</div>
+<section class="crafts" id="crafts" aria-labelledby="crafts-kopf" data-c3="34,-8,6,1" data-c3-ort="#craftsPlatz" data-c3-dreh="1" data-c3-bogen="1">
+  <div>
+    <div class="auf">
+      <span class="etikett">Your craft</span>
+      <h2 class="gross" id="crafts-kopf">Seven crafts. <span class="dim">One club.</span></h2>
+    </div>
+    <ol class="gewerke auf">
+      <li><span class="mono">01</span>Film &amp; Video</li>
+      <li><span class="mono">02</span>Photography</li>
+      <li><span class="mono">03</span>Podcast &amp; Audio</li>
+      <li><span class="mono">04</span>Design</li>
+      <li><span class="mono">05</span>Music</li>
+      <li><span class="mono">06</span>Text &amp; Content</li>
+      <li><span class="mono">07</span>Social Media</li>
+    </ol>
+    <p class="zusatz">Im Directory findest du die anderen nach Craft. Der Colorist für deinen Cut sitzt dann drei Desks weiter.</p>
   </div>
-  <div class="stadt geheim">
-    <div class="name">Nächste Stadt</div>
-    <div class="lage">Location in Planung</div>
-    <div class="bald">dropping later</div>
-  </div>
-  <div class="stadt geheim">
-    <div class="name">Übernächste</div>
-    <div class="lage">Location in Planung</div>
-    <div class="bald">dropping later</div>
-  </div>
-</div>
+  <div class="platz" id="craftsPlatz" aria-hidden="true"></div>
+</section>
 
-<h2 class="abschnitt">What creatives need.</h2>
-<div class="punkte">
-  <div class="punkt bild">
-    <div class="visual"><img src="/img/space.jpg" alt="" loading="lazy"></div>
-    <div class="text">
-    <span class="tag">The Space</span>
-    <h3>Book it. Badge in. Create.</h3>
-    <p>Desk, Studio oder Podcast-Room: in der App gebucht, mit Türcode rein. Licht sitzt, Equipment steht, Belegung live. Du bringst nur das Projekt mit. Kein Rumfragen, kein Schlüssel-Drama.</p>
+<section class="bedarf" aria-labelledby="bedarf-kopf">
+  <div class="kopf auf">
+    <span class="etikett">Was du bekommst</span>
+    <h2 class="gross" id="bedarf-kopf">Space, Crew, Events, Projects. <span class="dim">In einer App.</span></h2>
+  </div>
+  <div class="spalten">
+    <div class="anzeige" aria-hidden="true"><div class="platz-c3" id="anzeigePlatz"></div><div class="nr"><b id="nr">01</b><span id="nrName">The Space</span> &nbsp;/ 04</div></div>
+    <div class="karten">
+      <article class="merkmal glas marken auf" id="space" data-nr="01" data-name="The Space" data-c3="-30,8,0,1" data-c3-ort="#anzeigePlatz" data-c3-dreh="1" data-c3-bogen="-1">
+        <div class="bild"><span class="rahmennr mono">01 · Space</span><img class="raster-bild" src="/img/space-raster.png" alt="" aria-hidden="true" width="960" height="1280" loading="lazy"><img class="foto" src="/img/space.jpg" alt="Arbeitsraum mit Desks und Studiolicht" width="960" height="1280" loading="lazy"></div>
+        <div class="text">
+          <span class="etikett">The Space</span>
+          <h3>Book it. Badge in. Create.</h3>
+          <p>Desk, Studio oder Podcast-Room: in der App gebucht, <mark class="auswahl">mit Türcode rein</mark>. Licht sitzt, Equipment steht, Belegung live. Du bringst nur das Projekt mit. Kein Rumfragen, kein Schlüssel-Drama.</p>
+        </div>
+      </article>
+      <article class="merkmal glas marken auf" id="crew" data-nr="02" data-name="The Crew" data-c3="30,-10,6,1" data-c3-ort="#anzeigePlatz">
+        <div class="bild"><span class="rahmennr mono">02 · Crew</span><img class="raster-bild" src="/img/crew-raster.png" alt="" aria-hidden="true" width="960" height="960" loading="lazy"><img class="foto" src="/img/crew.jpg" alt="Menschenmenge mit erhobenen Handys bei einem Konzert" width="960" height="960" loading="lazy"></div>
+        <div class="text">
+          <span class="etikett">The Crew</span>
+          <h3>Find your people.</h3>
+          <p>Der Colorist für deinen Cut sitzt drei Desks weiter. Directory nach Craft, Teams mit eigenem Channel, <mark class="auswahl">Partner Up zeigt dir, wer gerade in deiner Nähe arbeitet</mark>. Dein nächstes Projekt ist einen Chat entfernt.</p>
+        </div>
+      </article>
+      <article class="merkmal glas marken auf" id="events" data-nr="03" data-name="The Events" data-c3="-12,26,-4,1" data-c3-ort="#anzeigePlatz">
+        <div class="bild"><span class="rahmennr mono">03 · Events</span><img class="raster-bild" src="/img/events-raster.png" alt="" aria-hidden="true" width="960" height="1200" loading="lazy"><img class="foto" src="/img/events.jpg" alt="Kleine Runde an einer langen Tafel in einem Loft" width="960" height="1200" loading="lazy"></div>
+        <div class="text">
+          <span class="etikett">The Events</span>
+          <h3>Talks you can't stream.</h3>
+          <p>Die besten Creator aus dem DACH-Raum und international, zu exklusiven Talks in unseren Spaces. Kleine Runde, ausgewählte Members, <mark class="auswahl">keine Aufzeichnung</mark>. Wer früher drin ist, bekommt die Plätze zuerst.</p>
+        </div>
+      </article>
+      <article class="merkmal glas marken auf" id="projects" data-nr="04" data-name="The Projects" data-c3="22,-4,-8,1" data-c3-ort="#anzeigePlatz">
+        <div class="bild"><span class="rahmennr mono">04 · Projects</span><img class="raster-bild" src="/img/projects-raster.png" alt="" aria-hidden="true" width="960" height="1728" loading="lazy"><img class="foto" src="/img/projects.jpg" alt="Wand aus Monitoren mit Bildern in Schwarzweiss" width="960" height="1728" loading="lazy"></div>
+        <div class="text">
+          <span class="etikett">The Projects</span>
+          <h3>No agency in between.</h3>
+          <p>Der Bonus, den es nur hier gibt: Kunden briefen direkt, der Betrag steht dabei, und mit geprüftem Profil bewirbst du dich in unter drei Minuten. Du bekommst den vollen Betrag, <mark class="auswahl">c3 nimmt dir keine Provision</mark>. Vom c3 Team gecheckt.</p>
+        </div>
+      </article>
     </div>
   </div>
-  <div class="punkt bild">
-    <div class="visual"><img src="/img/crew.jpg" alt="" loading="lazy"></div>
-    <div class="text">
-    <span class="tag">The Crew</span>
-    <h3>Find your people.</h3>
-    <p>Der Colorist für deinen Cut sitzt drei Desks weiter. Directory nach Craft, Teams mit eigenem Channel, Partner Up zeigt dir, wer gerade in deiner Nähe arbeitet. Dein nächstes Projekt ist einen Chat entfernt.</p>
+</section>
+
+<section class="staedte-teil" aria-labelledby="staedte-kopf" data-c3="38,-6,4,1" data-c3-ort="#staedtePlatz" data-c3-dreh="-1" data-c3-bogen="1">
+  <div>
+    <div class="auf">
+      <span class="etikett">The Spaces</span>
+      <h2 class="gross" id="staedte-kopf">Wien zuerst. <span class="dim">Die nächsten Städte sind in Planung.</span></h2>
+    </div>
+    <div class="staedte">
+      <div class="stadt glas auf">
+        <div><div class="name">Wien</div><div class="lage">Location to be announced</div></div>
+        <div class="bald"><span class="leuchte"></span>opening 1. Februar 2027</div>
+      </div>
+      <div class="stadt glas geheim auf">
+        <div><div class="name">Nächste Stadt</div><div class="lage">Location in Planung</div></div>
+        <div class="bald">dropping later</div>
+      </div>
+      <div class="stadt glas geheim auf">
+        <div><div class="name">Übernächste</div><div class="lage">Location in Planung</div></div>
+        <div class="bald">dropping later</div>
+      </div>
     </div>
   </div>
-  <div class="punkt bild">
-    <div class="visual"><img src="/img/events.jpg" alt="" loading="lazy"></div>
-    <div class="text">
-    <span class="tag">The Events</span>
-    <h3>Talks you can't stream.</h3>
-    <p>Die besten Creator aus dem DACH-Raum und international, zu exklusiven Talks in unseren Spaces. Kleine Runde, ausgewählte Members, keine Aufzeichnung. Wer früher drin ist, bekommt die Plätze zuerst.</p>
+  <div class="platz" id="staedtePlatz" aria-hidden="true"></div>
+</section>
+
+<section class="deal" id="deal" aria-labelledby="deal-kopf" data-c3="0,-8,0,1" data-c3-ort="#dealPlatz" data-c3-gross="0.9" data-c3-dreh="1" data-c3-bogen="-1">
+  <div class="platz-deal" id="dealPlatz" aria-hidden="true"></div>
+  <div class="kopf auf">
+    <span class="etikett">The Deal</span>
+    <h2 class="gross" id="deal-kopf">The deal. <span class="dim">Community frei, Space im Tarif.</span></h2>
+  </div>
+  <div class="angebote">
+    <div class="angebot glas marken auf">
+      <span class="tag">Community</span>
+      <h3>Free. Forever.</h3>
+      <p>Directory, Chat, Teams und Partner Up kosten nichts, ohne Abo. Du brauchst nur
+         ein Konto. Projects und Event-Zusagen gehören zum Tarif, auch in der Probezeit.</p>
+    </div>
+    <div class="angebot glas mitte marken auf">
+      <span class="tag">Space</span>
+      <!-- S-19: Hinter der Unschaerfe stand 149, der echte Einstieg ist 119 €.
+           Ein Platzhalter haelt die Neugier und steht nicht falsch im Quelltext. -->
+      <h3>Ab <span class="geheimzahl" aria-label="Preis folgt">•••</span> € im Monat.</h3>
+      <p>Bronze, Silber, Gold: Office-Tage, Meetingroom-Stunden, Gastpässe, dazu Projects. Bei den
+         Projects gibt es keinen Unterschied. Täglich von 8 bis 20 Uhr geöffnet. Monatlich kündbar, Preise inkl. USt.</p>
+    </div>
+    <div class="angebot glas marken auf">
+      <span class="tag">Pre-Launch</span>
+      <h3>Bis zur Eröffnung: <mark class="auswahl">0 €</mark>.</h3>
+      <p>Jeder Tarif läuft bis zum 1. Februar 2027 als Probezeit. Keine Karte,
+         keine Abbuchung. Bezahlt wird erst am Opening Day, und nur, wenn du bleibst.</p>
     </div>
   </div>
-  <div class="punkt bild">
-    <div class="visual"><img src="/img/projects.jpg" alt="" loading="lazy"></div>
-    <div class="text">
-    <span class="tag">The Projects</span>
-    <h3>No agency in between.</h3>
-    <p>Der Bonus, den es nur hier gibt: Kunden briefen direkt, der Betrag steht dabei, und mit geprüftem Profil bewirbst du dich in unter drei Minuten. Du bekommst den vollen Betrag, c3 nimmt dir keine Provision. Vom c3 Team gecheckt.</p>
+</section>
+
+<section class="ablauf" aria-labelledby="ablauf-kopf" data-c3="-26,10,-4,1" data-c3-ort="#ablaufPlatz" data-c3-dreh="-1" data-c3-bogen="-1">
+  <div>
+    <div class="auf">
+      <span class="etikett">Bis zum Opening</span>
+      <h2 class="gross" id="ablauf-kopf">So kommst du rein.</h2>
+    </div>
+    <div class="platz" id="ablaufPlatz" aria-hidden="true"></div>
+  </div>
+  <ol class="schritte">
+    <li class="schritt auf"><span class="take">TAKE 1</span><div><h3>Auf die Liste</h3><p>Kostenlos und unverbindlich. Die Liste entscheidet, wer zum Opening als Erste reinkommt.</p></div></li>
+    <li class="schritt auf"><span class="take">TAKE 2</span><div><h3>Wir pingen dich an</h3><p>Per Mail, sobald App und Space live gehen.</p></div></li>
+    <li class="schritt auf"><span class="take">TAKE 3</span><div><h3>Probezeit bis 1. Februar 2027</h3><p>Jeder Tarif läuft bis dahin als Probezeit. Keine Karte, keine Abbuchung.</p></div></li>
+    <li class="schritt auf"><span class="take">TAKE 4</span><div><h3>Opening Day</h3><p>Bezahlt wird erst am Opening Day, und nur, wenn du bleibst.</p></div></li>
+  </ol>
+</section>
+
+<section class="antworten" id="antworten" aria-labelledby="antworten-kopf">
+  <div class="kopf auf">
+    <div>
+      <span class="etikett">Antworten</span>
+      <h2 class="gross" id="antworten-kopf">Was du vorher wissen willst.</h2>
+    </div>
+    <p>Noch etwas offen? <a href="mailto:hallo@c3club.io?subject=Frage%20zu%20c3">hallo@c3club.io</a></p>
+  </div>
+  <div class="fragen">
+    <div class="frage auf"><h3>Was kostet die Community?</h3><p>Nichts. Directory, Chat, Teams und Partner Up laufen ohne Abo, du brauchst nur ein Konto.</p></div>
+    <div class="frage auf"><h3>Wann und wo öffnet c3?</h3><p>Am 1. Februar 2027 in Wien. Die Location geben wir noch bekannt.</p></div>
+    <div class="frage auf"><h3>Wann ist offen?</h3><p>Täglich von 8 bis 20 Uhr.</p></div>
+    <div class="frage auf"><h3>Nimmt c3 Provision bei Projects?</h3><p>Nein. Du bekommst den vollen Betrag, der im Projekt steht.</p></div>
+    <div class="frage auf"><h3>Brauche ich vor der Eröffnung eine Karte?</h3><p>Nein. Bis zum 1. Februar 2027 läuft jeder Tarif als Probezeit, ohne Karte und ohne Abbuchung.</p></div>
+    <div class="frage auf"><h3>Wie lange bin ich gebunden?</h3><p>Die Tarife sind monatlich kündbar. Alle Preise inkl. USt.</p></div>
+  </div>
+</section>
+
+<section class="liste" id="liste" aria-label="Warteliste" data-c3="0,0,0,1" data-c3-ort="#listePlatz" data-c3-gross="0.86" data-c3-dreh="1" data-c3-bogen="1">
+  <div class="platz" id="listePlatz" aria-hidden="true"></div>
+  <div class="karte glas marken" id="karte">
+    <form id="form" novalidate>
+      <h2>Get on the list.</h2>
+      <p class="unter">Kostenlos und unverbindlich. First come, first in: Die Liste entscheidet, wer zum Opening als Erste reinkommt. Wir pingen dich an, sobald App und Space live gehen.</p>
+
+      <div class="feld">
+        <label for="email">E-Mail</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@yourstudio.at" required>
+      </div>
+      <div class="feld">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" autocomplete="name" placeholder="Wie nennt dich deine Crew?" maxlength="80">
+      </div>
+      <div class="zwei">
+        <div class="feld">
+          <label for="stadt">Deine Stadt</label>
+          <select id="stadt" name="stadt">
+            <option value="">Wähl aus</option>
+            <option>Wien</option>
+            <option>Graz</option>
+            <option>Linz</option>
+            <option>Salzburg</option>
+            <option>Deutschland</option>
+            <option>Schweiz</option>
+            <option>Andere</option>
+          </select>
+        </div>
+        <div class="feld">
+          <label for="gewerk">Dein Craft</label>
+          <select id="gewerk" name="gewerk">
+            <option value="">Wähl aus</option>
+            <option>Film &amp; Video</option>
+            <option>Fotografie</option>
+            <option>Podcast &amp; Audio</option>
+            <option>Design</option>
+            <option>Musik</option>
+            <option>Text &amp; Content</option>
+            <option>Social Media</option>
+            <option>Anderes</option>
+          </select>
+        </div>
+      </div>
+      <div class="honig" aria-hidden="true">
+        <label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+      </div>
+      <label class="einwilligung">
+        <input id="ok" type="checkbox" required>
+        <span>Okay für mich: c3 speichert meine Angaben und pingt mich zum Launch per Mail an.
+          Raus jederzeit mit einer Mail an hallo@c3club.io.
+          <a href="/datenschutz">Datenschutz</a></span>
+      </label>
+      <button class="knopf-blau breit" id="senden" type="submit">Count me in</button>
+      <p class="fehler" id="fehler" aria-live="polite"></p>
+    </form>
+
+    <div class="danke" id="danke" hidden>
+      <div class="stern">★</div>
+      <h2>Fast geschafft.</h2>
+      <p>Check dein Postfach und bestätige deine Adresse, dann bist du offiziell dabei. Keine Mail da? Schau im Spam-Ordner nach.</p>
     </div>
   </div>
-</div>
+  <p class="oder">Lieber schreiben? <a href="mailto:hallo@c3club.io?subject=c3%20Warteliste">hallo@c3club.io</a></p>
+</section>
 
-<h2 class="abschnitt">The deal.</h2>
-<div class="punkte drei">
-  <div class="punkt">
-    <span class="tag">Community</span>
-    <h3>Free. Forever.</h3>
-    <p>Directory, Chat, Teams und Partner Up kosten nichts, ohne Abo. Du brauchst nur
-       ein Konto. Projects und Event-Zusagen gehören zum Tarif, auch in der Probezeit.</p>
-  </div>
-  <div class="punkt">
-    <span class="tag">Space</span>
-    <!-- S-19: Hinter der Unschaerfe stand 149, der echte Einstieg ist 119 €.
-         Ein Platzhalter haelt die Neugier und steht nicht falsch im Quelltext. -->
-    <h3>Ab <span class="geheimzahl" aria-label="Preis folgt">•••</span> € im Monat.</h3>
-    <p>Bronze, Silber, Gold: Office-Tage, Meetingroom-Stunden, Gastpässe, dazu Projects. Bei den
-       Projects gibt es keinen Unterschied. Täglich von 8 bis 20 Uhr geöffnet. Monatlich kündbar, Preise inkl. USt.</p>
-  </div>
-  <div class="punkt">
-    <span class="tag">Pre-Launch</span>
-    <h3>Bis zur Eröffnung: 0 €.</h3>
-    <p>Jeder Tarif läuft bis zum 1. Februar 2027 als Probezeit. Keine Karte,
-       keine Abbuchung. Bezahlt wird erst am Opening Day, und nur, wenn du bleibst.</p>
-  </div>
-</div>
-
-
-<footer>
+<footer class="fuss">
+  <img src="/wortmarke.png" alt="c3" width="17" height="18">
+  <a href="mailto:hallo@c3club.io">hallo@c3club.io</a>
   <a href="/agb">AGB</a>
   <a href="/datenschutz">Datenschutz</a>
   <a href="/impressum">Impressum</a>
   <a href="/support">Support</a>
+  <span class="schriftnachweis">Necto Mono by Marco Condello, <a href="https://www.collletttivo.it" rel="noopener">Collletttivo</a>, <a href="/fonts/NectoMono-OFL.txt">OFL</a></span>
 </footer>
 
-</div>
+</main>
 
+<nav class="handyleiste" id="handyleiste" aria-label="Schnell zur Liste">
+  <a class="knopf-blau" href="#liste">Get on the list</a>
+  <a class="knopf-leise" href="mailto:hallo@c3club.io?subject=Frage%20zu%20c3">Mail</a>
+</nav>
+
+<script src="/3d/c3-glas.js"></script>
 <script>
 (function () {
-  var v = document.getElementById('loop');
+  var l = document.getElementById('glas');
+  if (window.c3Glas && window.c3Glas(l, '/3d/c3-feld16.png')) document.documentElement.classList.add('glas-an');
   var bewegt = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (v && bewegt) {
-    var q = document.createElement('source'); q.src = '/bg/loop.mp4'; q.type = 'video/mp4';
-    v.appendChild(q); v.load();
-    var start = function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
-    start();
-    /* iOS im Stromsparmodus blockiert Autoplay: beim ersten Tippen oder Scrollen nochmal anstossen */
-    var nachholen = function () {
-      if (v.paused) start();
-      if (!v.paused) { ['touchstart','scroll','click'].forEach(function (e) { window.removeEventListener(e, nachholen); }); }
-    };
-    ['touchstart','scroll','click'].forEach(function (e) { window.addEventListener(e, nachholen, { passive: true }); });
+  // Schaerfe ziehen: Abstand der Zeile zur Bildmitte wird Unschaerfe, wie beim Drehen am Fokusring.
+  var zeilen = Array.prototype.slice.call(document.querySelectorAll('.fokus')), laeuft = false;
+  function fokus() {
+    laeuft = false;
+    var m = window.innerHeight / 2;
+    zeilen.forEach(function (z) {
+      var r = z.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - m) / window.innerHeight;
+      var u = Math.max(0, d - 0.08) * 34;
+      z.style.filter = u > 0.2 ? 'blur(' + Math.min(14, u).toFixed(1) + 'px)' : 'none';
+      z.style.opacity = (1 - Math.min(0.75, Math.max(0, d - 0.08) * 1.6)).toFixed(2);
+    });
+  }
+  if (bewegt && zeilen.length) {
+    window.addEventListener('scroll', function () { if (!laeuft) { laeuft = true; requestAnimationFrame(fokus); } }, { passive: true });
+    window.addEventListener('resize', fokus);
+    fokus();
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (e) {
+      e.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('da'); io.unobserve(x.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.auf').forEach(function (el) { io.observe(el); });
+    // Links die Nummer der Karte, die gerade in der Mitte steht.
+    var nr = document.getElementById('nr'), name = document.getElementById('nrName');
+    var mitte = new IntersectionObserver(function (e) {
+      e.forEach(function (x) { if (x.isIntersecting) { nr.textContent = x.target.dataset.nr; name.textContent = x.target.dataset.name; } });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    document.querySelectorAll('.merkmal').forEach(function (el) { mitte.observe(el); });
+    // Entwickeln: Die Karte in der Bildmitte zeigt ihr echtes Foto, und es bleibt entwickelt.
+    var entwickeln = new IntersectionObserver(function (e) {
+      e.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('entwickelt'); entwickeln.unobserve(x.target); } });
+    }, { rootMargin: '-35% 0px -35% 0px' });
+    document.querySelectorAll('.merkmal').forEach(function (el) { entwickeln.observe(el); });
+    // Die Handyleiste geht aus dem Weg, sobald das Formular im Bild ist.
+    var leiste = document.getElementById('handyleiste');
+    new IntersectionObserver(function (e) { leiste.classList.toggle('weg', e[0].isIntersecting); }, { rootMargin: '0px 0px -10% 0px' })
+      .observe(document.getElementById('karte'));
+  } else {
+    document.querySelectorAll('.auf').forEach(function (el) { el.classList.add('da'); });
   }
 })();
 (function () {
