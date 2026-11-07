@@ -932,6 +932,9 @@ button.treffer{width:100%;text-align:left}
     <p class="hint">„Abos zum Listenpreis“ rechnet aktive Abos mal Preis in der App. Das ist eine Schätzung, der echte Erlös steht in Stripe.</p>
     <div class="bar"><select id="zahlTage" aria-label="Zeitraum"><option value="7">Letzte 7 Tage</option><option value="30" selected>Letzte 30 Tage</option><option value="90">Letzte 90 Tage</option></select></div>
     <div class="grid" id="kpis"></div>
+    <div class="card"><h3>Aktiv in den ersten 14 Tagen</h3>
+      <p class="tiny">Neue Mitglieder der letzten 8 Wochen, die in ihren ersten 14 Tagen gebucht haben, im Haus waren, einem Event zugesagt, sich auf ein Projekt beworben oder im Chat geschrieben haben. Unternehmen und Team zählen nicht.</p>
+      <div id="zahlAktiv"></div></div>
     <div class="cols mb-md">
       <div class="card"><h3>Laufende Abos je Tarif</h3><div id="zahlTarife"></div></div>
       <div class="card"><h3>Check-ins je Standort</h3><div id="zahlOrte"></div></div>
@@ -3858,6 +3861,21 @@ async function loadReferrals(){
 
 /* ── Zahlen ──────────────────────────────── */
 $('#zahlTage').onchange=()=>loadNumbers();
+/* Die eine Zahl, ob c3 haelt: Quote nur ueber die, deren 14 Tage vorbei sind (Migration 230). */
+function aktivierungZeichnen(a){
+  if(!a?.neu) return '<p class="tiny">In den letzten 8 Wochen gibt es noch keine neuen Mitglieder.</p>';
+  const quote=a.quote==null?'—':`${num(a.quote)} %`;
+  const unter=a.fertig?`${num(a.aktiv)} von ${num(a.fertig)} mit abgeschlossenen 14 Tagen`:'Bei niemandem sind die 14 Tage schon vorbei.';
+  const laeuft=a.laeuft?`<p class="tiny mb-md">Noch in den ersten 14 Tagen: ${num(a.laeuft)}, davon schon aktiv: ${num(a.laeuft_aktiv)}.</p>`:'';
+  const t=a.je_tat||{}, f=a.fertig||0;
+  const taten=[['Buchung',t.buchung],['Im Haus',t.checkin],['Event-Zusage',t.event],['Bewerbung',t.bewerbung],['Chat',t.chat]];
+  const tatZeilen=f?'<table><tbody>'+taten.map(([l,n])=>`<tr><td>${esc(l)}</td><td class="aktion">${num(n||0)} · ${num(Math.round(100*(n||0)/f))} %</td></tr>`).join('')+'</tbody></table>':'';
+  const woche=w=>new Date(w+'T12:00:00Z').toLocaleDateString('de-DE',{day:'numeric',month:'numeric',timeZone:'UTC'});
+  const wochen='<table><tbody>'+(a.je_woche||[]).map(w=>`<tr><td>Woche ab ${esc(woche(w.woche))}</td><td class="tiny">${num(w.neu)} neu</td>
+    <td class="aktion">${w.fertig?`${num(w.aktiv)} von ${num(w.fertig)} aktiv · ${num(Math.round(100*w.aktiv/w.fertig))} %`:'läuft noch'}</td></tr>`).join('')+'</tbody></table>';
+  return `<div class="kpi mb-md"><div class="n">${quote}</div><div class="l">${esc(unter)}</div></div>${laeuft}
+    <div class="cols"><div><h3>Was sie getan haben</h3>${tatZeilen||'<p class="tiny">Noch keine abgeschlossenen 14 Tage.</p>'}</div><div><h3>Je Woche</h3>${wochen}</div></div>`;
+}
 async function loadNumbers(){
   const {data:m,error}=await sb.rpc('club_metrics',{p_days:+$('#zahlTage').value||30});
   if(error||m?.error){ $('#kpis').innerHTML=fehlerBox(error?.message||m.error); $('#zahlTarife').innerHTML=''; $('#zahlOrte').innerHTML=''; }
@@ -3875,6 +3893,8 @@ async function loadNumbers(){
     $('#zahlTarife').innerHTML=paare(m.by_plan).length?'<table><tbody>'+paare(m.by_plan).map(([c,n])=>`<tr><td>${esc(planName(c))}</td><td class="aktion">${num(n)}</td></tr>`).join('')+'</tbody></table>':'<p class="tiny">Noch keine laufenden Abos.</p>';
     $('#zahlOrte').innerHTML=paare(m.checkins_by_location).length?'<table><tbody>'+paare(m.checkins_by_location).map(([c,n])=>`<tr><td>${esc(c)}</td><td class="aktion">${num(n)}</td></tr>`).join('')+'</tbody></table>':'<p class="tiny">In diesem Zeitraum keine Check-ins.</p>';
   }
+  const {data:a,error:eA}=await sb.rpc('admin_aktivierung',{p_wochen:8});
+  $('#zahlAktiv').innerHTML = eA ? fehlerBox(eA.message) : aktivierungZeichnen(a);
   const {data:d,error:e2}=await sb.rpc('dormant_members',{p_days:21});
   $('#dormant').innerHTML = e2 ? fehlerBox(e2.message) : !d?.length ? '<p class="tiny">Alle waren in den letzten drei Wochen da.</p>'
    : '<table><tbody>'+d.slice(0,25).map(x=>`<tr class="click" data-id="${esc(x.id)}">
