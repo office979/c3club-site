@@ -812,7 +812,8 @@
   if ('IntersectionObserver' in window) {
     var gesehen = new IntersectionObserver(function (es) {
       es.forEach(function (x) { if (x.isIntersecting) { ereignis('abschnitt', { w: x.target.getAttribute('data-abschnitt') }); gesehen.unobserve(x.target); } });
-    }, { threshold: 0.35 });
+    // Gesehen heisst: Der Abschnitt erreicht die Bildmitte. So zaehlen auch Abschnitte, die hoeher als das Fenster sind.
+    }, { rootMargin: '-45% 0px -45% 0px' });
     document.querySelectorAll('[data-abschnitt]').forEach(function (el) { gesehen.observe(el); });
   }
   window.addEventListener('scroll', function () {
