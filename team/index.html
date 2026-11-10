@@ -935,6 +935,9 @@ button.treffer{width:100%;text-align:left}
     <div class="card"><h3>Aktiv in den ersten 14 Tagen</h3>
       <p class="tiny">Neue Mitglieder der letzten 8 Wochen, die in ihren ersten 14 Tagen gebucht haben, im Haus waren, einem Event zugesagt, sich auf ein Projekt beworben oder im Chat geschrieben haben. Unternehmen und Team zählen nicht.</p>
       <div id="zahlAktiv"></div></div>
+    <div class="card" data-bereich="leitung"><h3>Landingpage c3club.io</h3>
+      <p class="tiny">Vom Besuch bis zur Anmeldung, ohne Cookies gemessen. Ein Besuch ist ein geöffneter Tab: Wer zweimal kommt, zählt zweimal. „Angemeldet“ heißt abgeschickt, bestätigt wird danach per Mail.</p>
+      <div id="zahlLanding"></div></div>
     <div class="cols mb-md">
       <div class="card"><h3>Laufende Abos je Tarif</h3><div id="zahlTarife"></div></div>
       <div class="card"><h3>Check-ins je Standort</h3><div id="zahlOrte"></div></div>
@@ -3876,6 +3879,38 @@ function aktivierungZeichnen(a){
   return `<div class="kpi mb-md"><div class="n">${quote}</div><div class="l">${esc(unter)}</div></div>${laeuft}
     <div class="cols"><div><h3>Was sie getan haben</h3>${tatZeilen||'<p class="tiny">Noch keine abgeschlossenen 14 Tage.</p>'}</div><div><h3>Je Woche</h3>${wochen}</div></div>`;
 }
+/* Landingpage (Migration 231): Trichter, Herkunft, wie weit gelesen wird, welches Formular traegt. */
+const LP_ABSCHNITTE=[['hero','Erster Bildschirm'],['manifest','Manifest'],['gruender','Founder'],['crafts','Crafts'],['karten','Karten'],['nach-karten','Formular nach Karten'],
+  ['staedte','Städte'],['deal','Deal'],['nach-deal','Formular nach Deal'],['ablauf','Ablauf'],['antworten','FAQ'],['liste','Formular unten']];
+const LP_FORMULARE={hero:'Oben im ersten Bildschirm','nach-karten':'Nach den Karten','nach-deal':'Nach dem Deal',liste:'Unten, mit Angaben'};
+const LP_FEHLER={einwilligung:'Häkchen fehlt',mail:'Mail ungültig',server:'Server oder Netz',turnstile:'Sicherheitscheck'};
+function landingZeichnen(b){
+  const n=b?.besuche||0;
+  if(!n) return '<p class="tiny">In diesem Zeitraum noch keine Besuche.</p>';
+  const pz=x=>n?`${num(Math.round(100*(x||0)/n))} %`:'—';
+  const sek=b.verweildauer_median==null?'—':(b.verweildauer_median<90?`${num(Math.round(b.verweildauer_median))} s`:`${num(Math.round(b.verweildauer_median/60))} min`);
+  const k=[['Besuche',num(n)],['Formular begonnen',`${num(b.formular_begonnen||0)} · ${pz(b.formular_begonnen)}`],
+    ['Angemeldet',num(b.angemeldet||0)],['Quote',b.quote==null?'—':`${num(b.quote)} %`],['Verweildauer, Mitte',sek]];
+  const kpis='<div class="grid mb-md">'+k.map(([l,v])=>`<div class="kpi"><div class="n">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('')+'</div>';
+  const quellen=(b.je_quelle||[]);
+  const quelleT=quellen.length?'<table><tbody>'+quellen.slice(0,12).map(q=>`<tr><td>${esc(q.quelle)}</td><td class="tiny">${num(q.besuche)} Besuche</td>
+    <td class="aktion">${num(q.angemeldet)} angemeldet · ${num(q.besuche?Math.round(100*q.angemeldet/q.besuche):0)} %</td></tr>`).join('')+'</tbody></table>':'<p class="tiny">Noch keine Herkunft.</p>';
+  const ab=b.je_abschnitt||{};
+  const abT='<table><tbody>'+LP_ABSCHNITTE.map(([c,l])=>`<tr><td>${esc(l)}</td><td class="aktion">${num(ab[c]||0)} · ${pz(ab[c])}</td></tr>`).join('')+'</tbody></table>';
+  const jf=b.je_formular||{};
+  const formT='<table><tbody>'+Object.entries(LP_FORMULARE).map(([c,l])=>`<tr><td>${esc(l)}</td><td class="aktion">${num(jf[c]||0)}</td></tr>`).join('')+'</tbody></table>';
+  const t=b.tiefe||{};
+  const tiefeT='<table><tbody>'+['25','50','75','90'].map(m=>`<tr><td>${m} % der Seite</td><td class="aktion">${num(t[m]||0)} · ${pz(t[m])}</td></tr>`).join('')+'</tbody></table>';
+  const g=b.geraete||{};
+  const geraetT='<table><tbody>'+[['mobil','Handy'],['desktop','Desktop']].map(([c,l])=>`<tr><td>${esc(l)}</td><td class="aktion">${num(g[c]||0)} · ${pz(g[c])}</td></tr>`).join('')+'</tbody></table>';
+  const f=Object.entries(b.fehler||{}).sort((x,y)=>y[1]-x[1]);
+  const fehlerT=f.length?'<table><tbody>'+f.map(([c,v])=>`<tr><td>${esc(LP_FEHLER[c]||c)}</td><td class="aktion">${num(v)}</td></tr>`).join('')+'</tbody></table>':'<p class="tiny">Keine Fehler beim Absenden.</p>';
+  const kl=Object.entries(b.klicks||{}).sort((x,y)=>y[1]-x[1]);
+  const klickT=kl.length?'<table><tbody>'+kl.slice(0,12).map(([c,v])=>`<tr><td>${esc(c)}</td><td class="aktion">${num(v)}</td></tr>`).join('')+'</tbody></table>':'<p class="tiny">Noch keine Klicks.</p>';
+  return `${kpis}<h3>Herkunft</h3>${quelleT}
+    <div class="cols mt-md"><div><h3>Bis wohin gesehen</h3>${abT}</div><div><h3>Angemeldet über</h3>${formT}<h3 class="mt-md">Gescrollt</h3>${tiefeT}</div></div>
+    <div class="cols mt-md"><div><h3>Geräte</h3>${geraetT}<h3 class="mt-md">Fehler beim Absenden</h3>${fehlerT}</div><div><h3>Klicks</h3>${klickT}</div></div>`;
+}
 async function loadNumbers(){
   const {data:m,error}=await sb.rpc('club_metrics',{p_days:+$('#zahlTage').value||30});
   if(error||m?.error){ $('#kpis').innerHTML=fehlerBox(error?.message||m.error); $('#zahlTarife').innerHTML=''; $('#zahlOrte').innerHTML=''; }
@@ -3895,6 +3930,10 @@ async function loadNumbers(){
   }
   const {data:a,error:eA}=await sb.rpc('admin_aktivierung',{p_wochen:8});
   $('#zahlAktiv').innerHTML = eA ? fehlerBox(eA.message) : aktivierungZeichnen(a);
+  if(darf('leitung')){
+    const {data:lp,error:eL}=await sb.rpc('admin_besuche',{p_tage:+$('#zahlTage').value||30});
+    $('#zahlLanding').innerHTML = eL ? fehlerBox(eL.message) : landingZeichnen(lp);
+  }
   const {data:d,error:e2}=await sb.rpc('dormant_members',{p_days:21});
   $('#dormant').innerHTML = e2 ? fehlerBox(e2.message) : !d?.length ? '<p class="tiny">Alle waren in den letzten drei Wochen da.</p>'
    : '<table><tbody>'+d.slice(0,25).map(x=>`<tr class="click" data-id="${esc(x.id)}">
