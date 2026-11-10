@@ -3,21 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>c3 Creative Creator Club – The Club for Creatives, opening soon in Wien</title>
-<meta name="description" content="c3 is the club for creatives. From creatives, for creatives: desks, studios, crew and projects. First space in Wien, opening February 2027. Get on the list and be first in.">
+<title>c3 Creative Creator Club · Coworking, Studios und Podcast-Room in Wien</title>
+<meta name="description" content="c3 ist der Club für Kreative in Wien: Desks, Studios, Podcast-Room und Meetingrooms, dazu Crew und Projekte ohne Provision. Opening am 1. Februar 2027, bis dahin 0 €. Jetzt kostenlos auf die Liste.">
 <link rel="canonical" href="https://c3club.io/">
-<meta property="og:title" content="c3 – The Club for Creatives. Opening soon.">
-<meta property="og:description" content="From creatives, for creatives. Wien, Februar 2027. Get on the list.">
+<meta property="og:title" content="c3 · The Club for Creatives. Wien, 1. Februar 2027.">
+<meta property="og:description" content="Desks, Studios, Podcast-Room und Projekte ohne Provision. Die Liste entscheidet, wer zuerst reinkommt.">
 <meta property="og:image" content="https://c3club.io/social.png">
 <meta property="og:url" content="https://c3club.io/">
 <meta property="og:type" content="website">
-<meta property="og:locale" content="en_US">
-<meta property="og:locale:alternate" content="de_AT">
+<meta property="og:locale" content="de_AT">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#03040A">
 <link rel="icon" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
-<link rel="preload" href="/3d/c3-feld16.png" as="image">
 <link rel="preload" href="/fonts/NectoMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/_stil.css">
 <script type="application/ld+json">
@@ -227,7 +225,6 @@
   .angebot h3 { font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 10px; }
   .angebot p { margin: 0; font-size: 15px; }
   .angebot.mitte { background: linear-gradient(180deg, rgba(35,101,255,0.16), rgba(13,15,30,0.56) 60%); border-color: rgba(102,148,255,0.3); }
-  .geheimzahl { filter: blur(6px); user-select: none; display: inline-block; }
   .deal .klein { color: var(--txt3); font-size: 14px; margin-top: 20px; }
   @media (max-width: 900px) { .angebote { grid-template-columns: 1fr; } }
 
@@ -302,8 +299,59 @@
     .handyleiste .knopf-blau { flex: 1; min-height: 46px; font-size: 15px; }
     .handyleiste .knopf-leise { min-height: 46px; padding: 10px 18px; }
     .handyleiste.weg { transform: translateY(140%); opacity: 0; }
+    .eingetragen .handyleiste { display: none; }
     body { padding-bottom: 90px; }
   }
+
+
+  /* ── V2: Anmelden ohne Umweg ── */
+  .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .held .versprechen { max-width: 600px; margin: 22px auto 0; font-size: 18px; color: rgba(255,255,255,0.78); }
+  .anmeldung-schnell { max-width: 560px; margin: 22px auto 0; text-align: left; }
+  .schnell-zeile { display: flex; gap: 6px; padding: 6px; border-radius: 99px; background: rgba(10,12,24,0.7); border: 1px solid rgba(255,255,255,0.14);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 16px 50px rgba(0,0,0,0.4); }
+  .schnell-zeile:focus-within { border-color: var(--glow); box-shadow: 0 0 0 3px rgba(102,148,255,0.2), 0 16px 50px rgba(0,0,0,0.4); }
+  .schnell-zeile input { flex: 1; min-width: 0; font: inherit; font-size: 16px; color: var(--txt); background: transparent; border: 0; outline: none; padding: 10px 14px; }
+  .schnell-zeile input::placeholder { color: rgba(255,255,255,0.45); }
+  .schnell-zeile .knopf-blau { min-height: 46px; padding: 10px 22px; font-size: 15px; white-space: nowrap; }
+  .einwilligung.klein { font-size: 12px; margin: 10px 6px 0; color: rgba(255,255,255,0.6); }
+  .einwilligung.klein input { width: 16px; height: 16px; }
+  .anmeldung-schnell .fehler { margin: 6px 8px 0; min-height: 0; }
+  .held .weiter { display: inline-block; margin-top: 18px; font-family: var(--mono); font-size: 13px; color: rgba(255,255,255,0.62); text-decoration: none; padding: 8px 4px; }
+  .held .weiter:hover { color: #fff; }
+  .held .buehne { height: clamp(260px, 40vh, 480px); }
+  .anmeldung .danke { text-align: center; padding: 10px 0 2px; }
+  .anmeldung-schnell .danke { padding: 18px 20px; border-radius: 22px; background: rgba(10,12,24,0.7); border: 1px solid rgba(102,148,255,0.35); }
+  .danke h3 { margin: 0 0 6px; font-size: 22px; letter-spacing: -0.01em; }
+  .teilen { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--linie); }
+  .teilen p { margin: 0 0 10px; font-size: 14px; color: rgba(255,255,255,0.72); }
+  .teilen-knoepfe { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .teilen-knoepfe a, .teilen-knoepfe button { font: inherit; font-size: 14px; font-weight: 500; color: var(--txt); text-decoration: none; cursor: pointer;
+    min-height: 44px; padding: 10px 16px; border-radius: 99px; border: 1px solid var(--linie); background: rgba(255,255,255,0.05); }
+  .teilen-knoepfe a:hover, .teilen-knoepfe button:hover { border-color: rgba(255,255,255,0.3); }
+  .optional { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.45); margin-left: 6px; }
+  @media (max-width: 520px) { .schnell-zeile { border-radius: 22px; flex-direction: column; } .schnell-zeile .knopf-blau { width: 100%; } .held .versprechen { font-size: 16px; } }
+
+  /* Gruender: ein Gesicht hinter dem Club. */
+  .gruender { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: center; padding-top: 140px; }
+  .gruender-bild { margin: 0; border-radius: 24px; overflow: visible; }
+  .gruender-bild img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; border-radius: 24px;
+    filter: saturate(0.85) contrast(1.05); box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
+  .gruender-text p { font-size: 17px; max-width: 520px; }
+  .gruender-text a { color: #fff; }
+  @media (max-width: 860px) { .gruender { grid-template-columns: 1fr; gap: 28px; padding-top: 110px; } .gruender-bild { max-width: 420px; } }
+
+  /* Zwischenruf: dieselbe Anmeldung unterwegs, damit niemand bis ganz unten muss. */
+  .zwischenruf { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px; align-items: center; padding: 30px 32px; margin-top: 110px; }
+  .zwischenruf h3 { font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .zwischenruf p { margin: 0; font-size: 15px; }
+  .zwischenruf .anmeldung-schnell { margin: 0; max-width: none; }
+  /* Wer eingetragen ist, wird nicht noch zweimal gefragt. */
+  .eingetragen .zwischenruf { display: none; }
+  @media (max-width: 860px) { .zwischenruf { grid-template-columns: 1fr; gap: 18px; padding: 24px 20px; } }
+
+  /* Kleine gedaempfte Schrift lesbar (vorher 36 % Weiss, etwa 3:1). */
+  .fuss, .fuss a, .oder, .stadt .bald, .schriftnachweis { color: rgba(255,255,255,0.58); }
 
   /* Einblenden beim Scrollen: leise, die Bewegung kommt vom Zeichen. */
   .auf { opacity: 0; transform: translateY(18px) scale(0.985); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
@@ -329,25 +377,36 @@
     <a class="weg" href="#projects">Projects</a>
     <a class="weg" href="#deal">Deal</a>
     <a class="weg" href="#antworten">FAQ</a>
-    <a class="knopf-blau" href="#liste">Get on the list</a>
+    <a class="knopf-blau" href="#liste" data-ziel="leiste-liste">Get on the list</a>
   </nav>
 </div>
 
 <main class="rahmen" id="inhalt">
 
-<header class="held" data-c3="-24,4,0,1" data-c3-ort="#buehne" data-c3-gross="0.78">
+<header class="held" data-abschnitt="hero" data-c3="-24,4,0,1" data-c3-ort="#buehne" data-c3-gross="0.78" data-c3-halten>
   <div class="kicker"><b>Wien</b><span>opening 1. Februar 2027</span></div>
   <h1><span class="eins">The Club for Creatives.</span><span class="zwei">opening soon<span class="punkte">..</span>.</span></h1>
-  <div class="tun">
-    <a class="knopf-hell" href="#liste">Get on the list</a>
-    <a class="knopf-leise" href="#space">What you get</a>
+  <p class="versprechen">Wer auf der Liste steht, ist zum Opening zuerst drin. Bis zur Eröffnung zahlst du 0&nbsp;€.</p>
+  <div class="anmeldung anmeldung-schnell" data-form="hero">
+    <form class="schnell" novalidate>
+      <div class="schnell-zeile">
+        <label class="unsichtbar" for="email-hero">E-Mail</label>
+        <input id="email-hero" name="email" type="email" inputmode="email" autocomplete="email" placeholder="deine@mail.at" required>
+        <button class="knopf-blau" type="submit" data-ziel="hero-senden">Count me in</button>
+      </div>
+      <label class="einwilligung klein"><input name="ok" type="checkbox" required><span>Okay für mich: c3 speichert meine Mail und schreibt mir zum Launch. Abmelden kann ich mich jederzeit per Mail an hallo@c3club.io. <a href="/datenschutz">Datenschutz</a></span></label>
+      <div class="honig" aria-hidden="true"><label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <div class="ts"></div>
+      <p class="fehler" aria-live="polite"></p>
+    </form>
   </div>
+  <a class="weiter" href="#space" data-ziel="hero-what-you-get">What you get ↓</a>
   <div class="buehne" id="buehne">
     <img class="ersatz" src="/wortmarke.png" alt="">
     <div class="sucher" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   </div>
   <p class="lead">
-    Ein Ecosystem from Creatives for Creatives. Desks, Studios und Meetingrooms
+    Desks, Studios und Meetingrooms
     für Filmmaker, Fotografinnen, Podcaster und Designer. Dazu die Crew und
     die Kunden für dein nächstes Projekt.
   </p>
@@ -361,12 +420,21 @@
   <div role="listitem"><span class="mono">Provision auf Projects</span><b>Keine</b></div>
 </div>
 
-<section class="manifest" id="manifest" aria-label="Manifest" data-c3="0,-6,0,0.3" data-c3-gross="0.5">
+<section class="manifest" data-abschnitt="manifest" id="manifest" aria-label="Manifest" data-c3="0,-6,0,0.3" data-c3-gross="0.5">
   <p class="fokus">From Creatives.</p>
   <p class="fokus dim">For Creatives.</p>
   <p class="fokus">No Cowork-Bulls**t.</p>
   <p class="fokus">No Agency, die dir deinen Profit drückt.</p>
   <p class="fokus marke">We are c3.</p>
+</section>
+
+<section class="gruender" aria-labelledby="gruender-kopf" data-abschnitt="gruender">
+  <figure class="gruender-bild marken auf"><img src="/img/gruender.jpg" alt="Ferdinand Platz mit Kopfhörern am Set" width="1000" height="1497" loading="lazy"></figure>
+  <div class="gruender-text auf">
+    <span class="etikett">Wer dahinter steht</span>
+    <h2 class="gross" id="gruender-kopf">Ferdinand Platz. <span class="dim">Founder von c3.</span></h2>
+    <p>Ich kenne das Content Game seit über sieben Jahren. Mit c3 will ich die Creative Industry nach vorne bringen, gemeinsam mit einer jungen Generation. Für jeden Creative, egal auf welchem Level: Hier gibt es den Platz, die Studios und die Crew.</p>
+  </div>
 </section>
 <div class="ticker" aria-hidden="true">
   <div class="lauf">
@@ -375,7 +443,7 @@
   </div>
 </div>
 
-<section class="crafts" id="crafts" aria-labelledby="crafts-kopf" data-c3="34,-8,6,1" data-c3-ort="#craftsPlatz" data-c3-dreh="1" data-c3-bogen="1">
+<section class="crafts" data-abschnitt="crafts" id="crafts" aria-labelledby="crafts-kopf" data-c3="34,-8,6,1" data-c3-ort="#craftsPlatz" data-c3-dreh="1" data-c3-bogen="1">
   <div>
     <div class="auf">
       <span class="etikett">Your craft</span>
@@ -395,7 +463,7 @@
   <div class="platz" id="craftsPlatz" aria-hidden="true"></div>
 </section>
 
-<section class="bedarf" aria-labelledby="bedarf-kopf">
+<section class="bedarf" data-abschnitt="karten" aria-labelledby="bedarf-kopf">
   <div class="kopf auf">
     <span class="etikett">Was du bekommst</span>
     <h2 class="gross" id="bedarf-kopf">Space, Crew, Events, Projects. <span class="dim">In einer App.</span></h2>
@@ -438,8 +506,29 @@
     </div>
   </div>
 </section>
+<aside class="zwischenruf glas auf" aria-label="Auf die Liste" data-abschnitt="nach-karten">
+  <div class="zwischenruf-text">
+    <span class="etikett">Get on the list</span>
+    <h3>Wer früher drin ist, bekommt die Plätze zuerst.</h3>
+    <p>Kostenlos und unverbindlich. Eine Mail reicht, den Rest erzählst du uns später.</p>
+  </div>
+  <div class="anmeldung anmeldung-schnell" data-form="nach-karten">
+    <form class="schnell" novalidate>
+      <div class="schnell-zeile">
+        <label class="unsichtbar" for="email-nach-karten">E-Mail</label>
+        <input id="email-nach-karten" name="email" type="email" inputmode="email" autocomplete="email" placeholder="deine@mail.at" required>
+        <button class="knopf-blau" type="submit" data-ziel="nach-karten-senden">Count me in</button>
+      </div>
+      <label class="einwilligung klein"><input name="ok" type="checkbox" required><span>Okay für mich: c3 speichert meine Mail und schreibt mir zum Launch. Abmelden kann ich mich jederzeit per Mail an hallo@c3club.io. <a href="/datenschutz">Datenschutz</a></span></label>
+      <div class="honig" aria-hidden="true"><label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <div class="ts"></div>
+      <p class="fehler" aria-live="polite"></p>
+    </form>
+  </div>
+</aside>
 
-<section class="staedte-teil" aria-labelledby="staedte-kopf" data-c3="38,-6,4,1" data-c3-ort="#staedtePlatz" data-c3-dreh="-1" data-c3-bogen="1">
+
+<section class="staedte-teil" data-abschnitt="staedte" aria-labelledby="staedte-kopf" data-c3="38,-6,4,1" data-c3-ort="#staedtePlatz" data-c3-dreh="-1" data-c3-bogen="1">
   <div>
     <div class="auf">
       <span class="etikett">The Spaces</span>
@@ -463,7 +552,7 @@
   <div class="platz" id="staedtePlatz" aria-hidden="true"></div>
 </section>
 
-<section class="deal" id="deal" aria-labelledby="deal-kopf" data-c3="0,-8,0,1" data-c3-ort="#dealPlatz" data-c3-gross="0.9" data-c3-dreh="1" data-c3-bogen="-1">
+<section class="deal" data-abschnitt="deal" id="deal" aria-labelledby="deal-kopf" data-c3="0,-8,0,1" data-c3-ort="#dealPlatz" data-c3-gross="0.9" data-c3-dreh="1" data-c3-bogen="-1">
   <div class="platz-deal" id="dealPlatz" aria-hidden="true"></div>
   <div class="kopf auf">
     <span class="etikett">The Deal</span>
@@ -478,22 +567,41 @@
     </div>
     <div class="angebot glas mitte marken auf">
       <span class="tag">Space</span>
-      <!-- S-19: Hinter der Unschaerfe stand 149, der echte Einstieg ist 119 €.
-           Ein Platzhalter haelt die Neugier und steht nicht falsch im Quelltext. -->
-      <h3>Ab <span class="geheimzahl" aria-label="Preis folgt">•••</span> € im Monat.</h3>
+      <h3>Ab 119 € im Monat.</h3>
       <p>Bronze, Silber, Gold: Office-Tage, Meetingroom-Stunden, Gastpässe, dazu Projects. Bei den
          Projects gibt es keinen Unterschied. Täglich von 8 bis 20 Uhr geöffnet. Monatlich kündbar, Preise inkl. USt.</p>
     </div>
     <div class="angebot glas marken auf">
       <span class="tag">Pre-Launch</span>
-      <h3>Bis zur Eröffnung: <mark class="auswahl">0 €</mark>.</h3>
+      <h3>Bis zur Eröffnung: <mark class="auswahl">0&#8239;€</mark>.</h3>
       <p>Jeder Tarif läuft bis zum 1. Februar 2027 als Probezeit. Keine Karte,
          keine Abbuchung. Bezahlt wird erst am Opening Day, und nur, wenn du bleibst.</p>
     </div>
   </div>
 </section>
+<aside class="zwischenruf glas auf" aria-label="Auf die Liste" data-abschnitt="nach-deal">
+  <div class="zwischenruf-text">
+    <span class="etikett">Get on the list</span>
+    <h3>Bis zum 1. Februar 2027: 0 €.</h3>
+    <p>Jeder Tarif läuft bis dahin als Probezeit. Keine Karte, keine Abbuchung. Bezahlt wird erst am Opening Day, und nur, wenn du bleibst.</p>
+  </div>
+  <div class="anmeldung anmeldung-schnell" data-form="nach-deal">
+    <form class="schnell" novalidate>
+      <div class="schnell-zeile">
+        <label class="unsichtbar" for="email-nach-deal">E-Mail</label>
+        <input id="email-nach-deal" name="email" type="email" inputmode="email" autocomplete="email" placeholder="deine@mail.at" required>
+        <button class="knopf-blau" type="submit" data-ziel="nach-deal-senden">Count me in</button>
+      </div>
+      <label class="einwilligung klein"><input name="ok" type="checkbox" required><span>Okay für mich: c3 speichert meine Mail und schreibt mir zum Launch. Abmelden kann ich mich jederzeit per Mail an hallo@c3club.io. <a href="/datenschutz">Datenschutz</a></span></label>
+      <div class="honig" aria-hidden="true"><label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <div class="ts"></div>
+      <p class="fehler" aria-live="polite"></p>
+    </form>
+  </div>
+</aside>
 
-<section class="ablauf" aria-labelledby="ablauf-kopf" data-c3="-26,10,-4,1" data-c3-ort="#ablaufPlatz" data-c3-dreh="-1" data-c3-bogen="-1">
+
+<section class="ablauf" data-abschnitt="ablauf" aria-labelledby="ablauf-kopf" data-c3="-26,10,-4,1" data-c3-ort="#ablaufPlatz" data-c3-dreh="-1" data-c3-bogen="-1">
   <div>
     <div class="auf">
       <span class="etikett">Bis zum Opening</span>
@@ -502,14 +610,14 @@
     <div class="platz" id="ablaufPlatz" aria-hidden="true"></div>
   </div>
   <ol class="schritte">
-    <li class="schritt auf"><span class="take">TAKE 1</span><div><h3>Auf die Liste</h3><p>Kostenlos und unverbindlich. Die Liste entscheidet, wer zum Opening als Erste reinkommt.</p></div></li>
+    <li class="schritt auf"><span class="take">TAKE 1</span><div><h3>Auf die Liste</h3><p>Kostenlos und unverbindlich. Wer auf der Liste steht, ist zum Opening zuerst drin.</p></div></li>
     <li class="schritt auf"><span class="take">TAKE 2</span><div><h3>Wir pingen dich an</h3><p>Per Mail, sobald App und Space live gehen.</p></div></li>
     <li class="schritt auf"><span class="take">TAKE 3</span><div><h3>Probezeit bis 1. Februar 2027</h3><p>Jeder Tarif läuft bis dahin als Probezeit. Keine Karte, keine Abbuchung.</p></div></li>
     <li class="schritt auf"><span class="take">TAKE 4</span><div><h3>Opening Day</h3><p>Bezahlt wird erst am Opening Day, und nur, wenn du bleibst.</p></div></li>
   </ol>
 </section>
 
-<section class="antworten" id="antworten" aria-labelledby="antworten-kopf">
+<section class="antworten" data-abschnitt="antworten" id="antworten" aria-labelledby="antworten-kopf">
   <div class="kopf auf">
     <div>
       <span class="etikett">Antworten</span>
@@ -518,6 +626,9 @@
     <p>Noch etwas offen? <a href="mailto:hallo@c3club.io?subject=Frage%20zu%20c3">hallo@c3club.io</a></p>
   </div>
   <div class="fragen">
+    <div class="frage auf"><h3>Was passiert nach dem Eintragen?</h3><p>Du bekommst eine Mail zum Bestätigen. Danach pingen wir dich an, sobald App und Space live gehen.</p></div>
+    <div class="frage auf"><h3>Wann kommt die App?</h3><p>Im Jänner 2027, vor dem Opening am 1. Februar.</p></div>
+    <div class="frage auf"><h3>Was kostet ein Platz?</h3><p>Bronze ab 119 € im Monat, dazu Silber und Gold. Bis zur Eröffnung läuft jeder Tarif als Probezeit, 0 €.</p></div>
     <div class="frage auf"><h3>Was kostet die Community?</h3><p>Nichts. Directory, Chat, Teams und Partner Up laufen ohne Abo, du brauchst nur ein Konto.</p></div>
     <div class="frage auf"><h3>Wann und wo öffnet c3?</h3><p>Am 1. Februar 2027 in Wien. Die Location geben wir noch bekannt.</p></div>
     <div class="frage auf"><h3>Wann ist offen?</h3><p>Täglich von 8 bis 20 Uhr.</p></div>
@@ -527,24 +638,24 @@
   </div>
 </section>
 
-<section class="liste" id="liste" aria-label="Warteliste" data-c3="0,0,0,1" data-c3-ort="#listePlatz" data-c3-gross="0.86" data-c3-dreh="1" data-c3-bogen="1">
+<section class="liste" id="liste" aria-label="Warteliste" data-abschnitt="liste" data-c3="0,0,0,1" data-c3-ort="#listePlatz" data-c3-gross="0.86" data-c3-dreh="1" data-c3-bogen="1">
   <div class="platz" id="listePlatz" aria-hidden="true"></div>
-  <div class="karte glas marken" id="karte">
-    <form id="form" novalidate>
+  <div class="karte glas marken anmeldung" id="karte" data-form="liste">
+    <form novalidate>
       <h2>Get on the list.</h2>
-      <p class="unter">Kostenlos und unverbindlich. First come, first in: Die Liste entscheidet, wer zum Opening als Erste reinkommt. Wir pingen dich an, sobald App und Space live gehen.</p>
+      <p class="unter">Kostenlos und unverbindlich. First come, first in: Wer auf der Liste steht, ist zum Opening zuerst drin. Wir melden uns, sobald App und Space live gehen.</p>
 
       <div class="feld">
         <label for="email">E-Mail</label>
         <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@yourstudio.at" required>
       </div>
       <div class="feld">
-        <label for="name">Name</label>
+        <label for="name">Name <span class="optional">optional</span></label>
         <input id="name" name="name" type="text" autocomplete="name" placeholder="Wie nennt dich deine Crew?" maxlength="80">
       </div>
       <div class="zwei">
         <div class="feld">
-          <label for="stadt">Deine Stadt</label>
+          <label for="stadt">Deine Stadt <span class="optional">optional</span></label>
           <select id="stadt" name="stadt">
             <option value="">Wähl aus</option>
             <option>Wien</option>
@@ -557,38 +668,34 @@
           </select>
         </div>
         <div class="feld">
-          <label for="gewerk">Dein Craft</label>
+          <label for="gewerk">Dein Craft <span class="optional">optional</span></label>
           <select id="gewerk" name="gewerk">
             <option value="">Wähl aus</option>
-            <option>Film &amp; Video</option>
-            <option>Fotografie</option>
-            <option>Podcast &amp; Audio</option>
-            <option>Design</option>
-            <option>Musik</option>
-            <option>Text &amp; Content</option>
-            <option>Social Media</option>
-            <option>Anderes</option>
+            <option value="Film &amp; Video">Film &amp; Video</option>
+            <option value="Fotografie">Photography</option>
+            <option value="Podcast &amp; Audio">Podcast &amp; Audio</option>
+            <option value="Design">Design</option>
+            <option value="Musik">Music</option>
+            <option value="Text &amp; Content">Text &amp; Content</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Anderes">Other</option>
           </select>
         </div>
       </div>
       <div class="honig" aria-hidden="true">
         <label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
       </div>
+      <div class="ts"></div>
       <label class="einwilligung">
-        <input id="ok" type="checkbox" required>
-        <span>Okay für mich: c3 speichert meine Angaben und pingt mich zum Launch per Mail an.
-          Raus jederzeit mit einer Mail an hallo@c3club.io.
+        <input name="ok" type="checkbox" required>
+        <span>Okay für mich: c3 speichert meine Angaben und schreibt mir zum Launch per Mail.
+          Abmelden kann ich mich jederzeit mit einer Mail an hallo@c3club.io.
           <a href="/datenschutz">Datenschutz</a></span>
       </label>
-      <button class="knopf-blau breit" id="senden" type="submit">Count me in</button>
-      <p class="fehler" id="fehler" aria-live="polite"></p>
+      <button class="knopf-blau breit" type="submit" data-ziel="liste-senden">Count me in</button>
+      <p class="fehler" aria-live="polite"></p>
     </form>
 
-    <div class="danke" id="danke" hidden>
-      <div class="stern">★</div>
-      <h2>Fast geschafft.</h2>
-      <p>Check dein Postfach und bestätige deine Adresse, dann bist du offiziell dabei. Keine Mail da? Schau im Spam-Ordner nach.</p>
-    </div>
   </div>
   <p class="oder">Lieber schreiben? <a href="mailto:hallo@c3club.io?subject=c3%20Warteliste">hallo@c3club.io</a></p>
 </section>
@@ -606,15 +713,22 @@
 </main>
 
 <nav class="handyleiste" id="handyleiste" aria-label="Schnell zur Liste">
-  <a class="knopf-blau" href="#liste">Get on the list</a>
-  <a class="knopf-leise" href="mailto:hallo@c3club.io?subject=Frage%20zu%20c3">Mail</a>
+  <a class="knopf-blau" href="#liste" data-ziel="handyleiste-liste">Get on the list</a>
+  <a class="knopf-leise" href="mailto:hallo@c3club.io?subject=Frage%20zu%20c3" data-ziel="handyleiste-mail">Mail</a>
 </nav>
 
 <script src="/3d/c3-glas.js"></script>
 <script>
 (function () {
+  // Das Glas kommt, wenn die Seite steht: Bis dahin traegt das flache Logo die Buehne.
   var l = document.getElementById('glas');
-  if (window.c3Glas && window.c3Glas(l, '/3d/c3-feld16.png')) document.documentElement.classList.add('glas-an');
+  function glasStarten() {
+    var webp = document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    if (window.c3Glas && window.c3Glas(l, webp ? '/3d/c3-feld16.webp' : '/3d/c3-feld16.png')) document.documentElement.classList.add('glas-an');
+  }
+  var spaeter = window.requestIdleCallback || function (f) { setTimeout(f, 200); };
+  if (document.readyState === 'complete') spaeter(glasStarten);
+  else window.addEventListener('load', function () { spaeter(glasStarten); });
   var bewegt = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Schaerfe ziehen: Abstand der Zeile zur Bildmitte wird Unschaerfe, wie beim Drehen am Fokusring.
   var zeilen = Array.prototype.slice.call(document.querySelectorAll('.fokus')), laeuft = false;
@@ -651,8 +765,12 @@
     document.querySelectorAll('.merkmal').forEach(function (el) { entwickeln.observe(el); });
     // Die Handyleiste geht aus dem Weg, sobald das Formular im Bild ist.
     var leiste = document.getElementById('handyleiste');
-    new IntersectionObserver(function (e) { leiste.classList.toggle('weg', e[0].isIntersecting); }, { rootMargin: '0px 0px -10% 0px' })
-      .observe(document.getElementById('karte'));
+    var sichtbar = new Set();
+    var formulare = new IntersectionObserver(function (e) {
+      e.forEach(function (x) { if (x.isIntersecting) sichtbar.add(x.target); else sichtbar.delete(x.target); });
+      leiste.classList.toggle('weg', sichtbar.size > 0);
+    }, { rootMargin: '0px 0px -10% 0px' });
+    document.querySelectorAll('.anmeldung').forEach(function (el) { formulare.observe(el); });
   } else {
     document.querySelectorAll('.auf').forEach(function (el) { el.classList.add('da'); });
   }
@@ -663,86 +781,161 @@
   // Cloudflare Turnstile (Migration 72): unsichtbar, nur bei Verdacht eine
   // Abfrage. Ohne eingesetzten Schluessel wird es nicht geladen.
   var TURNSTILE_SITEKEY = 'DEIN-TURNSTILE-SITEKEY';
-  var form = document.getElementById('form');
-  var fehler = document.getElementById('fehler');
-  var knopf = document.getElementById('senden');
+  var verbunden = !/^https:\/\/DEIN-/.test(SUPABASE_URL);
   var turnstileAn = !/^DEIN-/.test(TURNSTILE_SITEKEY);
-  var turnstileId = null;
 
-  if (turnstileAn) {
-    var feld = document.createElement('div');
-    feld.id = 'turnstile';
-    feld.style.marginTop = '12px';
-    knopf.parentNode.insertBefore(feld, knopf);
-    window.c3TurnstileBereit = function () {
-      turnstileId = window.turnstile.render('#turnstile', {
-        sitekey: TURNSTILE_SITEKEY, appearance: 'interaction-only', theme: 'dark', language: 'de',
-        callback: function () { if (fehler.dataset.turnstile) { fehler.textContent = ''; delete fehler.dataset.turnstile; } }
-      });
-    };
-    var s = document.createElement('script');
-    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=c3TurnstileBereit&render=explicit';
-    s.async = true; s.defer = true;
-    document.head.appendChild(s);
+  /* ── Messen: der Weg von Besuch bis Anmeldung ─────────────────────────
+     Erstanbieter, ohne Cookies und ohne Speicher im Browser: Die Kennung lebt nur
+     im Arbeitsspeicher dieser Seite und ist beim Schliessen weg. Keine IP, kein
+     Name, keine Mail. Ziel ist die Function besuch (supabase/functions/besuch). */
+  var sitzung = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Math.random()).slice(2);
+  var messen = verbunden ? SUPABASE_URL + '/functions/v1/besuch' : null;
+  var protokoll = /[?&]messen=log/.test(location.search);
+  function ereignis(art, daten) {
+    var e = { s: sitzung, a: art, p: location.pathname };
+    for (var k in daten) if (daten[k] !== undefined && daten[k] !== null && daten[k] !== '') e[k] = daten[k];
+    if (protokoll) console.log('[messen]', e);
+    if (!messen) return;
+    try {
+      var blob = new Blob([JSON.stringify(e)], { type: 'text/plain' });
+      if (!(navigator.sendBeacon && navigator.sendBeacon(messen, blob))) fetch(messen, { method: 'POST', body: blob, keepalive: true });
+    } catch (x) {}
   }
+  var q = new URLSearchParams(location.search);
+  var herkunft = '';
+  try { herkunft = document.referrer ? new URL(document.referrer).hostname : ''; } catch (x) {}
+  ereignis('seite', {
+    ref: herkunft, us: q.get('utm_source') || q.get('ref'), um: q.get('utm_medium'), uc: q.get('utm_campaign'), ui: q.get('utm_content'),
+    g: window.innerWidth < 760 ? 'mobil' : 'desktop', b: window.innerWidth, l: (navigator.language || '').slice(0, 10)
+  });
+  var start = Date.now(), tiefe = 0;
+  if ('IntersectionObserver' in window) {
+    var gesehen = new IntersectionObserver(function (es) {
+      es.forEach(function (x) { if (x.isIntersecting) { ereignis('abschnitt', { w: x.target.getAttribute('data-abschnitt') }); gesehen.unobserve(x.target); } });
+    }, { threshold: 0.35 });
+    document.querySelectorAll('[data-abschnitt]').forEach(function (el) { gesehen.observe(el); });
+  }
+  window.addEventListener('scroll', function () {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var t = h > 0 ? Math.round(window.scrollY / h * 100) : 100;
+    [25, 50, 75, 90].forEach(function (m) { if (t >= m && tiefe < m) { tiefe = m; ereignis('tiefe', { w: String(m) }); } });
+  }, { passive: true });
+  document.addEventListener('click', function (e) {
+    var z = e.target.closest && e.target.closest('[data-ziel]');
+    if (z) ereignis('klick', { w: z.getAttribute('data-ziel') });
+  });
+  // Bei jedem Wegschalten melden, mit der Zeit seit dem Laden: Wer zurueckkommt, meldet spaeter
+  // einen hoeheren Wert, und die Auswertung nimmt je Sitzung den hoechsten.
+  var weg = false;
+  function verlassen() { if (weg) return; weg = true; ereignis('verlassen', { sek: Math.round((Date.now() - start) / 1000), w: String(tiefe) }); }
+  window.addEventListener('pagehide', verlassen);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') verlassen(); else weg = false; });
 
-  function turnstileToken() {
-    if (!turnstileAn || !window.turnstile || turnstileId === null) return '';
-    return window.turnstile.getResponse(turnstileId) || '';
+  /* ── Turnstile: geladen einmal, ein Widget je Formular, erst wenn jemand es benutzt ── */
+  var tsBereit = null;
+  function turnstileLaden() {
+    if (!turnstileAn) return Promise.resolve(false);
+    if (tsBereit) return tsBereit;
+    tsBereit = new Promise(function (ok) {
+      window.c3TurnstileBereit = function () { ok(true); };
+      var s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=c3TurnstileBereit&render=explicit';
+      s.async = true; s.defer = true; s.onerror = function () { ok(false); };
+      document.head.appendChild(s);
+    });
+    return tsBereit;
   }
 
   function quelle() {
-    try {
-      var p = new URLSearchParams(location.search);
-      var q = p.get('utm_source') || p.get('ref') || (document.referrer ? new URL(document.referrer).hostname : '');
-      return (q || 'direkt').slice(0, 120);
-    } catch (e) { return 'direkt'; }
+    var q2 = q.get('utm_source') || q.get('ref') || herkunft;
+    return (q2 || 'direkt').slice(0, 120);
   }
 
-  form.addEventListener('submit', async function (ev) {
-    ev.preventDefault();
-    fehler.textContent = '';
-    var email = document.getElementById('email').value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) { fehler.textContent = 'Bitte eine gültige E-Mail-Adresse angeben.'; return; }
-    if (!document.getElementById('ok').checked) { fehler.textContent = 'Bitte kurz bestätigen, dass wir dich anpingen dürfen.'; return; }
-    if (form.website.value) { form.hidden = true; document.getElementById('danke').hidden = false; return; }
-    // Turnstile braucht einen Moment fuer sein Zeichen. Ohne Zeichen gar
-    // nicht erst senden, sonst antwortet der Server mit "Bot".
-    if (turnstileAn && !turnstileToken()) {
-      fehler.textContent = 'Kurzer Sicherheitscheck läuft. Bitte in ein paar Sekunden noch einmal senden.';
-      fehler.dataset.turnstile = '1';
-      return;
-    }
+  var TEILEN_URL = 'https://c3club.io/?utm_source=empfehlung&utm_medium=teilen';
+  var TEILEN_TEXT = 'Ich bin auf der Liste von c3, dem Club für Kreative in Wien. Opening am 1. Februar 2027.';
+  function dankeZeigen(box, name) {
+    document.documentElement.classList.add('eingetragen');
+    var d = document.createElement('div');
+    d.className = 'danke';
+    d.setAttribute('role', 'status');
+    d.innerHTML = '<div class="stern">★</div><h3>Fast geschafft.</h3>'
+      + '<p>Check dein Postfach und bestätige deine Adresse, dann bist du offiziell dabei. Keine Mail da? Schau im Spam-Ordner nach.</p>'
+      + '<div class="teilen"><p>Erzähl\'s deiner Crew. Creators kennen Creators.</p><div class="teilen-knoepfe">'
+      + '<a href="https://wa.me/?text=' + encodeURIComponent(TEILEN_TEXT + ' ' + TEILEN_URL) + '" target="_blank" rel="noopener" data-ziel="teilen-whatsapp-' + name + '">WhatsApp</a>'
+      + (navigator.share ? '<button type="button" data-teilen data-ziel="teilen-system-' + name + '">Teilen</button>' : '')
+      + '<button type="button" data-kopieren data-ziel="teilen-link-' + name + '">Link kopieren</button></div></div>';
+    box.appendChild(d);
+    var t = d.querySelector('[data-teilen]');
+    if (t) t.addEventListener('click', function () { navigator.share({ title: 'c3', text: TEILEN_TEXT, url: TEILEN_URL }).catch(function () {}); });
+    var k = d.querySelector('[data-kopieren]');
+    k.addEventListener('click', function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(TEILEN_URL) : Promise.reject()).then(function () { k.textContent = 'Kopiert'; }, function () { k.textContent = TEILEN_URL; });
+    });
+  }
 
-    knopf.disabled = true; knopf.textContent = 'One sec …';
-    try {
-      // Seit Migration 72 ueber die Function `warteliste` (Turnstile, Limit
-      // pro IP); die Datenbankfunktion ist von aussen nicht mehr aufrufbar.
-      var r = await fetch(SUPABASE_URL + '/functions/v1/warteliste', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-        body: JSON.stringify({
-          email: email,
-          name: document.getElementById('name').value.trim() || null,
-          city: document.getElementById('stadt').value || null,
-          craft: document.getElementById('gewerk').value || null,
-          source: quelle(),
-          locale: (navigator.language || 'de').slice(0, 10),
-          turnstile: turnstileToken()
-        })
+  /* ── Jede Anmeldung auf der Seite (Hero, unterwegs, unten) laeuft hier durch ── */
+  document.querySelectorAll('.anmeldung').forEach(function (box) {
+    var name = box.getAttribute('data-form') || 'form';
+    var form = box.querySelector('form');
+    var fehler = box.querySelector('.fehler');
+    var knopf = form.querySelector('button[type=submit]');
+    var knopfText = knopf.textContent;
+    var slot = form.querySelector('.ts'), tsId = null, begonnen = false;
+    form.addEventListener('focusin', function () {
+      if (!begonnen) { begonnen = true; ereignis('formular_start', { w: name }); }
+      if (turnstileAn && tsId === null && slot) turnstileLaden().then(function (ok) {
+        if (ok && tsId === null) tsId = window.turnstile.render(slot, {
+          sitekey: TURNSTILE_SITEKEY, appearance: 'interaction-only', theme: 'dark', language: 'de',
+          callback: function () { if (fehler.dataset.turnstile) { fehler.textContent = ''; delete fehler.dataset.turnstile; } }
+        });
       });
-      if (!r.ok) {
-        var j = null; try { j = await r.json(); } catch (e) {}
-        if (turnstileAn && window.turnstile && turnstileId !== null) window.turnstile.reset(turnstileId);
-        throw new Error((j && (j.error || j.message)) || 'Hat gerade nicht geklappt. Bitte später noch einmal.');
+    });
+    function token() { return (turnstileAn && window.turnstile && tsId !== null) ? (window.turnstile.getResponse(tsId) || '') : ''; }
+    function feld(n) { var f = form.elements[n]; return f ? String(f.value || '').trim() : ''; }
+
+    form.addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      fehler.textContent = '';
+      var email = feld('email');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) { fehler.textContent = 'Bitte eine gültige E-Mail-Adresse angeben.'; ereignis('formular_fehler', { w: name, e: 'mail' }); return; }
+      if (!form.elements.ok.checked) { fehler.textContent = 'Bitte kurz bestätigen, dass wir dir schreiben dürfen.'; ereignis('formular_fehler', { w: name, e: 'einwilligung' }); return; }
+      if (feld('website')) { form.hidden = true; dankeZeigen(box, name); return; }
+      // Turnstile braucht einen Moment fuer sein Zeichen. Ohne Zeichen gar nicht erst senden.
+      if (turnstileAn && !token()) {
+        fehler.textContent = 'Kurzer Sicherheitscheck läuft. Bitte in ein paar Sekunden noch einmal senden.';
+        fehler.dataset.turnstile = '1';
+        return;
       }
-      form.hidden = true;
-      document.getElementById('danke').hidden = false;
-      document.getElementById('karte').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch (e) {
-      fehler.textContent = e.message || 'Hat gerade nicht geklappt. Bitte später noch einmal.';
-      knopf.disabled = false; knopf.textContent = 'Count me in';
-    }
+      if (!verbunden) { form.hidden = true; dankeZeigen(box, name); ereignis('formular_gesendet', { w: name, e: 'vorschau' }); return; }
+      knopf.disabled = true; knopf.textContent = 'One sec …';
+      try {
+        var r = await fetch(SUPABASE_URL + '/functions/v1/warteliste', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+          body: JSON.stringify({
+            email: email,
+            name: feld('name') || null,
+            city: feld('stadt') || null,
+            craft: feld('gewerk') || null,
+            source: quelle(),
+            locale: (navigator.language || 'de').slice(0, 10),
+            turnstile: token()
+          })
+        });
+        if (!r.ok) {
+          var j = null; try { j = await r.json(); } catch (e) {}
+          if (turnstileAn && window.turnstile && tsId !== null) window.turnstile.reset(tsId);
+          throw new Error((j && (j.error || j.message)) || 'Hat gerade nicht geklappt. Bitte später noch einmal.');
+        }
+        ereignis('formular_gesendet', { w: name, e: 'ok', c: feld('gewerk'), o: feld('stadt') });
+        form.hidden = true;
+        dankeZeigen(box, name);
+      } catch (e) {
+        ereignis('formular_fehler', { w: name, e: 'server' });
+        fehler.textContent = e.message || 'Hat gerade nicht geklappt. Bitte später noch einmal.';
+        knopf.disabled = false; knopf.textContent = knopfText;
+      }
+    });
   });
 })();
 </script>

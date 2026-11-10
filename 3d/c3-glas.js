@@ -245,9 +245,17 @@
                  gier: (w[0] || 0) * GRAD, nick: (w[1] || 0) * GRAD, roll: (w[2] || 0) * GRAD, deck: isNaN(w[3]) ? 1 : w[3],
                  // Auf dem Weg hierher: ganze Umdrehungen und die Seite, zu der der Bogen ausholt.
                  dreh: Number(el.getAttribute('data-c3-dreh')) || 0, bogen: Number(el.getAttribute('data-c3-bogen')) || 0,
-                 anker: r.top + window.scrollY + r.height / 2 - window.innerHeight / 2 };
+                 anker: r.top + window.scrollY + r.height / 2 - window.innerHeight / 2,
+                 // data-c3-halten: Das Zeichen bleibt in seinem Platz, bis das Ende des Elements auf 40 % der
+                 // Fensterhoehe hochgescrollt ist. So liegt es nicht ueber dem Text, der darunter steht.
+                 halten: el.hasAttribute('data-c3-halten') ? r.bottom + window.scrollY - window.innerHeight * 0.4 : null };
       });
       if (stationen.length) stationen[0].anker = Math.min(stationen[0].anker, 0);
+      stationen.forEach(function (st, i) {
+        var naechste = stationen[i + 1];
+        st.los = st.halten === null || !naechste ? st.anker
+          : Math.min(Math.max(st.anker, st.halten), st.anker + (naechste.anker - st.anker) * 0.7);
+      });
       anstossen();
     }
 
@@ -266,7 +274,7 @@
       var y = window.scrollY, i = 0, n = stationen.length;
       while (i < n - 1 && y > stationen[i + 1].anker) i++;
       var a = stationen[i], b = stationen[Math.min(i + 1, n - 1)];
-      var t = b.anker > a.anker ? weich((y - a.anker) / (b.anker - a.anker)) : 0;
+      var t = b.anker > a.los ? weich((y - a.los) / (b.anker - a.los)) : 0;
       var pa = platz(a), pb = platz(b);
       var dx = pb.x - pa.x, dy = pb.y - pa.y, weg = Math.hypot(dx, dy) || 1;
       var weit = Math.min(1, weg / window.innerHeight);

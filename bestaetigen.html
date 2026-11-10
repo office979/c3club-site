@@ -18,6 +18,13 @@
   .bestaetigt a.zurueck { display: inline-block; margin-top: 28px; }
   .bestaetigt[data-stand="laedt"] .stern { opacity: 0.4; box-shadow: none; }
   .bestaetigt[data-stand="fehler"] .stern { background: rgba(255,255,255,0.12); box-shadow: none; }
+  /* Nach dem Bestaetigen der beste Moment zum Weitersagen. */
+  .teilen { margin: 30px auto 0; padding: 22px; max-width: 440px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+  .teilen h2 { margin: 0 0 6px; font-size: 20px; }
+  .teilen p { margin: 0 0 14px; }
+  .teilen-knoepfe { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .teilen-knoepfe a, .teilen-knoepfe button { font: inherit; font-size: 14px; font-weight: 500; color: #F8F8FA; text-decoration: none; cursor: pointer;
+    min-height: 44px; padding: 10px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); }
 </style>
 </head>
 <body>
@@ -33,6 +40,15 @@
   <h1 id="titel">Einen Moment …</h1>
   <p id="text">Wir bestätigen deine Adresse.</p>
   <p class="wir" id="wir" hidden>We are c3.</p>
+  <div class="teilen" id="teilen" hidden>
+    <h2>Bring deine Crew mit.</h2>
+    <p>Creators kennen Creators. Schick ihnen den Link, die Liste entscheidet, wer zuerst reinkommt.</p>
+    <div class="teilen-knoepfe">
+      <a id="teilenWa" target="_blank" rel="noopener">WhatsApp</a>
+      <button type="button" id="teilenSystem" hidden>Teilen</button>
+      <button type="button" id="teilenKopieren">Link kopieren</button>
+    </div>
+  </div>
   <a class="zurueck" href="/">Zur Startseite</a>
 </div>
 
@@ -49,7 +65,18 @@
     feld.setAttribute('data-stand', stand);
     titel.textContent = t; text.textContent = s;
     document.getElementById('wir').hidden = stand !== 'ok';
+    document.getElementById('teilen').hidden = stand !== 'ok';
   }
+
+  var TEILEN_URL = 'https://c3club.io/?utm_source=empfehlung&utm_medium=bestaetigt';
+  var TEILEN_TEXT = 'Ich bin auf der Liste von c3, dem Club für Kreative in Wien. Opening am 1. Februar 2027.';
+  document.getElementById('teilenWa').href = 'https://wa.me/?text=' + encodeURIComponent(TEILEN_TEXT + ' ' + TEILEN_URL);
+  var sys = document.getElementById('teilenSystem');
+  if (navigator.share) { sys.hidden = false; sys.addEventListener('click', function () { navigator.share({ title: 'c3', text: TEILEN_TEXT, url: TEILEN_URL }).catch(function () {}); }); }
+  var kop = document.getElementById('teilenKopieren');
+  kop.addEventListener('click', function () {
+    (navigator.clipboard ? navigator.clipboard.writeText(TEILEN_URL) : Promise.reject()).then(function () { kop.textContent = 'Kopiert'; }, function () { kop.textContent = TEILEN_URL; });
+  });
 
   var token = '';
   try { token = new URLSearchParams(location.search).get('t') || ''; } catch (e) {}
