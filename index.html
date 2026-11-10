@@ -307,6 +307,8 @@
   /* ── V2: Anmelden ohne Umweg ── */
   .unsichtbar { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .held .versprechen { max-width: 600px; margin: 22px auto 0; font-size: 18px; color: rgba(255,255,255,0.78); }
+  /* Jeder Satz auf eigener Zeile, damit kein Rest wie „du 0 €.“ allein umbricht. */
+  .held .versprechen span { display: block; text-wrap: balance; }
   .anmeldung-schnell { max-width: 560px; margin: 22px auto 0; text-align: left; }
   .schnell-zeile { display: flex; gap: 6px; padding: 6px; border-radius: 99px; background: rgba(10,12,24,0.7); border: 1px solid rgba(255,255,255,0.14);
     -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 16px 50px rgba(0,0,0,0.4); }
@@ -386,7 +388,7 @@
 <header class="held" data-abschnitt="hero" data-c3="-24,4,0,1" data-c3-ort="#buehne" data-c3-gross="0.78" data-c3-halten>
   <div class="kicker"><b>Wien</b><span>opening 1. Februar 2027</span></div>
   <h1><span class="eins">The Club for Creatives.</span><span class="zwei">opening soon<span class="punkte">..</span>.</span></h1>
-  <p class="versprechen">Wer auf der Liste steht, ist zum Opening zuerst drin. Bis zur Eröffnung zahlst du 0&nbsp;€.</p>
+  <p class="versprechen"><span>Wer auf der Liste steht, ist zum Opening zuerst drin.</span> <span>Bis zur Eröffnung zahlst du 0&nbsp;€.</span></p>
   <div class="anmeldung anmeldung-schnell" data-form="hero">
     <form class="schnell" novalidate>
       <div class="schnell-zeile">
